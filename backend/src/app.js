@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 
+import { apiLimiter } from "./middleware/limiter.middleware.js";
 import sequelize from "./config/db.js";
 import taskRoutes from "./routes/task.routes.js";
 import userRoutes from "./routes/user.routes.js";
@@ -12,6 +13,7 @@ dotenv.config();
 
 const PORT = process.env.PORT || 3000;
 const app = express();
+// app.set('trust proxy', 1); // Thêm vào nếu deploy vì Express có thể không nhận diện đúng IP của người dùng (nó sẽ thấy IP của server trung gian)
 app.use(
   cors({
     origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
@@ -30,6 +32,7 @@ async function startServer() {
     await sequelize.sync({ alter: true });
     console.log("Cơ sở dữ liệu đã được đồng bộ hóa thành công.");
 
+    app.use("/api", apiLimiter);
     app.use("/api/tasks", taskRoutes);
     app.use("/api/users", userRoutes);
 
