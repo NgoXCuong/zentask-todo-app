@@ -16,10 +16,14 @@ export const createAccessToken = (payload) => {
 };
 
 export const createRefreshToken = (payload) => {
-  return jwt.sign(payload, process.env.JWT_SECRET, {
-    expiresIn: "7d",
-    algorithm: "HS256",
-  });
+  return jwt.sign(
+    payload,
+    process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET,
+    {
+      expiresIn: "7d",
+      algorithm: "HS256",
+    }
+  );
 };
 
 export const verifyToken = (token) => {

@@ -5,6 +5,9 @@ import {
   createAccessToken,
   createRefreshToken,
 } from "../utils/jwt.util.js";
+import jwt from "jsonwebtoken";
+
+const DUMMY_HASH = "$2b$10$abcdefghijklmnopqrstuv";
 
 const getCookieOptions = () => {
   const isProduct = process.env.NODE_ENV === "production";
@@ -57,18 +60,17 @@ class UserController {
     const { email, password } = req.body;
 
     const findUser = await User.findOne({ where: { email: email } });
-    if (!findUser)
+
+    // CHỐNG TIMING ATTACK Mục đích: Luôn luôn phải chạy hàm bcrypt.compare() tốn thời gian như nhau.
+    // Nếu tìm thấy user -> Lấy hash thật.
+    // Nếu KHÔNG thấy -> Lấy dummy hash.
+    const targetHash = findUser ? findUser.hash_password : DUMMY_HASH;
+    const isMatchPassword = await bcrypt.compare(password, targetHash);
+
+    if (!findUser || !isMatchPassword)
       return res
         .status(401)
         .json({ message: "Tài khoản hoặc mật khẩu không chính xác" });
-
-    const isMatchPassword = await bcrypt.compare(
-      password,
-      findUser.hash_password
-    );
-
-    if (!isMatchPassword)
-      return res.status(401).json({ message: "Mật khẩu không chính xác " });
 
     const payload = { id: findUser.id, email: findUser.email };
     const accessToken = createAccessToken(payload);
@@ -116,6 +118,52 @@ class UserController {
     return res
       .status(200)
       .json({ message: "Xác thực thành công", user: findUser });
+  });
+
+  // Cấp lại access token mới
+  refreshToken = asyncHandler(async (req, res) => {
+    const refreshToken = req.cookies.refreshToken;
+
+    if (!refreshToken) {
+      return res
+        .status(401)
+        .json({ message: "Bạn chưa đăng nhập (No Refresh Token)" });
+    }
+
+    let decoded;
+    try {
+      decoded = jwt.verify(
+        refreshToken,
+        process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET
+      );
+    } catch (err) {
+      return res
+        .status(403)
+        .json({ message: "Token không hợp lệ hoặc đã hết hạn" });
+    }
+
+    const user = await User.findOne({
+      where: { id: decoded.id, refresh_token: refreshToken },
+    });
+
+    if (!user) {
+      return res
+        .status(403)
+        .json({ message: "Token đã bị thu hồi hoặc không tồn tại" });
+    }
+
+    const payload = { id: user.id, email: user.email };
+    const newAccessToken = createAccessToken(payload);
+    const newRefreshToken = createRefreshToken(payload);
+
+    await User.update(
+      { refresh_token: newRefreshToken },
+      { where: { id: user.id } }
+    );
+
+    setCookies(res, newRefreshToken, newAccessToken);
+
+    return res.status(200).json({ message: "Đã làm mới token thành công" });
   });
 }
 

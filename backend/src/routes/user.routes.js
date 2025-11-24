@@ -21,5 +21,6 @@ router.post(
 router.post("/login", authLimit, validateLogin, validate, userController.login);
 router.get("/auth", authMiddleware, userController.authUser);
 router.post("/logout", authMiddleware, userController.logout);
+router.post("/refresh-token", userController.refreshToken);
 
 export default router;
