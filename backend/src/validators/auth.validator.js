@@ -5,7 +5,10 @@ export const validateRegister = [
   body("email").isEmail().withMessage("Email không hợp lệ"),
   body("password")
     .isLength({ min: 6 })
-    .withMessage("Mật khẩu phải có ít nhất 6 ký tự"),
+    .matches(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{6,}$/)
+    .withMessage(
+      "Mật khẩu phải có ít nhất 6 ký tự, bao gồm chữ cái, số và ký tự đặc biệt"
+    ),
 ];
 
 export const validateLogin = [

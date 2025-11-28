@@ -6,9 +6,8 @@ import ZenTaskDashboard from "./pages/Dashboard";
 // Protected Route Component
 function ProtectedRoute({ children }) {
   const user = localStorage.getItem("user");
-  const token = localStorage.getItem("token");
 
-  if (!user || !token) {
+  if (!user) {
     return <Navigate to="/login" replace />;
   }
 
@@ -18,9 +17,8 @@ function ProtectedRoute({ children }) {
 // Public Route Component (redirect if already logged in)
 function PublicRoute({ children }) {
   const user = localStorage.getItem("user");
-  const token = localStorage.getItem("token");
 
-  if (user && token) {
+  if (user) {
     return <Navigate to="/" replace />;
   }
 

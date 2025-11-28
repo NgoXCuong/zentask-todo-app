@@ -17,6 +17,8 @@ export const validateCreateTask = [
     .isLength({ max: 255 })
     .withMessage("Title quá dài"),
 
+  body("description").notEmpty().withMessage("Description không được để trống"),
+
   body("status")
     .optional()
     .isIn(["pending", "inprogress", "completed"])
@@ -38,6 +40,8 @@ export const validateUpdateTask = [
     .trim()
     .notEmpty()
     .withMessage("Title không được để trống nếu bạn muốn cập nhật nó"),
+
+  body("description").notEmpty().withMessage("Description không được để trống"),
 
   body("status")
     .optional()

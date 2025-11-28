@@ -6,6 +6,9 @@ import {
   createRefreshToken,
 } from "../utils/jwt.util.js";
 import jwt from "jsonwebtoken";
+import sendEmail from "../utils/email.util.js";
+import crypto from "crypto";
+import { Op } from "sequelize";
 
 const DUMMY_HASH = "$2b$10$abcdefghijklmnopqrstuv";
 
@@ -164,6 +167,70 @@ class UserController {
     setCookies(res, newRefreshToken, newAccessToken);
 
     return res.status(200).json({ message: "Đã làm mới token thành công" });
+  });
+
+  forgotPassword = asyncHandler(async (req, res) => {
+    const { email } = req.body;
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy user với email này" });
+    }
+
+    const resetToken = crypto.randomBytes(32).toString("hex");
+
+    user.password_reset_token = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+    user.password_reset_expires = Date.now() + 10 * 60 * 1000; // 1 giờ
+    await user.save();
+
+    const resetUrl = `http://localhost:5173/reset-password.html?token=${resetToken}`;
+    const message = `Bạn đã yêu cầu đặt lại mật khẩu. Vui lòng nhấp vào liên kết sau để đặt lại mật khẩu của bạn: ${resetUrl}
+    Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.`;
+
+    try {
+      await sendEmail({
+        email: user.email,
+        subject: "ZenTask - Đặt lại mật khẩu của bạn",
+        message,
+      });
+      res.status(200).json({ message: "Email đặt lại mật khẩu đã được gửi" });
+    } catch (err) {
+      user.password_reset_token = null;
+      user.password_reset_expires = null;
+      await user.save();
+      return res
+        .status(500)
+        .json({ message: "Không thể gửi email đặt lại mật khẩu" });
+    }
+  });
+
+  resetPassword = asyncHandler(async (req, res) => {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+    const user = await User.findOne({
+      where: {
+        password_reset_token: hashedToken,
+        password_reset_expires: { [Op.gt]: Date.now() },
+      },
+    });
+    if (!user) {
+      return res.status(400).json({
+        message: "Token đặt lại mật khẩu không hợp lệ hoặc đã hết hạn",
+      });
+    }
+
+    user.hash_password = await bcrypt.hash(password, 10);
+    user.password_reset_token = null;
+    user.password_reset_expires = null;
+    await user.save();
+
+    res.status(200).json({ message: "Đặt lại mật khẩu thành công" });
   });
 }
 

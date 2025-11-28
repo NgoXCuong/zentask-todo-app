@@ -8,6 +8,7 @@ import sequelize from "./config/db.js";
 import taskRoutes from "./routes/task.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import "./models/index.js";
+import startReminderJob from "./jobs/reminder.job.js";
 
 dotenv.config();
 
@@ -54,6 +55,7 @@ async function startServer() {
       });
     });
 
+    startReminderJob();
     app.listen(PORT, () => {
       console.log(`Server chạy tại http://localhost:${PORT}`);
     });

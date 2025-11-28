@@ -10,6 +10,8 @@ const User = sequelize.define(
     hash_password: { type: DataTypes.STRING(150), allowNull: false },
     is_active: { type: DataTypes.BOOLEAN, defaultValue: true },
     refresh_token: { type: DataTypes.TEXT, allowNull: true },
+    password_reset_token: { type: DataTypes.STRING, allowNull: true },
+    password_reset_expires: { type: DataTypes.DATE, allowNull: true },
   },
   {
     tableName: "users",
