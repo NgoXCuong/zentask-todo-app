@@ -12,8 +12,13 @@ export default function ZenTaskDashboard() {
   });
   const [filter, setFilter] = useState("");
   const [keyword, setKeyword] = useState("");
+  const [sortBy, setSortBy] = useState("created_at");
+  const [order, setOrder] = useState("DESC");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [viewingTask, setViewingTask] = useState(null);
   const [message, setMessage] = useState({
     text: "",
     isError: false,
@@ -41,7 +46,16 @@ export default function ZenTaskDashboard() {
     setLoading(true);
     try {
       const [tasksRes, statsRes] = await Promise.all([
-        tasksAPI.getAll({ page, limit, status: filter, keyword }),
+        tasksAPI.getAll({
+          page,
+          limit,
+          status: filter,
+          keyword,
+          sort_by: sortBy,
+          order,
+          start_date: startDate,
+          end_date: endDate,
+        }),
         tasksAPI.getStats(),
       ]);
 
@@ -63,7 +77,7 @@ export default function ZenTaskDashboard() {
 
   useEffect(() => {
     loadData();
-  }, [page, filter, keyword]);
+  }, [page, filter, keyword, sortBy, order, startDate, endDate]);
 
   const showMsg = (text, isError = false) => {
     setMessage({ text, isError, show: true });
@@ -81,6 +95,16 @@ export default function ZenTaskDashboard() {
   const createTask = async () => {
     if (!newTask.title.trim()) {
       showMsg("Vui lòng nhập tiêu đề!", true);
+      return;
+    }
+
+    if (!newTask.description.trim()) {
+      showMsg("Vui lòng nhập mô tả!", true);
+      return;
+    }
+
+    if (newTask.title.length > 255) {
+      showMsg("Tiêu đề quá dài!", true);
       return;
     }
 
@@ -244,36 +268,106 @@ export default function ZenTaskDashboard() {
           )}
 
           {/* Controls */}
-          <div className="flex flex-wrap gap-4 mb-5 justify-between items-center">
-            <div className="relative flex-1 min-w-48">
-              <span className="absolute left-3 top-3 text-gray-400">🔍</span>
-              <input
-                type="text"
-                placeholder="Tìm kiếm công việc..."
-                onChange={(e) => handleSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-full focus:outline-none focus:border-indigo-500"
-              />
+          <div className="space-y-4 mb-5">
+            <div className="flex flex-wrap gap-4 justify-between items-center">
+              <div className="relative flex-1 min-w-48">
+                <span className="absolute left-3 top-3 text-gray-400">🔍</span>
+                <input
+                  type="text"
+                  placeholder="Tìm kiếm công việc..."
+                  onChange={(e) => handleSearch(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-full focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+              <div className="flex gap-2 flex-wrap">
+                {["", "pending", "inprogress", "completed"].map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => setFilter(s)}
+                    className={`px-4 py-2 rounded-lg font-semibold transition ${
+                      filter === s
+                        ? "bg-indigo-500 text-white"
+                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    }`}
+                  >
+                    {s === ""
+                      ? "Tất cả"
+                      : s === "pending"
+                      ? "Chờ"
+                      : s === "inprogress"
+                      ? "Đang làm"
+                      : "Xong"}
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="flex gap-2 flex-wrap">
-              {["", "pending", "inprogress", "completed"].map((s) => (
-                <button
-                  key={s}
-                  onClick={() => setFilter(s)}
-                  className={`px-4 py-2 rounded-lg font-semibold transition ${
-                    filter === s
-                      ? "bg-indigo-500 text-white"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                  }`}
+
+            {/* Advanced Filters */}
+            <div className="flex flex-wrap gap-4 items-center bg-gray-50 p-4 rounded-lg">
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-gray-600">
+                  Sắp xếp:
+                </label>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-indigo-500"
                 >
-                  {s === ""
-                    ? "Tất cả"
-                    : s === "pending"
-                    ? "Chờ"
-                    : s === "inprogress"
-                    ? "Đang làm"
-                    : "Xong"}
+                  <option value="created_at">Ngày tạo</option>
+                  <option value="title">Tiêu đề</option>
+                  <option value="due_date">Hạn hoàn thành</option>
+                </select>
+                <select
+                  value={order}
+                  onChange={(e) => setOrder(e.target.value)}
+                  className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-indigo-500"
+                >
+                  <option value="DESC">Giảm dần</option>
+                  <option value="ASC">Tăng dần</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-gray-600">
+                  Từ ngày:
+                </label>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-gray-600">
+                  Đến ngày:
+                </label>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-indigo-500"
+                />
+              </div>
+
+              {(sortBy !== "created_at" ||
+                order !== "DESC" ||
+                startDate ||
+                endDate) && (
+                <button
+                  onClick={() => {
+                    setSortBy("created_at");
+                    setOrder("DESC");
+                    setStartDate("");
+                    setEndDate("");
+                    setPage(1);
+                  }}
+                  className="px-4 py-2 bg-gray-200 text-gray-600 rounded-lg hover:bg-gray-300 transition"
+                >
+                  Xóa bộ lọc
                 </button>
-              ))}
+              )}
             </div>
           </div>
 
@@ -353,6 +447,12 @@ export default function ZenTaskDashboard() {
                 </div>
                 <div className="flex flex-col gap-2 ml-3">
                   <button
+                    onClick={() => setViewingTask(t)}
+                    className="px-3 py-1 bg-blue-100 text-blue-600 rounded text-sm hover:bg-blue-200"
+                  >
+                    👁️
+                  </button>
+                  <button
                     onClick={() => startEdit(t)}
                     className="px-3 py-1 bg-gray-100 rounded text-sm hover:bg-gray-200"
                   >
@@ -397,6 +497,124 @@ export default function ZenTaskDashboard() {
               >
                 Next
               </button>
+            </div>
+          )}
+
+          {/* Task Details Modal */}
+          {viewingTask && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+              <div className="bg-white rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                <div className="flex justify-between items-start mb-6">
+                  <h2 className="text-2xl font-bold text-gray-800">
+                    Chi tiết công việc
+                  </h2>
+                  <button
+                    onClick={() => setViewingTask(null)}
+                    className="text-gray-400 hover:text-gray-600 text-2xl"
+                  >
+                    ×
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">
+                      Tiêu đề
+                    </label>
+                    <p className="text-lg font-semibold text-gray-800">
+                      {viewingTask.title}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">
+                      Mô tả
+                    </label>
+                    <p className="text-gray-700 whitespace-pre-wrap">
+                      {viewingTask.description}
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600 mb-1">
+                        Trạng thái
+                      </label>
+                      <span
+                        className={`inline-block px-3 py-1 rounded-full text-sm font-bold uppercase ${
+                          statusClass[viewingTask.status]
+                        }`}
+                      >
+                        {viewingTask.status}
+                      </span>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600 mb-1">
+                        Hạn hoàn thành
+                      </label>
+                      <p className="text-gray-800">
+                        {viewingTask.due_date
+                          ? new Date(viewingTask.due_date).toLocaleDateString(
+                              "vi-VN"
+                            )
+                          : "Không thời hạn"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600 mb-1">
+                        Ngày tạo
+                      </label>
+                      <p className="text-gray-800">
+                        {new Date(viewingTask.created_at).toLocaleString(
+                          "vi-VN"
+                        )}
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600 mb-1">
+                        Cập nhật lần cuối
+                      </label>
+                      <p className="text-gray-800">
+                        {new Date(viewingTask.updated_at).toLocaleString(
+                          "vi-VN"
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 mt-6 pt-4 border-t">
+                  <button
+                    onClick={() => {
+                      setViewingTask(null);
+                      startEdit(viewingTask);
+                    }}
+                    className="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition"
+                  >
+                    Chỉnh sửa
+                  </button>
+                  <button
+                    onClick={() => {
+                      setViewingTask(null);
+                      deleteTask(viewingTask.id);
+                    }}
+                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                  >
+                    Xóa
+                  </button>
+                  <button
+                    onClick={() => setViewingTask(null)}
+                    className="px-4 py-2 bg-gray-200 text-gray-600 rounded-lg hover:bg-gray-300 transition"
+                  >
+                    Đóng
+                  </button>
+                </div>
+              </div>
             </div>
           )}
         </div>

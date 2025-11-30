@@ -66,17 +66,12 @@ export const authAPI = {
       email,
       password,
     });
-    // if (ok) {
-    //   localStorage.setItem("token", data.token);
-    //   localStorage.setItem("user", JSON.stringify(data.user));
-    // }
     return { data, ok };
   },
 
   logout: async () => {
     await apiCall("/users/logout", "POST");
     localStorage.removeItem("user");
-    // localStorage.removeItem("token");
   },
 
   getCurrentUser: () => {
@@ -85,13 +80,11 @@ export const authAPI = {
   },
 
   isAuthenticated: () => {
-    // return !!(localStorage.getItem("user") && localStorage.getItem("token"));
     return !!localStorage.getItem("user");
   },
 };
 
 // ==================== TASKS API ====================
-
 export const tasksAPI = {
   // Get all tasks with filters
   getAll: async ({
@@ -140,7 +133,6 @@ export const tasksAPI = {
 };
 
 // ==================== EXPORT DEFAULT ====================
-
 export default {
   auth: authAPI,
   tasks: tasksAPI,

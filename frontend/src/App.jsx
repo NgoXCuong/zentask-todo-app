@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import ZenTaskLogin from "./pages/Login";
 import ZenTaskRegister from "./pages/Register";
+import ZenTaskForgotPassword from "./pages/ForgotPassword";
+import ZenTaskResetPassword from "./pages/ResetPassword";
 import ZenTaskDashboard from "./pages/Dashboard";
 
 // Protected Route Component
@@ -43,6 +45,22 @@ function App() {
           element={
             <PublicRoute>
               <ZenTaskRegister />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/forgot-password"
+          element={
+            <PublicRoute>
+              <ZenTaskForgotPassword />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/reset-password"
+          element={
+            <PublicRoute>
+              <ZenTaskResetPassword />
             </PublicRoute>
           }
         />

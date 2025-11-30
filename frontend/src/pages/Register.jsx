@@ -148,17 +148,6 @@ export default function ZenTaskRegister() {
             >
               {isLoading ? "Đang xử lý..." : "Đăng ký"}
             </button>
-
-            <p className="text-xs text-gray-500 text-center mt-5">
-              Bằng việc đăng ký, bạn đồng ý với{" "}
-              <a href="#" className="text-indigo-500 hover:underline">
-                Điều khoản
-              </a>{" "}
-              và{" "}
-              <a href="#" className="text-indigo-500 hover:underline">
-                Chính sách bảo mật
-              </a>
-            </p>
           </div>
 
           {/* Divider */}

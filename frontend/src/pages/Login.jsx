@@ -89,9 +89,12 @@ export default function ZenTaskLogin() {
             </div>
 
             <div className="text-right mb-5">
-              <a href="#" className="text-indigo-500 text-sm hover:underline">
+              <Link
+                to="/forgot-password"
+                className="text-indigo-500 text-sm hover:underline"
+              >
                 Quên mật khẩu?
-              </a>
+              </Link>
             </div>
 
             <button
