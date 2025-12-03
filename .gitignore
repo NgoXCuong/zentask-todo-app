@@ -11,21 +11,41 @@ lerna-debug.log*
 node_modules/
 
 # Build outputs
-dist
-dist-ssr
+dist/
+dist-ssr/
+build/
+.out/
+.next/
+.output/
+
+# Environment variables
+.env
+.env.*     # ví dụ .env.development, .env.production
+
+# Local env files
 *.local
 
-# Editor directories and files
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
 .vscode/
 !.vscode/extensions.json
-.idea
-.DS_Store
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
 
-# Environment variables
-*.env
+# Database (optional)
+# Nếu bạn KHÔNG muốn push file sql → để lại dòng sau
+*.sql
+# Nếu bạn muốn push schema DB → dùng dòng này thay thế
+# !schema.sql
 
+# Misc
+*.pid
+*.seed
+coverage/

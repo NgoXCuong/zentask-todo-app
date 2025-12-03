@@ -1,175 +1,281 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { toast } from "sonner";
+import { authAPI } from "../services/api";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Checkbox } from "../components/ui/checkbox";
+import { Card, CardContent } from "../components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../components/ui/form";
+import { User, Mail, Lock, Eye, EyeOff, LogOut } from "lucide-react";
+
+// Validation schema
+const registerSchema = z
+  .object({
+    fullName: z.string().min(2, "Họ tên phải có ít nhất 2 ký tự"),
+    email: z.string().email("Email không hợp lệ"),
+    password: z.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự"),
+    confirmPassword: z.string(),
+    terms: z
+      .boolean()
+      .refine((val) => val === true, "Bạn phải đồng ý với điều khoản"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Mật khẩu xác nhận không khớp",
+    path: ["confirmPassword"],
+  });
 
 export default function ZenTaskRegister() {
-  const { register } = useAuth();
   const navigate = useNavigate();
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [message, setMessage] = useState({
-    text: "",
-    isError: false,
-    show: false,
-  });
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const showMessage = (text, isError = false) => {
-    setMessage({ text, isError, show: true });
-  };
+  const form = useForm({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      fullName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      terms: false,
+    },
+  });
 
-  const handleRegister = async () => {
-    if (!fullName.trim() || !email.trim() || !password) {
-      showMessage("Vui lòng điền đầy đủ thông tin", true);
-      return;
-    }
-
-    if (password.length < 6) {
-      showMessage("Mật khẩu phải có ít nhất 6 ký tự", true);
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      showMessage("Mật khẩu xác nhận không khớp", true);
-      return;
-    }
-
+  const onSubmit = async (values) => {
     setIsLoading(true);
-    const { ok, message } = await register(
-      fullName.trim(),
-      email.trim(),
-      password
-    );
-    setIsLoading(false);
+    try {
+      const { data, ok } = await authAPI.register(
+        values.fullName.trim(),
+        values.email.trim(),
+        values.password
+      );
 
-    if (ok) {
-      showMessage("Đăng ký thành công!", false);
-      setTimeout(() => navigate("/"), 1000);
-    } else {
-      showMessage(message, true);
+      if (ok) {
+        toast.success("Đăng ký thành công! Đang chuyển hướng...");
+        setTimeout(() => navigate("/login"), 1500);
+      } else {
+        // Handle validation errors from backend
+        if (data?.errors && Array.isArray(data.errors)) {
+          const errorMessages = data.errors.map((error) => {
+            return `${error.msg}`;
+          });
+          toast.error(`Lỗi dữ liệu đầu vào:\n${errorMessages.join("\n")}`);
+        } else {
+          const errorMessage =
+            data?.message || data?.error || "Đăng ký thất bại";
+          toast.error(errorMessage);
+        }
+      }
+    } catch (error) {
+      toast.error("Lỗi kết nối mạng. Vui lòng kiểm tra kết nối và thử lại.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-indigo-500 to-purple-600 flex items-center justify-center p-5">
-      <div className="w-full max-w-md">
-        {/* Header */}
-        <div className="text-center mb-8 text-white">
-          <h1 className="text-4xl font-bold mb-2 drop-shadow-lg">
-            📝 Zen Task
-          </h1>
-          <p className="opacity-90">
-            Tạo tài khoản để bắt đầu quản lý công việc
-          </p>
-        </div>
-
+    <div className="bg-white min-h-screen flex items-center justify-center p-4 font-sans text-gray-700">
+      <div className="w-full max-w-max">
         {/* Auth Card */}
-        <div className="bg-white rounded-2xl p-8 shadow-2xl">
-          <h2 className="text-center text-2xl font-semibold text-gray-800 mb-8">
-            Đăng ký tài khoản
-          </h2>
-
-          {/* Message */}
-          {message.show && (
-            <div
-              className={`p-3 rounded-lg mb-5 text-center border ${
-                message.isError
-                  ? "bg-red-50 text-red-600 border-red-500"
-                  : "bg-green-50 text-green-600 border-green-500"
-              }`}
-            >
-              {message.text}
-            </div>
-          )}
-
-          {/* Form */}
-          <div>
-            <div className="mb-5">
-              <label className="block mb-2 font-semibold text-gray-600">
-                Họ và tên
-              </label>
-              <input
-                type="text"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="Nguyễn Văn A"
-                className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl text-base transition-all focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
-              />
-            </div>
-
-            <div className="mb-5">
-              <label className="block mb-2 font-semibold text-gray-600">
-                Email
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
-                className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl text-base transition-all focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
-              />
-            </div>
-
-            <div className="mb-5">
-              <label className="block mb-2 font-semibold text-gray-600">
-                Mật khẩu
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Tạo mật khẩu"
-                className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl text-base transition-all focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
-              />
-              <p className="text-xs text-gray-400 mt-1.5">
-                Mật khẩu tối thiểu 6 ký tự
+        <Card className="border border-gray-200 bg-white">
+          <CardContent className="p-8">
+            {/* Header */}
+            <div className="text-center mb-10">
+              <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                Tạo tài khoản mới
+              </h1>
+              <p className="text-base text-gray-600">
+                Bắt đầu quản lý công việc hiệu quả cùng Zen Task.
               </p>
             </div>
+            {/* Form */}
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
+                <FormField
+                  control={form.control}
+                  name="fullName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Họ và tên</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <User className="absolute left-3 top-3 h-4 w-4 text-gray-900" />
+                          <Input
+                            placeholder="Nhập họ tên của bạn"
+                            className="pl-10 text-sm rounded-xs"
+                            {...field}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <div className="mb-5">
-              <label className="block mb-2 font-semibold text-gray-600">
-                Xác nhận mật khẩu
-              </label>
-              <input
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Nhập lại mật khẩu"
-                className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl text-base transition-all focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
-              />
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-900" />
+                          <Input
+                            type="email"
+                            placeholder="example@gmail.com"
+                            className="pl-10 text-sm rounded-xs"
+                            {...field}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Mật khẩu</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-900" />
+                          <Input
+                            type={showPassword ? "text" : "password"}
+                            placeholder="••••••••"
+                            className="pl-10 pr-10 text-sm rounded-xs"
+                            {...field}
+                          />
+                          {showPassword ? (
+                            <EyeOff
+                              className="absolute right-3 top-3 h-4 w-4 text-gray-400 cursor-pointer hover:text-gray-600"
+                              onClick={() => setShowPassword(false)}
+                            />
+                          ) : (
+                            <Eye
+                              className="absolute right-3 top-3 h-4 w-4 text-gray-400 cursor-pointer hover:text-gray-600"
+                              onClick={() => setShowPassword(true)}
+                            />
+                          )}
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Xác nhận mật khẩu</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-900" />
+                          <Input
+                            type={showConfirmPassword ? "text" : "password"}
+                            placeholder="••••••••"
+                            className="pl-10 pr-10 text-sm rounded-xs"
+                            {...field}
+                          />
+                          {showConfirmPassword ? (
+                            <EyeOff
+                              className="absolute right-3 top-3 h-4 w-4 text-gray-400 cursor-pointer hover:text-gray-600"
+                              onClick={() => setShowConfirmPassword(false)}
+                            />
+                          ) : (
+                            <Eye
+                              className="absolute right-3 top-3 h-4 w-4 text-gray-400 cursor-pointer hover:text-gray-600"
+                              onClick={() => setShowConfirmPassword(true)}
+                            />
+                          )}
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="terms"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center space-x-2">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <div className="text-sm text-gray-600 leading-5">
+                          Tôi đồng ý với{" "}
+                          <a
+                            href="#"
+                            className="font-medium text-blue-600 hover:text-blue-700 hover:underline"
+                          >
+                            Điều khoản dịch vụ
+                          </a>{" "}
+                          và{" "}
+                          <a
+                            href="#"
+                            className="font-medium text-blue-600 hover:text-blue-700 hover:underline"
+                          >
+                            Chính sách bảo mật
+                          </a>
+                          .
+                        </div>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <Button
+                  type="submit"
+                  className="w-full glass-effect rounded-sm text-white font-medium py-2 mt-2"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Đang tạo tài khoản..." : "Đăng ký tài khoản"}
+                </Button>
+              </form>
+            </Form>
+
+            <div className="flex items-center my-2">
+              <div className="flex-1 h-px bg-gray-200"></div>
+              <span className="px-4 text-gray-400">hoặc</span>
+              <div className="flex-1 h-px bg-gray-200"></div>
             </div>
 
-            <button
-              onClick={handleRegister}
-              disabled={isLoading}
-              className="w-full py-3.5 bg-linear-to-br from-indigo-500 to-purple-600 text-white rounded-xl font-semibold text-base transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-400/40 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
-            >
-              {isLoading ? "Đang xử lý..." : "Đăng ký"}
-            </button>
-          </div>
-
-          {/* Divider */}
-          <div className="flex items-center my-6">
-            <div className="flex-1 h-px bg-gray-200"></div>
-            <span className="px-4 text-gray-400">hoặc</span>
-            <div className="flex-1 h-px bg-gray-200"></div>
-          </div>
-
-          {/* Switch Auth */}
-          <div className="text-center text-gray-600">
-            <p>
+            <p className="mt-2 text-center text-sm text-gray-600">
               Đã có tài khoản?{" "}
               <Link
                 to="/login"
-                className="text-indigo-500 font-semibold hover:underline"
+                className="font-medium text-blue-600 hover:text-blue-700 hover:underline"
               >
-                Đăng nhập
+                Đăng nhập ngay
               </Link>
             </p>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

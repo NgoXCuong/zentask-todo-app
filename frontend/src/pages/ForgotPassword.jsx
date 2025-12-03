@@ -1,26 +1,39 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { toast } from "sonner";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Card, CardContent } from "../components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../components/ui/form";
+import { Mail } from "lucide-react";
+
+// Validation schema
+const forgotPasswordSchema = z.object({
+  email: z.string().email("Email không hợp lệ"),
+});
 
 export default function ZenTaskForgotPassword() {
-  const [email, setEmail] = useState("");
-  const [message, setMessage] = useState({
-    text: "",
-    isError: false,
-    show: false,
-  });
   const [isLoading, setIsLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
 
-  const showMessage = (text, isError = false) => {
-    setMessage({ text, isError, show: true });
-  };
+  const form = useForm({
+    resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: {
+      email: "",
+    },
+  });
 
-  const handleForgotPassword = async () => {
-    if (!email.trim()) {
-      showMessage("Vui lòng nhập email", true);
-      return;
-    }
-
+  const onSubmit = async (values) => {
     setIsLoading(true);
     try {
       const response = await fetch(
@@ -28,7 +41,7 @@ export default function ZenTaskForgotPassword() {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: email.trim() }),
+          body: JSON.stringify({ email: values.email.trim() }),
         }
       );
 
@@ -36,128 +49,127 @@ export default function ZenTaskForgotPassword() {
 
       if (response.ok) {
         setEmailSent(true);
-        showMessage(
-          "Email đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra hộp thư của bạn.",
-          false
+        toast.success(
+          "Email đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra hộp thư của bạn."
         );
       } else {
-        showMessage(data.message || "Có lỗi xảy ra", true);
+        toast.error(data.message || "Có lỗi xảy ra");
       }
     } catch (error) {
-      showMessage("Không thể kết nối đến server", true);
+      toast.error("Không thể kết nối đến server");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-indigo-500 to-purple-600 flex items-center justify-center p-5">
+    <div className="min-h-screen flex items-center justify-center p-5">
       <div className="w-full max-w-md">
         {/* Header */}
-        <div className="text-center mb-8 text-white">
-          <h1 className="text-4xl font-bold mb-2 drop-shadow-lg">
-            📝 Zen Task
+        <div className="text-center mb-6">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            Quên mật khẩu Zen Task
           </h1>
-          <p className="opacity-90">Khôi phục mật khẩu của bạn</p>
+          <p className="text-lg text-gray-600">
+            Khôi phục mật khẩu tài khoản của bạn
+          </p>
         </div>
 
         {/* Auth Card */}
-        <div className="bg-white rounded-2xl p-8 shadow-2xl">
-          <h2 className="text-center text-2xl font-semibold text-gray-800 mb-8">
-            Quên mật khẩu
-          </h2>
+        <Card className="border border-gray-200 bg-white">
+          <CardContent className="p-8">
+            {!emailSent ? (
+              <>
+                {/* Form */}
+                <Form {...form}>
+                  <form
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className="space-y-6"
+                  >
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-900" />
+                              <Input
+                                type="email"
+                                placeholder="example@gmail.com"
+                                className="pl-10 text-sm rounded-none"
+                                {...field}
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                          <p className="text-xs text-gray-500 mt-1">
+                            Nhập email đã đăng ký để nhận liên kết đặt lại mật
+                            khẩu
+                          </p>
+                        </FormItem>
+                      )}
+                    />
 
-          {/* Message */}
-          {message.show && (
-            <div
-              className={`p-3 rounded-lg mb-5 text-center border ${
-                message.isError
-                  ? "bg-red-50 text-red-600 border-red-500"
-                  : "bg-green-50 text-green-600 border-green-500"
-              }`}
-            >
-              {message.text}
-            </div>
-          )}
+                    <Button
+                      type="submit"
+                      className="w-full glass-effect rounded-sm text-white font-medium py-3 mt-2"
+                      disabled={isLoading}
+                    >
+                      {isLoading
+                        ? "Đang xử lý..."
+                        : "Gửi email đặt lại mật khẩu"}
+                    </Button>
+                  </form>
+                </Form>
 
-          {!emailSent ? (
-            <>
-              {/* Form */}
-              <div>
-                <div className="mb-5">
-                  <label className="block mb-2 font-semibold text-gray-600">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="your@email.com"
-                    className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl text-base transition-all focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
-                  />
-                  <p className="text-xs text-gray-400 mt-1.5">
-                    Nhập email đã đăng ký để nhận liên kết đặt lại mật khẩu
-                  </p>
+                <div className="flex items-center my-2">
+                  <div className="flex-1 h-px bg-gray-200"></div>
+                  <span className="px-4 text-gray-400">hoặc</span>
+                  <div className="flex-1 h-px bg-gray-200"></div>
                 </div>
 
-                <button
-                  onClick={handleForgotPassword}
-                  disabled={isLoading}
-                  className="w-full py-3.5 bg-linear-to-br from-indigo-500 to-purple-600 text-white rounded-xl font-semibold text-base transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-400/40 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
-                >
-                  {isLoading ? "Đang xử lý..." : "Gửi email đặt lại mật khẩu"}
-                </button>
-              </div>
-
-              {/* Divider */}
-              <div className="flex items-center my-6">
-                <div className="flex-1 h-px bg-gray-200"></div>
-                <span className="px-4 text-gray-400">hoặc</span>
-                <div className="flex-1 h-px bg-gray-200"></div>
-              </div>
-
-              {/* Back to Login */}
-              <div className="text-center text-gray-600">
-                <p>
+                <p className="mt-2 text-center text-sm text-gray-600">
                   Nhớ mật khẩu?{" "}
                   <Link
                     to="/login"
-                    className="text-indigo-500 font-semibold hover:underline"
+                    className="font-medium text-indigo-600 hover:text-indigo-700 hover:underline"
                   >
                     Đăng nhập
                   </Link>
                 </p>
-              </div>
-            </>
-          ) : (
-            <div className="text-center">
-              <div className="text-green-600 mb-4">
-                <svg
-                  className="w-16 h-16 mx-auto mb-4"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
+              </>
+            ) : (
+              <div className="text-center">
+                <div className="text-green-600 mb-4">
+                  <svg
+                    className="w-16 h-16 mx-auto mb-4"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <h3 className="text-xl font-semibold">Email đã được gửi!</h3>
+                </div>
+                <p className="text-gray-600 mb-6">
+                  Chúng tôi đã gửi liên kết đặt lại mật khẩu đến email của bạn.
+                  Vui lòng kiểm tra hộp thư và làm theo hướng dẫn.
+                </p>
+                <Link
+                  to="/login"
+                  className="inline-block px-6 py-3 bg-indigo-500 text-white rounded-sm font-semibold hover:bg-indigo-600 transition"
                 >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <h3 className="text-xl font-semibold">Email đã được gửi!</h3>
+                  Quay lại đăng nhập
+                </Link>
               </div>
-              <p className="text-gray-600 mb-6">
-                Chúng tôi đã gửi liên kết đặt lại mật khẩu đến email của bạn.
-                Vui lòng kiểm tra hộp thư và làm theo hướng dẫn.
-              </p>
-              <Link
-                to="/login"
-                className="inline-block px-6 py-3 bg-indigo-500 text-white rounded-xl font-semibold hover:bg-indigo-600 transition"
-              >
-                Quay lại đăng nhập
-              </Link>
-            </div>
-          )}
-        </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

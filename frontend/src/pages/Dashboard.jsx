@@ -1,7 +1,12 @@
-import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { tasksAPI, authAPI } from "../services/api";
 import { useAuth } from "../context/AuthContext";
+import Message from "../components/tasks/Message";
+import Sidebar from "../components/layout/Sidebar";
+import Header from "../components/layout/Header";
+import KanbanBoard from "../components/tasks/KanbanBoard";
+import AddTaskForm from "../components/tasks/AddTaskForm";
+import TaskDetailsModal from "../components/tasks/TaskDetailsModal";
 
 export default function ZenTaskDashboard() {
   const [tasks, setTasks] = useState([]);
@@ -18,6 +23,7 @@ export default function ZenTaskDashboard() {
   const [endDate, setEndDate] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [editTask, setEditTask] = useState({ title: "", status: "" });
   const [viewingTask, setViewingTask] = useState(null);
   const [message, setMessage] = useState({
     text: "",
@@ -27,19 +33,9 @@ export default function ZenTaskDashboard() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [focusMode, setFocusMode] = useState(false);
   const limit = 5;
-  const debounceRef = useRef(null);
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
-
-  // New task form
-  const [newTask, setNewTask] = useState({
-    title: "",
-    description: "",
-    status: "pending",
-    due_date: "",
-  });
-  const [editTask, setEditTask] = useState({ title: "", status: "" });
+  const { user } = useAuth();
 
   // Load data
   const loadData = async () => {
@@ -84,46 +80,6 @@ export default function ZenTaskDashboard() {
     setTimeout(() => setMessage((m) => ({ ...m, show: false })), 3000);
   };
 
-  const handleSearch = (val) => {
-    clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      setKeyword(val);
-      setPage(1);
-    }, 500);
-  };
-
-  const createTask = async () => {
-    if (!newTask.title.trim()) {
-      showMsg("Vui lòng nhập tiêu đề!", true);
-      return;
-    }
-
-    if (!newTask.description.trim()) {
-      showMsg("Vui lòng nhập mô tả!", true);
-      return;
-    }
-
-    if (newTask.title.length > 255) {
-      showMsg("Tiêu đề quá dài!", true);
-      return;
-    }
-
-    const { ok } = await tasksAPI.create(newTask);
-    if (ok) {
-      showMsg("Thêm thành công!");
-      setShowAddForm(false);
-      setNewTask({
-        title: "",
-        description: "",
-        status: "pending",
-        due_date: "",
-      });
-      loadData();
-    } else {
-      showMsg("Thêm thất bại!", true);
-    }
-  };
-
   const deleteTask = async (id) => {
     if (!confirm("Bạn chắc chắn muốn xóa?")) return;
 
@@ -136,488 +92,58 @@ export default function ZenTaskDashboard() {
     }
   };
 
-  const saveEdit = async (id) => {
-    const { ok } = await tasksAPI.update(id, editTask);
-    if (ok) {
-      showMsg("Đã cập nhật!");
-      setEditingId(null);
-      loadData();
-    } else {
-      showMsg("Cập nhật thất bại!", true);
-    }
-  };
-
-  const handleLogout = async () => {
-    await logout();
-    navigate("/login");
-  };
-
   const startEdit = (task) => {
     setEditingId(task.id);
     setEditTask({ title: task.title, status: task.status });
   };
 
-  const statusClass = {
-    pending: "bg-yellow-100 text-yellow-800",
-    inprogress: "bg-blue-100 text-blue-800",
-    completed: "bg-green-100 text-green-800",
+  // Group tasks by status for Kanban
+  const kanbanTasks = {
+    pending: tasks.filter((task) => task.status === "pending"),
+    inprogress: tasks.filter((task) => task.status === "inprogress"),
+    completed: tasks.filter((task) => task.status === "completed"),
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-indigo-500 to-purple-600 py-5">
-      <div className="max-w-4xl mx-auto px-5">
-        {/* Header */}
-        <div className="text-center mb-5 text-white">
-          <h1 className="text-4xl font-bold drop-shadow-lg">🚀 Zen Task Pro</h1>
-          <p className="opacity-90">Quản lý công việc thông minh</p>
-        </div>
+    <div className="min-h-screen bg-background flex">
+      <Sidebar focusMode={focusMode} stats={stats} />
 
-        <div className="bg-white rounded-xl p-6 shadow-xl">
-          {/* User Header */}
-          <div>
-            <h3>Xin chào, {user?.full_name}! 👋</h3>
-            <button onClick={handleLogout}>Đăng xuất</button>
-          </div>
+      {/* Main Content */}
+      <div className={`flex-1 ${!focusMode ? "ml-64" : ""}`}>
+        <Header
+          focusMode={focusMode}
+          setFocusMode={setFocusMode}
+          keyword={keyword}
+          setKeyword={setKeyword}
+          setShowAddForm={setShowAddForm}
+          user={user}
+        />
 
-          {/* Message */}
-          {message.show && (
-            <div
-              className={`p-3 rounded-lg mb-4 text-center ${
-                message.isError
-                  ? "bg-red-100 text-red-700"
-                  : "bg-green-100 text-green-700"
-              }`}
-            >
-              {message.text}
-            </div>
-          )}
+        <main className="p-6">
+          <Message message={message} />
 
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-4 mb-6">
-            <div className="p-4 rounded-xl text-center text-white bg-linear-to-r from-yellow-400 to-orange-400 shadow hover:-translate-y-1 transition">
-              <p className="text-sm opacity-90">Chưa bắt đầu</p>
-              <h2 className="text-3xl font-bold">{stats.pending}</h2>
-            </div>
-            <div className="p-4 rounded-xl text-center text-white bg-linear-to-r from-cyan-400 to-blue-500 shadow hover:-translate-y-1 transition">
-              <p className="text-sm opacity-90">Đang làm</p>
-              <h2 className="text-3xl font-bold">{stats.inprogress}</h2>
-            </div>
-            <div className="p-4 rounded-xl text-center text-white bg-linear-to-r from-emerald-400 to-teal-500 shadow hover:-translate-y-1 transition">
-              <p className="text-sm opacity-90">Hoàn thành</p>
-              <h2 className="text-3xl font-bold">{stats.completed}</h2>
-            </div>
-          </div>
+          <KanbanBoard
+            kanbanTasks={kanbanTasks}
+            setViewingTask={setViewingTask}
+            startEdit={startEdit}
+            deleteTask={deleteTask}
+          />
 
-          {/* Add Task Toggle */}
-          <div
-            onClick={() => setShowAddForm(!showAddForm)}
-            className="bg-gray-100 p-4 rounded-lg cursor-pointer text-center font-bold text-indigo-600 hover:bg-gray-200 transition mb-5"
-          >
-            + Thêm công việc mới
-          </div>
+          {/* Modals */}
+          <AddTaskForm
+            showAddForm={showAddForm}
+            setShowAddForm={setShowAddForm}
+            loadData={loadData}
+            showMsg={showMsg}
+          />
 
-          {/* Add Form */}
-          {showAddForm && (
-            <div className="mb-5 bg-gray-50 p-5 rounded-lg">
-              <input
-                type="text"
-                placeholder="Tiêu đề công việc..."
-                value={newTask.title}
-                onChange={(e) =>
-                  setNewTask({ ...newTask, title: e.target.value })
-                }
-                className="w-full p-3 border-2 border-gray-200 rounded-lg mb-3 focus:outline-none focus:border-indigo-500"
-              />
-              <textarea
-                placeholder="Mô tả chi tiết..."
-                rows={2}
-                value={newTask.description}
-                onChange={(e) =>
-                  setNewTask({ ...newTask, description: e.target.value })
-                }
-                className="w-full p-3 border-2 border-gray-200 rounded-lg mb-3 focus:outline-none focus:border-indigo-500"
-              />
-              <div className="flex gap-3 mb-3">
-                <select
-                  value={newTask.status}
-                  onChange={(e) =>
-                    setNewTask({ ...newTask, status: e.target.value })
-                  }
-                  className="flex-1 p-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-indigo-500"
-                >
-                  <option value="pending">Pending</option>
-                  <option value="inprogress">In Progress</option>
-                  <option value="completed">Completed</option>
-                </select>
-                <input
-                  type="date"
-                  value={newTask.due_date}
-                  onChange={(e) =>
-                    setNewTask({ ...newTask, due_date: e.target.value })
-                  }
-                  className="flex-1 p-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-indigo-500"
-                />
-              </div>
-              <button
-                onClick={createTask}
-                className="w-full py-3 bg-indigo-500 text-white rounded-lg font-semibold hover:bg-indigo-600 transition"
-              >
-                Lưu công việc
-              </button>
-            </div>
-          )}
-
-          {/* Controls */}
-          <div className="space-y-4 mb-5">
-            <div className="flex flex-wrap gap-4 justify-between items-center">
-              <div className="relative flex-1 min-w-48">
-                <span className="absolute left-3 top-3 text-gray-400">🔍</span>
-                <input
-                  type="text"
-                  placeholder="Tìm kiếm công việc..."
-                  onChange={(e) => handleSearch(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-full focus:outline-none focus:border-indigo-500"
-                />
-              </div>
-              <div className="flex gap-2 flex-wrap">
-                {["", "pending", "inprogress", "completed"].map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => setFilter(s)}
-                    className={`px-4 py-2 rounded-lg font-semibold transition ${
-                      filter === s
-                        ? "bg-indigo-500 text-white"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
-                  >
-                    {s === ""
-                      ? "Tất cả"
-                      : s === "pending"
-                      ? "Chờ"
-                      : s === "inprogress"
-                      ? "Đang làm"
-                      : "Xong"}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Advanced Filters */}
-            <div className="flex flex-wrap gap-4 items-center bg-gray-50 p-4 rounded-lg">
-              <div className="flex items-center gap-2">
-                <label className="text-sm font-medium text-gray-600">
-                  Sắp xếp:
-                </label>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-indigo-500"
-                >
-                  <option value="created_at">Ngày tạo</option>
-                  <option value="title">Tiêu đề</option>
-                  <option value="due_date">Hạn hoàn thành</option>
-                </select>
-                <select
-                  value={order}
-                  onChange={(e) => setOrder(e.target.value)}
-                  className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-indigo-500"
-                >
-                  <option value="DESC">Giảm dần</option>
-                  <option value="ASC">Tăng dần</option>
-                </select>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <label className="text-sm font-medium text-gray-600">
-                  Từ ngày:
-                </label>
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-indigo-500"
-                />
-              </div>
-
-              <div className="flex items-center gap-2">
-                <label className="text-sm font-medium text-gray-600">
-                  Đến ngày:
-                </label>
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-indigo-500"
-                />
-              </div>
-
-              {(sortBy !== "created_at" ||
-                order !== "DESC" ||
-                startDate ||
-                endDate) && (
-                <button
-                  onClick={() => {
-                    setSortBy("created_at");
-                    setOrder("DESC");
-                    setStartDate("");
-                    setEndDate("");
-                    setPage(1);
-                  }}
-                  className="px-4 py-2 bg-gray-200 text-gray-600 rounded-lg hover:bg-gray-300 transition"
-                >
-                  Xóa bộ lọc
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Loading */}
-          {loading && (
-            <div className="text-center text-gray-500 py-8">
-              Đang tải dữ liệu...
-            </div>
-          )}
-
-          {/* Task List */}
-          {!loading && tasks.length === 0 ? (
-            <div className="text-center text-gray-400 py-8">
-              Không tìm thấy công việc nào.
-            </div>
-          ) : (
-            !loading &&
-            tasks.map((t) => (
-              <div
-                key={t.id}
-                className="flex justify-between p-4 border border-gray-200 rounded-lg mb-3 hover:border-indigo-400 hover:shadow transition"
-              >
-                <div className="flex-1">
-                  <h4 className="font-semibold mb-1">{t.title}</h4>
-                  <p className="text-gray-500 text-sm mb-2">{t.description}</p>
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${
-                        statusClass[t.status]
-                      }`}
-                    >
-                      {t.status}
-                    </span>
-                    <span className="text-xs text-gray-400">
-                      📅{" "}
-                      {t.due_date
-                        ? new Date(t.due_date).toLocaleDateString()
-                        : "Không thời hạn"}
-                    </span>
-                  </div>
-                  {editingId === t.id && (
-                    <div className="mt-3 bg-gray-50 p-3 rounded-lg">
-                      <input
-                        value={editTask.title}
-                        onChange={(e) =>
-                          setEditTask({ ...editTask, title: e.target.value })
-                        }
-                        className="w-full p-2 border border-gray-200 rounded mb-2"
-                      />
-                      <select
-                        value={editTask.status}
-                        onChange={(e) =>
-                          setEditTask({ ...editTask, status: e.target.value })
-                        }
-                        className="w-full p-2 border border-gray-200 rounded mb-2"
-                      >
-                        <option value="pending">Pending</option>
-                        <option value="inprogress">In Progress</option>
-                        <option value="completed">Completed</option>
-                      </select>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => saveEdit(t.id)}
-                          className="px-3 py-1 bg-indigo-500 text-white rounded text-sm"
-                        >
-                          Lưu
-                        </button>
-                        <button
-                          onClick={() => setEditingId(null)}
-                          className="px-3 py-1 bg-gray-200 text-gray-600 rounded text-sm"
-                        >
-                          Hủy
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-                <div className="flex flex-col gap-2 ml-3">
-                  <button
-                    onClick={() => setViewingTask(t)}
-                    className="px-3 py-1 bg-blue-100 text-blue-600 rounded text-sm hover:bg-blue-200"
-                  >
-                    👁️
-                  </button>
-                  <button
-                    onClick={() => startEdit(t)}
-                    className="px-3 py-1 bg-gray-100 rounded text-sm hover:bg-gray-200"
-                  >
-                    ✏️
-                  </button>
-                  <button
-                    onClick={() => deleteTask(t.id)}
-                    className="px-3 py-1 bg-red-100 text-red-600 rounded text-sm hover:bg-red-200"
-                  >
-                    🗑️
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex justify-center gap-2 mt-5">
-              <button
-                disabled={page === 1}
-                onClick={() => setPage((p) => p - 1)}
-                className="px-4 py-2 bg-gray-100 rounded-lg disabled:opacity-50"
-              >
-                Prev
-              </button>
-              {Array.from({ length: totalPages }, (_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setPage(i + 1)}
-                  className={`px-4 py-2 rounded-lg ${
-                    page === i + 1 ? "bg-indigo-500 text-white" : "bg-gray-100"
-                  }`}
-                >
-                  {i + 1}
-                </button>
-              ))}
-              <button
-                disabled={page === totalPages}
-                onClick={() => setPage((p) => p + 1)}
-                className="px-4 py-2 bg-gray-100 rounded-lg disabled:opacity-50"
-              >
-                Next
-              </button>
-            </div>
-          )}
-
-          {/* Task Details Modal */}
-          {viewingTask && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-              <div className="bg-white rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                <div className="flex justify-between items-start mb-6">
-                  <h2 className="text-2xl font-bold text-gray-800">
-                    Chi tiết công việc
-                  </h2>
-                  <button
-                    onClick={() => setViewingTask(null)}
-                    className="text-gray-400 hover:text-gray-600 text-2xl"
-                  >
-                    ×
-                  </button>
-                </div>
-
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">
-                      Tiêu đề
-                    </label>
-                    <p className="text-lg font-semibold text-gray-800">
-                      {viewingTask.title}
-                    </p>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">
-                      Mô tả
-                    </label>
-                    <p className="text-gray-700 whitespace-pre-wrap">
-                      {viewingTask.description}
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-600 mb-1">
-                        Trạng thái
-                      </label>
-                      <span
-                        className={`inline-block px-3 py-1 rounded-full text-sm font-bold uppercase ${
-                          statusClass[viewingTask.status]
-                        }`}
-                      >
-                        {viewingTask.status}
-                      </span>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-600 mb-1">
-                        Hạn hoàn thành
-                      </label>
-                      <p className="text-gray-800">
-                        {viewingTask.due_date
-                          ? new Date(viewingTask.due_date).toLocaleDateString(
-                              "vi-VN"
-                            )
-                          : "Không thời hạn"}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-600 mb-1">
-                        Ngày tạo
-                      </label>
-                      <p className="text-gray-800">
-                        {new Date(viewingTask.created_at).toLocaleString(
-                          "vi-VN"
-                        )}
-                      </p>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-600 mb-1">
-                        Cập nhật lần cuối
-                      </label>
-                      <p className="text-gray-800">
-                        {new Date(viewingTask.updated_at).toLocaleString(
-                          "vi-VN"
-                        )}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex gap-3 mt-6 pt-4 border-t">
-                  <button
-                    onClick={() => {
-                      setViewingTask(null);
-                      startEdit(viewingTask);
-                    }}
-                    className="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition"
-                  >
-                    Chỉnh sửa
-                  </button>
-                  <button
-                    onClick={() => {
-                      setViewingTask(null);
-                      deleteTask(viewingTask.id);
-                    }}
-                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
-                  >
-                    Xóa
-                  </button>
-                  <button
-                    onClick={() => setViewingTask(null)}
-                    className="px-4 py-2 bg-gray-200 text-gray-600 rounded-lg hover:bg-gray-300 transition"
-                  >
-                    Đóng
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+          <TaskDetailsModal
+            viewingTask={viewingTask}
+            setViewingTask={setViewingTask}
+            startEdit={startEdit}
+            deleteTask={deleteTask}
+          />
+        </main>
       </div>
     </div>
   );

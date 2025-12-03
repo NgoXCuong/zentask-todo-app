@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:3000/api";
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000/api";
 
 // Generic API call function
 async function apiCall(endpoint, method = "GET", body = null, isRetry = false) {
@@ -49,15 +49,28 @@ async function apiCall(endpoint, method = "GET", body = null, isRetry = false) {
 
 export const authAPI = {
   login: async (email, password) => {
-    const { data, ok } = await apiCall("/users/login", "POST", {
-      email,
-      password,
-    });
-    if (ok) {
-      // localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
+    const options = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ email, password }),
+    };
+
+    try {
+      const res = await fetch(API_BASE + "/users/login", options);
+      const data = await res.json();
+
+      if (res.ok) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+        return { data, ok: true };
+      } else {
+        // For login failures, don't redirect - just return the error
+        return { data, ok: false };
+      }
+    } catch (error) {
+      console.error("Login API Error:", error);
+      return { ok: false, error: "Network error" };
     }
-    return { data, ok };
   },
 
   register: async (full_name, email, password) => {
