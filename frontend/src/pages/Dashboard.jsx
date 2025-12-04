@@ -7,6 +7,14 @@ import Header from "../components/layout/Header";
 import KanbanBoard from "../components/tasks/KanbanBoard";
 import AddTaskForm from "../components/tasks/AddTaskForm";
 import TaskDetailsModal from "../components/tasks/TaskDetailsModal";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { CheckSquare, Clock, TrendingUp, Plus } from "lucide-react";
 
 export default function ZenTaskDashboard() {
   const [tasks, setTasks] = useState([]);
@@ -119,15 +127,105 @@ export default function ZenTaskDashboard() {
           user={user}
         />
 
-        <main className="p-6">
+        <main className="p-6 space-y-6">
           <Message message={message} />
 
-          <KanbanBoard
-            kanbanTasks={kanbanTasks}
-            setViewingTask={setViewingTask}
-            startEdit={startEdit}
-            deleteTask={deleteTask}
-          />
+          {/* Welcome Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">
+                Chào mừng trở lại, {user?.full_name || "User"}!
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                Here's what's happening with your tasks today.
+              </p>
+            </div>
+          </div>
+
+          {/* Stats Overview */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Total Tasks
+                </CardTitle>
+                <CheckSquare className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {stats.pending + stats.inprogress + stats.completed}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  All tasks in your workspace
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Pending</CardTitle>
+                <Clock className="h-4 w-4 text-orange-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-orange-500">
+                  {stats.pending}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Tasks waiting to start
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  In Progress
+                </CardTitle>
+                <TrendingUp className="h-4 w-4 text-blue-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-blue-500">
+                  {stats.inprogress}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Currently working on
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Completed</CardTitle>
+                <CheckSquare className="h-4 w-4 text-green-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-green-500">
+                  {stats.completed}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Tasks finished successfully
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Task Board Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Task Board</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Manage your tasks across different stages
+              </p>
+            </CardHeader>
+            <CardContent>
+              <KanbanBoard
+                kanbanTasks={kanbanTasks}
+                setViewingTask={setViewingTask}
+                startEdit={startEdit}
+                deleteTask={deleteTask}
+              />
+            </CardContent>
+          </Card>
 
           {/* Modals */}
           <AddTaskForm

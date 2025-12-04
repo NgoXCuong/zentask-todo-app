@@ -1,5 +1,18 @@
 import { useState } from "react";
 import { tasksAPI } from "../../services/api";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
+import { Label } from "../ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { X, Plus, Calendar, FileText, CheckSquare } from "lucide-react";
 
 export default function AddTaskForm({
   showAddForm,
@@ -58,7 +71,7 @@ export default function AddTaskForm({
             </h2>
             <button
               onClick={() => setShowAddForm(false)}
-              className="p-2 hover:bg-accent rounded-lg transition-colors"
+              className="p-2 hover:bg-accent rounded-sm transition-colors"
             >
               ✕
             </button>
@@ -76,7 +89,7 @@ export default function AddTaskForm({
                 onChange={(e) =>
                   setNewTask({ ...newTask, title: e.target.value })
                 }
-                className="w-full p-3 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                className="w-full p-3 bg-background border border-input rounded-sm focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
 
@@ -91,7 +104,7 @@ export default function AddTaskForm({
                 onChange={(e) =>
                   setNewTask({ ...newTask, description: e.target.value })
                 }
-                className="w-full p-3 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring resize-none"
+                className="w-full p-3 bg-background border border-input rounded-sm focus:outline-none focus:ring-2 focus:ring-ring resize-none"
               />
             </div>
 
@@ -105,7 +118,7 @@ export default function AddTaskForm({
                   onChange={(e) =>
                     setNewTask({ ...newTask, status: e.target.value })
                   }
-                  className="w-full p-3 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full p-3 bg-background border border-input rounded-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 >
                   <option value="pending">Chưa giải quyết</option>
                   <option value="inprogress">Đang tiến hành</option>
@@ -123,7 +136,7 @@ export default function AddTaskForm({
                   onChange={(e) =>
                     setNewTask({ ...newTask, due_date: e.target.value })
                   }
-                  className="w-full p-3 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full p-3 bg-background border border-input rounded-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 />
               </div>
             </div>
@@ -132,13 +145,13 @@ export default function AddTaskForm({
           <div className="flex gap-3 mt-6">
             <button
               onClick={() => setShowAddForm(false)}
-              className="flex-1 py-3 bg-secondary text-secondary-foreground rounded-lg font-medium hover:bg-secondary/80 transition-colors"
+              className="flex-1 py-3 bg-secondary text-secondary-foreground rounded-sm font-medium hover:bg-secondary/80 transition-colors"
             >
               Hủy
             </button>
             <button
               onClick={createTask}
-              className="flex-1 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+              className="flex-1 py-3 bg-primary text-primary-foreground rounded-sm font-medium hover:bg-primary/90 transition-colors"
             >
               Tạo Task
             </button>

@@ -1,4 +1,7 @@
-import { Search, User, Focus, Plus } from "lucide-react";
+import { Search, User, Focus, Plus, Sun, Moon } from "lucide-react";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function Header({
   focusMode,
@@ -8,39 +11,51 @@ export default function Header({
   setShowAddForm,
   user,
 }) {
+  const { isDark, toggleTheme } = useTheme();
+
   return (
     <header className="sticky top-0 bg-card border-b border-border shadow-sm z-30">
       <div className="px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => setFocusMode(!focusMode)}
-            className="p-2 hover:bg-accent rounded-lg transition-colors"
             title={focusMode ? "Exit Focus Mode" : "Enter Focus Mode"}
           >
             <Focus className="w-5 h-5" />
-          </button>
+          </Button>
 
           <div className="relative">
-            <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
-            <input
+            <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground z-10" />
+            <Input
               type="text"
-              placeholder="Search tasks..."
+              placeholder="Nhập từ khóa tìm kiếm..."
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
-              className="pl-10 pr-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring w-64"
+              className="pl-10 w-64"
             />
           </div>
+          <Button onClick={() => setShowAddForm(true)}>
+            <Plus className="w-4 h-4" />
+            Thêm Task
+          </Button>
         </div>
 
         <div className="flex items-center gap-4">
-          <button
-            onClick={() => setShowAddForm(true)}
-            className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
+          <Button
+            className={"rounded-sm"}
+            variant="ghost"
+            size="icon"
+            onClick={toggleTheme}
+            title={isDark ? "Chuyên qua Light Mode" : "Chuyển qua Dark Mode"}
           >
-            <Plus className="w-4 h-4" />
-            Add Task
-          </button>
-
+            {isDark ? (
+              <Sun className="w-5 h-5" />
+            ) : (
+              <Moon className="w-5 h-5" />
+            )}
+          </Button>
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-linear-to-r from-primary to-purple-600 rounded-full flex items-center justify-center">
               <User className="w-4 h-4 text-white" />

@@ -1,7 +1,18 @@
-import { Home, CheckSquare, Clock, AlertCircle, LogOut } from "lucide-react";
+import {
+  Home,
+  CheckSquare,
+  Clock,
+  AlertCircle,
+  LogOut,
+  BarChart3,
+  Plus,
+  Settings,
+} from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import Stats from "../tasks/Stats";
+import { Button } from "../ui/button";
+import { Card, CardHeader, CardContent, CardFooter } from "../ui/card";
 
 export default function Sidebar({ focusMode, stats }) {
   const { logout } = useAuth();
@@ -15,35 +26,65 @@ export default function Sidebar({ focusMode, stats }) {
   if (focusMode) return null;
 
   return (
-    <div className="fixed left-0 top-0 h-full w-64 bg-sidebar border-r border-sidebar-border shadow-lg z-40 flex flex-col">
-      <div className="p-6 flex-1">
-        <div className="flex items-center gap-3 mb-8">
+    <Card className="fixed left-0 top-0 h-full w-64 border-r shadow-lg z-40 flex flex-col">
+      <CardHeader className=" border-b">
+        <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-linear-to-r from-primary to-purple-600 rounded-lg flex items-center justify-center">
             <CheckSquare className="w-5 h-5 text-white" />
           </div>
-          <h1 className="text-xl font-bold text-sidebar-foreground">ZenTask</h1>
+          <div>
+            <h1 className="text-lg font-bold">ZenTask</h1>
+            <p className="text-xs text-muted-foreground">Task Management</p>
+          </div>
         </div>
+      </CardHeader>
 
-        <nav className="space-y-2">
-          <a
-            href="#"
-            className="flex items-center gap-3 px-3 py-2 text-sidebar-foreground bg-sidebar-accent rounded-lg"
-          >
-            <CheckSquare className="w-5 h-5" />
-            Tasks
-          </a>
-        </nav>
-      </div>
+      <CardContent className="flex-1 px-4 space-y-6">
+        {/* Navigation */}
+        <div className="space-y-2">
+          <nav className="space-y-1">
+            <Button
+              variant="ghost"
+              className="w-full justify-start gap-3 px-3 py-2 h-auto"
+            >
+              <Home className="w-4 h-4" />
+              <span className="text-sm">Dashboard</span>
+            </Button>
+            <Button
+              variant="ghost"
+              className="w-full justify-start gap-3 px-3 py-2 h-auto"
+            >
+              <CheckSquare className="w-4 h-4" />
+              <span className="text-sm">Tasks</span>
+            </Button>
+            <Button
+              variant="ghost"
+              className="w-full justify-start gap-3 px-3 py-2 h-auto"
+            >
+              <BarChart3 className="w-4 h-4" />
+              <span className="text-sm">Analytics</span>
+            </Button>
+            <Button
+              variant="ghost"
+              className="w-full justify-start gap-3 px-3 py-2 h-auto"
+            >
+              <Settings className="w-4 h-4" />
+              <span className="text-sm">Settings</span>
+            </Button>
+          </nav>
+        </div>
+      </CardContent>
 
-      <div className="p-6 border-t border-sidebar-border">
-        <button
+      <CardFooter className="p-4 border-t">
+        <Button
+          variant="ghost"
           onClick={handleLogout}
-          className="flex items-center gap-3 px-3 py-2 w-full text-sidebar-accent-foreground hover:bg-sidebar-accent rounded-lg transition-colors"
+          className="w-full justify-start gap-3 text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/20"
         >
-          <LogOut className="w-5 h-5" />
-          Logout
-        </button>
-      </div>
-    </div>
+          <LogOut className="w-4 h-4" />
+          <span className="text-sm">Logout</span>
+        </Button>
+      </CardFooter>
+    </Card>
   );
 }
