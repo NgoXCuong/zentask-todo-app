@@ -24,7 +24,7 @@ const Toaster = ({ ...props }) => {
       }}
       toastOptions={{
         style: {
-          borderRadius: "8px",
+          borderRadius: "4px",
           fontSize: "14px",
           fontWeight: "500",
         },

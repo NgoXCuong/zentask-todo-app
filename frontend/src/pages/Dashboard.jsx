@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import Message from "../components/tasks/Message";
 import Sidebar from "../components/layout/Sidebar";
 import Header from "../components/layout/Header";
-import KanbanBoard from "../components/tasks/KanbanBoard";
+import TaskList from "../components/tasks/TaskList";
 import AddTaskForm from "../components/tasks/AddTaskForm";
 import TaskDetailsModal from "../components/tasks/TaskDetailsModal";
 import {
@@ -156,7 +156,7 @@ export default function ZenTaskDashboard() {
                   {stats.pending + stats.inprogress + stats.completed}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  All tasks in your workspace
+                  Tất cả các công việc của bạn
                 </p>
               </CardContent>
             </Card>
@@ -171,7 +171,7 @@ export default function ZenTaskDashboard() {
                   {stats.pending}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Tasks waiting to start
+                  Nhiệm vụ đang chờ bắt đầu
                 </p>
               </CardContent>
             </Card>
@@ -188,7 +188,7 @@ export default function ZenTaskDashboard() {
                   {stats.inprogress}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Currently working on
+                  Hiện đang làm việc
                 </p>
               </CardContent>
             </Card>
@@ -203,7 +203,7 @@ export default function ZenTaskDashboard() {
                   {stats.completed}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Tasks finished successfully
+                  Nhiệm vụ đã hoàn thành thành công
                 </p>
               </CardContent>
             </Card>
@@ -218,11 +218,16 @@ export default function ZenTaskDashboard() {
               </p>
             </CardHeader>
             <CardContent>
-              <KanbanBoard
-                kanbanTasks={kanbanTasks}
+              <TaskList
+                tasks={tasks}
+                loading={loading}
+                editingId={editingId}
+                setEditingId={setEditingId}
+                editTask={editTask}
+                setEditTask={setEditTask}
+                loadData={loadData}
+                showMsg={showMsg}
                 setViewingTask={setViewingTask}
-                startEdit={startEdit}
-                deleteTask={deleteTask}
               />
             </CardContent>
           </Card>
