@@ -107,6 +107,9 @@ export const tasksAPI = {
     keyword = "",
     sort_by = "created_at",
     order = "DESC",
+    priority = "",
+    start_date = "",
+    end_date = "",
   } = {}) => {
     const params = new URLSearchParams({
       page: page.toString(),
@@ -115,6 +118,9 @@ export const tasksAPI = {
       keyword,
       sort_by,
       order,
+      priority,
+      start_date,
+      end_date,
     });
     return await apiCall(`/tasks?${params}`);
   },
@@ -143,10 +149,76 @@ export const tasksAPI = {
   getStats: async () => {
     return await apiCall("/tasks/stats");
   },
+
+  // Sub-tasks
+  getSubTasks: async (taskId) => {
+    return await apiCall(`/tasks/${taskId}/sub-tasks`);
+  },
+
+  createSubTask: async (taskId, subTaskData) => {
+    return await apiCall(`/tasks/${taskId}/sub-tasks`, "POST", subTaskData);
+  },
+
+  updateSubTask: async (taskId, subTaskId, subTaskData) => {
+    return await apiCall(
+      `/tasks/${taskId}/sub-tasks/${subTaskId}`,
+      "PUT",
+      subTaskData
+    );
+  },
+
+  deleteSubTask: async (taskId, subTaskId) => {
+    return await apiCall(`/tasks/${taskId}/sub-tasks/${subTaskId}`, "DELETE");
+  },
+
+  // Comments
+  getComments: async (taskId) => {
+    return await apiCall(`/tasks/${taskId}/comments`);
+  },
+
+  createComment: async (taskId, commentData) => {
+    return await apiCall(`/tasks/${taskId}/comments`, "POST", commentData);
+  },
+
+  updateComment: async (taskId, commentId, commentData) => {
+    return await apiCall(
+      `/tasks/${taskId}/comments/${commentId}`,
+      "PUT",
+      commentData
+    );
+  },
+
+  deleteComment: async (taskId, commentId) => {
+    return await apiCall(`/tasks/${taskId}/comments/${commentId}`, "DELETE");
+  },
+};
+
+// ==================== CATEGORIES API ====================
+export const categoriesAPI = {
+  // Get all categories
+  getAll: async () => {
+    return await apiCall("/categories");
+  },
+
+  // Create new category
+  create: async (categoryData) => {
+    return await apiCall("/categories", "POST", categoryData);
+  },
+
+  // Update category
+  update: async (id, categoryData) => {
+    return await apiCall(`/categories/${id}`, "PUT", categoryData);
+  },
+
+  // Delete category
+  delete: async (id) => {
+    return await apiCall(`/categories/${id}`, "DELETE");
+  },
 };
 
 // ==================== EXPORT DEFAULT ====================
 export default {
   auth: authAPI,
   tasks: tasksAPI,
+  categories: categoriesAPI,
 };

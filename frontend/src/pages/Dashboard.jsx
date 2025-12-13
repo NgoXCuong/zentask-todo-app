@@ -22,6 +22,7 @@ export default function ZenTaskDashboard() {
     pending: 0,
     inprogress: 0,
     completed: 0,
+    review: 0,
   });
   const [filter, setFilter] = useState("");
   const [keyword, setKeyword] = useState("");
@@ -29,6 +30,7 @@ export default function ZenTaskDashboard() {
   const [order, setOrder] = useState("DESC");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [priority, setPriority] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [editTask, setEditTask] = useState({ title: "", status: "" });
@@ -59,6 +61,7 @@ export default function ZenTaskDashboard() {
           order,
           start_date: startDate,
           end_date: endDate,
+          priority,
         }),
         tasksAPI.getStats(),
       ]);
@@ -81,7 +84,7 @@ export default function ZenTaskDashboard() {
 
   useEffect(() => {
     loadData();
-  }, [page, filter, keyword, sortBy, order, startDate, endDate]);
+  }, [page, filter, keyword, sortBy, order, startDate, endDate, priority]);
 
   const showMsg = (text, isError = false) => {
     setMessage({ text, isError, show: true });
@@ -153,7 +156,10 @@ export default function ZenTaskDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {stats.pending + stats.inprogress + stats.completed}
+                  {stats.pending +
+                    stats.inprogress +
+                    stats.completed +
+                    stats.review}
                 </div>
                 <p className="text-xs text-muted-foreground">
                   Tất cả các công việc của bạn

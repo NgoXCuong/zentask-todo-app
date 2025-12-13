@@ -13,6 +13,8 @@ export default function TaskControls({
   setStartDate,
   endDate,
   setEndDate,
+  priority,
+  setPriority,
   setPage,
 }) {
   const debounceRef = useRef(null);
@@ -38,7 +40,7 @@ export default function TaskControls({
           />
         </div>
         <div className="flex gap-2 flex-wrap">
-          {["", "pending", "inprogress", "completed"].map((s) => (
+          {["", "pending", "inprogress", "completed", "review"].map((s) => (
             <button
               key={s}
               onClick={() => setFilter(s)}
@@ -54,7 +56,9 @@ export default function TaskControls({
                 ? "Chờ"
                 : s === "inprogress"
                 ? "Đang làm"
-                : "Xong"}
+                : s === "completed"
+                ? "Xong"
+                : "Xem xét"}
             </button>
           ))}
         </div>
@@ -72,6 +76,7 @@ export default function TaskControls({
             <option value="created_at">Ngày tạo</option>
             <option value="title">Tiêu đề</option>
             <option value="due_date">Hạn hoàn thành</option>
+            <option value="priority">Độ ưu tiên</option>
           </select>
           <select
             value={order}

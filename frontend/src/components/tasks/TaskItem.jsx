@@ -1,6 +1,30 @@
 import { useState } from "react";
 import { tasksAPI } from "../../services/api";
 import { Card, CardContent } from "../ui/card";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
+import { Label } from "../ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Calendar } from "../ui/calendar";
+import {
+  Eye,
+  Edit,
+  Trash2,
+  CheckSquare,
+  Calendar as CalendarIcon,
+  Tag,
+  User,
+} from "lucide-react";
+import { cn } from "../../lib/utils";
+import { format } from "date-fns";
 
 export default function TaskItem({
   task,
@@ -14,24 +38,6 @@ export default function TaskItem({
 }) {
   const [localEditTask, setLocalEditTask] = useState(editTask);
   const [expanded, setExpanded] = useState(false);
-
-  // Mock data for new fields
-  const mockTask = {
-    ...task,
-    priority: task.priority || "medium",
-    tags: task.tags || ["work", "urgent"],
-    subtasks: task.subtasks || [
-      { id: 1, title: "Subtask 1", completed: false },
-      { id: 2, title: "Subtask 2", completed: true },
-    ],
-    started_at:
-      task.started_at ||
-      (task.status === "inprogress" ? new Date().toISOString() : null),
-    completed_at:
-      task.completed_at ||
-      (task.status === "completed" ? new Date().toISOString() : null),
-    total_time: task.total_time || 120, // minutes
-  };
 
   const deleteTask = async (id) => {
     if (!confirm("Bạn chắc chắn muốn xóa?")) return;
@@ -58,7 +64,17 @@ export default function TaskItem({
 
   const startEdit = (task) => {
     setEditingId(task.id);
-    setLocalEditTask({ title: task.title, status: task.status });
+    setLocalEditTask({
+      title: task.title,
+      description: task.description,
+      status: task.status,
+      priority: task.priority,
+      due_date: task.due_date,
+      start_date: task.start_date,
+      reminder_at: task.reminder_at,
+      category_id: task.category_id,
+      assignee_id: task.assignee_id,
+    });
   };
 
   const statusClass = {
@@ -71,6 +87,21 @@ export default function TaskItem({
     low: "bg-green-100 text-green-800",
     medium: "bg-yellow-100 text-yellow-800",
     high: "bg-red-100 text-red-800",
+    urgent: "bg-red-200 text-red-900",
+  };
+
+  const statusLabels = {
+    pending: "Chưa giải quyết",
+    inprogress: "Đang tiến hành",
+    completed: "Đã hoàn thành",
+    review: "Đang xem xét",
+  };
+
+  const priorityLabels = {
+    low: "Thấp",
+    medium: "Trung bình",
+    high: "Cao",
+    urgent: "Khẩn cấp",
   };
 
   return (
@@ -78,125 +109,238 @@ export default function TaskItem({
       <CardContent className="p-4">
         <div className="flex justify-between">
           <div className="flex-1">
-            <h4 className="font-semibold mb-1">{mockTask.title}</h4>
-            <p className="text-gray-500 text-sm mb-2">{mockTask.description}</p>
-            <div className="flex items-center gap-3 mb-2">
+            <div className="flex items-start justify-between mb-2">
+              <h4 className="font-semibold">{task.title}</h4>
+              {task.creator && (
+                <div className="flex items-center gap-1 text-xs text-gray-500">
+                  <User size={12} />
+                  {task.creator.full_name}
+                </div>
+              )}
+            </div>
+            <p className="text-gray-600 text-sm mb-3">{task.description}</p>
+
+            <div className="flex items-center gap-2 mb-3 flex-wrap">
               <span
-                className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${
-                  statusClass[mockTask.status]
+                className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  statusClass[task.status]
                 }`}
               >
-                {mockTask.status}
+                {statusLabels[task.status]}
               </span>
               <span
-                className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${
-                  priorityClass[mockTask.priority]
+                className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  priorityClass[task.priority]
                 }`}
               >
-                {mockTask.priority}
+                {priorityLabels[task.priority]}
               </span>
-              <span className="text-xs text-gray-400">
-                📅{" "}
-                {mockTask.due_date
-                  ? new Date(mockTask.due_date).toLocaleDateString()
+              {task.category && (
+                <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium flex items-center gap-1">
+                  <Tag size={10} />
+                  {task.category.name}
+                </span>
+              )}
+            </div>
+
+            <div className="flex items-center gap-4 text-xs text-gray-500 mb-3">
+              <span className="flex items-center gap-1">
+                <CalendarIcon size={12} />
+                {task.due_date
+                  ? format(new Date(task.due_date), "dd/MM/yyyy")
                   : "Không thời hạn"}
               </span>
-            </div>
-            <div className="flex flex-wrap gap-1 mb-2">
-              {mockTask.tags.map((tag, index) => (
-                <span
-                  key={index}
-                  className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-            <div className="mb-2">
-              <button
-                onClick={() => setExpanded(!expanded)}
-                className="text-sm text-blue-600 hover:underline"
-              >
-                {expanded ? "Ẩn" : "Hiển thị"} nhiệm vụ con (
-                {mockTask.subtasks.length})
-              </button>
-              {expanded && (
-                <ul className="mt-2 space-y-1">
-                  {mockTask.subtasks.map((subtask) => (
-                    <li key={subtask.id} className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={subtask.completed}
-                        readOnly
-                        className="w-4 h-4"
-                      />
-                      <span
-                        className={`text-sm ${
-                          subtask.completed ? "line-through text-gray-500" : ""
-                        }`}
-                      >
-                        {subtask.title}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-            <div className="text-xs text-gray-400">
-              {mockTask.started_at && (
+              {task.start_date && (
                 <span>
-                  Started: {new Date(mockTask.started_at).toLocaleString()}
+                  Bắt đầu: {format(new Date(task.start_date), "dd/MM/yyyy")}
                 </span>
               )}
-              {mockTask.completed_at && (
-                <span className="ml-4">
-                  Completed: {new Date(mockTask.completed_at).toLocaleString()}
+              {task.completed_at && (
+                <span>
+                  Hoàn thành:{" "}
+                  {format(new Date(task.completed_at), "dd/MM/yyyy")}
                 </span>
               )}
-              <span className="ml-4">
-                Total Time: {Math.floor(mockTask.total_time / 60)}h{" "}
-                {mockTask.total_time % 60}m
-              </span>
             </div>
-            {editingId === task.id && (
-              <div className="mt-3 bg-gray-50 p-3 rounded-lg">
-                <input
-                  value={localEditTask.title}
-                  onChange={(e) =>
-                    setLocalEditTask({
-                      ...localEditTask,
-                      title: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 border border-gray-200 rounded mb-2"
-                />
-                <select
-                  value={localEditTask.status}
-                  onChange={(e) =>
-                    setLocalEditTask({
-                      ...localEditTask,
-                      status: e.target.value,
-                    })
-                  }
-                  className="w-full p-2 border border-gray-200 rounded mb-2"
+
+            {task.sub_tasks && task.sub_tasks.length > 0 && (
+              <div className="mb-3">
+                <button
+                  onClick={() => setExpanded(!expanded)}
+                  className="text-sm text-blue-600 hover:underline flex items-center gap-1"
                 >
-                  <option value="pending">Pending</option>
-                  <option value="inprogress">In Progress</option>
-                  <option value="completed">Completed</option>
-                </select>
+                  <CheckSquare size={14} />
+                  {expanded ? "Ẩn" : "Hiển thị"} nhiệm vụ con (
+                  {task.sub_tasks.length})
+                </button>
+                {expanded && (
+                  <ul className="mt-2 space-y-1 ml-4">
+                    {task.sub_tasks.map((subtask) => (
+                      <li key={subtask.id} className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={subtask.is_done}
+                          readOnly
+                          className="w-3 h-3"
+                        />
+                        <span
+                          className={`text-sm ${
+                            subtask.is_done ? "line-through text-gray-500" : ""
+                          }`}
+                        >
+                          {subtask.title}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+
+            {task.assignee && task.creator.id !== task.assignee.id && (
+              <div className="text-xs text-gray-500 mb-2">
+                Phân công cho: {task.assignee.full_name}
+              </div>
+            )}
+            {editingId === task.id && (
+              <div className="mt-4 border-t pt-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <Label className="block text-sm font-medium mb-2">
+                      Tiêu đề
+                    </Label>
+                    <Input
+                      value={localEditTask.title || ""}
+                      onChange={(e) =>
+                        setLocalEditTask({
+                          ...localEditTask,
+                          title: e.target.value,
+                        })
+                      }
+                      className="w-full"
+                    />
+                  </div>
+                  <div>
+                    <Label className="block text-sm font-medium mb-2">
+                      Trạng thái
+                    </Label>
+                    <Select
+                      value={localEditTask.status || task.status}
+                      onValueChange={(value) =>
+                        setLocalEditTask({
+                          ...localEditTask,
+                          status: value,
+                        })
+                      }
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="pending">Chưa giải quyết</SelectItem>
+                        <SelectItem value="inprogress">
+                          Đang tiến hành
+                        </SelectItem>
+                        <SelectItem value="completed">Đã hoàn thành</SelectItem>
+                        <SelectItem value="review">Đang xem xét</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="block text-sm font-medium mb-2">
+                      Mức độ ưu tiên
+                    </Label>
+                    <Select
+                      value={localEditTask.priority || task.priority}
+                      onValueChange={(value) =>
+                        setLocalEditTask({
+                          ...localEditTask,
+                          priority: value,
+                        })
+                      }
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="low">Thấp</SelectItem>
+                        <SelectItem value="medium">Trung bình</SelectItem>
+                        <SelectItem value="high">Cao</SelectItem>
+                        <SelectItem value="urgent">Khẩn cấp</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="block text-sm font-medium mb-2">
+                      Ngày hết hạn
+                    </Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !localEditTask.due_date && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {localEditTask.due_date
+                            ? format(
+                                new Date(localEditTask.due_date),
+                                "dd/MM/yyyy"
+                              )
+                            : "Chọn ngày"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={
+                            localEditTask.due_date
+                              ? new Date(localEditTask.due_date)
+                              : undefined
+                          }
+                          onSelect={(date) =>
+                            setLocalEditTask({
+                              ...localEditTask,
+                              due_date: date
+                                ? date.toISOString().split("T")[0]
+                                : "",
+                            })
+                          }
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+                <div className="mb-4">
+                  <Label className="block text-sm font-medium mb-2">
+                    Mô tả
+                  </Label>
+                  <Textarea
+                    value={localEditTask.description || ""}
+                    onChange={(e) =>
+                      setLocalEditTask({
+                        ...localEditTask,
+                        description: e.target.value,
+                      })
+                    }
+                    rows={3}
+                    className="w-full resize-none"
+                  />
+                </div>
                 <div className="flex gap-2">
-                  <button
-                    onClick={() => saveEdit(task.id)}
-                    className="px-3 py-1 bg-indigo-500 text-white rounded text-sm"
-                  >
+                  <Button onClick={() => saveEdit(task.id)} size="sm">
                     Lưu
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="outline"
                     onClick={() => setEditingId(null)}
-                    className="px-3 py-1 bg-gray-200 text-gray-600 rounded text-sm"
+                    size="sm"
                   >
                     Hủy
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}

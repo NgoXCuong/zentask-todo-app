@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { tasksAPI } from "../../services/api";
+import { useState, useEffect } from "react";
+import { tasksAPI, categoriesAPI } from "../../services/api";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
@@ -34,10 +34,28 @@ export default function AddTaskForm({
     title: "",
     description: "",
     status: "pending",
-    due_date: "",
     priority: "medium",
-    tags: "",
+    due_date: "",
+    start_date: "",
+    reminder_at: "",
+    category_id: "",
   });
+
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      const { data, ok } = await categoriesAPI.getAll();
+      if (ok && Array.isArray(data)) {
+        setCategories(data);
+      } else {
+        setCategories([]);
+      }
+    };
+    if (showAddForm) {
+      loadCategories();
+    }
+  }, [showAddForm]);
 
   const createTask = async () => {
     if (!newTask.title.trim()) {
@@ -55,7 +73,14 @@ export default function AddTaskForm({
       return;
     }
 
-    const { ok } = await tasksAPI.create(newTask);
+    // Prepare task data for API
+    const taskData = {
+      ...newTask,
+      category_id:
+        newTask.category_id === "none" ? null : newTask.category_id || null,
+    };
+
+    const { ok } = await tasksAPI.create(taskData);
     if (ok) {
       showMsg("Thêm thành công!");
       setShowAddForm(false);
@@ -63,9 +88,11 @@ export default function AddTaskForm({
         title: "",
         description: "",
         status: "pending",
-        due_date: "",
         priority: "medium",
-        tags: "",
+        due_date: "",
+        start_date: "",
+        reminder_at: "",
+        category_id: "",
       });
       loadData();
     } else {
@@ -141,6 +168,7 @@ export default function AddTaskForm({
                     <SelectItem value="pending">Chưa giải quyết</SelectItem>
                     <SelectItem value="inprogress">Đang tiến hành</SelectItem>
                     <SelectItem value="completed">Đã hoàn thành</SelectItem>
+                    <SelectItem value="review">Đang xem xét</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -162,6 +190,7 @@ export default function AddTaskForm({
                     <SelectItem value="low">Thấp</SelectItem>
                     <SelectItem value="medium">Trung bình</SelectItem>
                     <SelectItem value="high">Cao</SelectItem>
+                    <SelectItem value="urgent">Khẩn cấp</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -212,17 +241,29 @@ export default function AddTaskForm({
 
               <div>
                 <Label className="block text-sm font-medium text-card-foreground mb-2">
-                  Thẻ (tags)
+                  Danh mục
                 </Label>
-                <Input
-                  type="text"
-                  placeholder="Nhập thẻ, cách nhau bằng dấu phẩy"
-                  value={newTask.tags}
-                  onChange={(e) =>
-                    setNewTask({ ...newTask, tags: e.target.value })
+                <Select
+                  value={newTask.category_id}
+                  onValueChange={(value) =>
+                    setNewTask({ ...newTask, category_id: value })
                   }
-                  className="w-full"
-                />
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Chọn danh mục (tùy chọn)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Không có danh mục</SelectItem>
+                    {categories.map((category) => (
+                      <SelectItem
+                        key={category.id}
+                        value={category.id.toString()}
+                      >
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>
