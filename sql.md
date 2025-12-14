@@ -9,10 +9,9 @@ email VARCHAR(255) NOT NULL UNIQUE,
 hash_password VARCHAR(255) NOT NULL,
 is_active BOOLEAN DEFAULT TRUE,
 refresh_token_hash TEXT NULL,
--- refresh_token_expires nên tách ra để quản lý session tốt hơn
-
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+-- refresh_token_expires
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 
 );
 
