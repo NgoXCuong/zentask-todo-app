@@ -16,15 +16,21 @@ const startReminderJob = () => {
           status: { [Op.ne]: "completed" },
           due_date: { [Op.between]: [now, next24Hours] },
         },
-        include: [{ model: db.User, attributes: ["full_name", "email"] }],
+        include: [
+          {
+            model: db.User,
+            as: "creator",
+            attributes: ["full_name", "email"],
+          },
+        ],
       });
 
       if (tasks.length === 0) return;
       console.log(`Tìm thấy ${tasks.length} công việc sắp hết hạn`);
       for (const task of tasks) {
-        if (!task.User) continue;
+        if (!task.creator) continue;
 
-        const message = `Xin chào ${task.User.full_name},
+        const message = `Xin chào ${task.creator.full_name},
         Công việc của bạn có tiêu đề "${
           task.title
         }" đang đến gần hạn hoàn thành vào ngày ${
@@ -32,7 +38,7 @@ const startReminderJob = () => {
         }.`;
 
         await sendEmail({
-          email: task.User.email,
+          email: task.creator.email,
           subject: "Nhắc nhở công việc sắp hết hạn",
           message,
         });

@@ -6,18 +6,30 @@ const getCommentsByTaskId = asyncHandler(async (req, res) => {
   const { taskId } = req.params;
   const userId = req.user.id;
 
-  // First check if user has access to the task
-  const task = await db.Task.findOne({
-    where: {
-      id: taskId,
-      [Op.or]: [{ creator_id: userId }, { assignee_id: userId }],
-      workspace_id: null,
-    },
-  });
-
+  // First get the task to check access
+  const task = await db.Task.findByPk(taskId);
   if (!task) {
-    return res.status(404).json({
-      message: "Task không tồn tại hoặc bạn không có quyền truy cập",
+    return res.status(404).json({ message: "Task không tồn tại" });
+  }
+
+  // Check access permissions
+  let hasAccess = false;
+
+  if (task.creator_id === userId || task.assignee_id === userId) {
+    hasAccess = true;
+  } else if (task.workspace_id) {
+    // Check workspace membership
+    const memberCheck = await db.WorkspaceMember.findOne({
+      where: { workspace_id: task.workspace_id, user_id: userId },
+    });
+    if (memberCheck) {
+      hasAccess = true;
+    }
+  }
+
+  if (!hasAccess) {
+    return res.status(403).json({
+      message: "Bạn không có quyền truy cập task này",
     });
   }
 
@@ -43,18 +55,30 @@ const createComment = asyncHandler(async (req, res) => {
   const userId = req.user.id;
   const { content } = req.body;
 
-  // Check if user has access to the task
-  const task = await db.Task.findOne({
-    where: {
-      id: taskId,
-      [Op.or]: [{ creator_id: userId }, { assignee_id: userId }],
-      workspace_id: null,
-    },
-  });
-
+  // First get the task to check access
+  const task = await db.Task.findByPk(taskId);
   if (!task) {
-    return res.status(404).json({
-      message: "Task không tồn tại hoặc bạn không có quyền thêm comment",
+    return res.status(404).json({ message: "Task không tồn tại" });
+  }
+
+  // Check access permissions
+  let hasAccess = false;
+
+  if (task.creator_id === userId || task.assignee_id === userId) {
+    hasAccess = true;
+  } else if (task.workspace_id) {
+    // Check workspace membership
+    const memberCheck = await db.WorkspaceMember.findOne({
+      where: { workspace_id: task.workspace_id, user_id: userId },
+    });
+    if (memberCheck) {
+      hasAccess = true;
+    }
+  }
+
+  if (!hasAccess) {
+    return res.status(403).json({
+      message: "Bạn không có quyền thêm comment cho task này",
     });
   }
 
@@ -85,18 +109,30 @@ const updateComment = asyncHandler(async (req, res) => {
   const userId = req.user.id;
   const { content } = req.body;
 
-  // Check if user has access to the task
-  const task = await db.Task.findOne({
-    where: {
-      id: taskId,
-      [Op.or]: [{ creator_id: userId }, { assignee_id: userId }],
-      workspace_id: null,
-    },
-  });
-
+  // First get the task to check access
+  const task = await db.Task.findByPk(taskId);
   if (!task) {
-    return res.status(404).json({
-      message: "Task không tồn tại hoặc bạn không có quyền chỉnh sửa",
+    return res.status(404).json({ message: "Task không tồn tại" });
+  }
+
+  // Check access permissions
+  let hasAccess = false;
+
+  if (task.creator_id === userId || task.assignee_id === userId) {
+    hasAccess = true;
+  } else if (task.workspace_id) {
+    // Check workspace membership
+    const memberCheck = await db.WorkspaceMember.findOne({
+      where: { workspace_id: task.workspace_id, user_id: userId },
+    });
+    if (memberCheck) {
+      hasAccess = true;
+    }
+  }
+
+  if (!hasAccess) {
+    return res.status(403).json({
+      message: "Bạn không có quyền chỉnh sửa comment",
     });
   }
 
@@ -139,18 +175,30 @@ const deleteComment = asyncHandler(async (req, res) => {
   const { taskId, commentId } = req.params;
   const userId = req.user.id;
 
-  // Check if user has access to the task
-  const task = await db.Task.findOne({
-    where: {
-      id: taskId,
-      [Op.or]: [{ creator_id: userId }, { assignee_id: userId }],
-      workspace_id: null,
-    },
-  });
-
+  // First get the task to check access
+  const task = await db.Task.findByPk(taskId);
   if (!task) {
-    return res.status(404).json({
-      message: "Task không tồn tại hoặc bạn không có quyền xóa",
+    return res.status(404).json({ message: "Task không tồn tại" });
+  }
+
+  // Check access permissions
+  let hasAccess = false;
+
+  if (task.creator_id === userId || task.assignee_id === userId) {
+    hasAccess = true;
+  } else if (task.workspace_id) {
+    // Check workspace membership
+    const memberCheck = await db.WorkspaceMember.findOne({
+      where: { workspace_id: task.workspace_id, user_id: userId },
+    });
+    if (memberCheck) {
+      hasAccess = true;
+    }
+  }
+
+  if (!hasAccess) {
+    return res.status(403).json({
+      message: "Bạn không có quyền xóa comment",
     });
   }
 

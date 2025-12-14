@@ -15,6 +15,8 @@ const User = sequelize.define(
     is_active: { type: DataTypes.BOOLEAN, defaultValue: true },
 
     refresh_token_hash: { type: DataTypes.TEXT, allowNull: true },
+
+    refresh_token_expires: { type: DataTypes.DATE, allowNull: true },
   },
   {
     tableName: "users",

@@ -6,18 +6,30 @@ const getSubTasksByTaskId = asyncHandler(async (req, res) => {
   const { taskId } = req.params;
   const userId = req.user.id;
 
-  // First check if user has access to the task
-  const task = await db.Task.findOne({
-    where: {
-      id: taskId,
-      [Op.or]: [{ creator_id: userId }, { assignee_id: userId }],
-      workspace_id: null,
-    },
-  });
-
+  // First get the task to check access
+  const task = await db.Task.findByPk(taskId);
   if (!task) {
-    return res.status(404).json({
-      message: "Task không tồn tại hoặc bạn không có quyền truy cập",
+    return res.status(404).json({ message: "Task không tồn tại" });
+  }
+
+  // Check access permissions
+  let hasAccess = false;
+
+  if (task.creator_id === userId || task.assignee_id === userId) {
+    hasAccess = true;
+  } else if (task.workspace_id) {
+    // Check workspace membership
+    const memberCheck = await db.WorkspaceMember.findOne({
+      where: { workspace_id: task.workspace_id, user_id: userId },
+    });
+    if (memberCheck) {
+      hasAccess = true;
+    }
+  }
+
+  if (!hasAccess) {
+    return res.status(403).json({
+      message: "Bạn không có quyền truy cập task này",
     });
   }
 
@@ -37,18 +49,39 @@ const createSubTask = asyncHandler(async (req, res) => {
   const userId = req.user.id;
   const { title, is_done = false } = req.body;
 
-  // Check if user has access to the task (only creator can add sub-tasks)
-  const task = await db.Task.findOne({
-    where: {
-      id: taskId,
-      creator_id: userId,
-      workspace_id: null,
-    },
-  });
-
+  // First get the task to check permissions
+  const task = await db.Task.findByPk(taskId);
   if (!task) {
-    return res.status(404).json({
-      message: "Task không tồn tại hoặc bạn không có quyền thêm sub-task",
+    return res.status(404).json({ message: "Task không tồn tại" });
+  }
+
+  // Check permissions (only creator or workspace admin can add sub-tasks)
+  let canCreate = false;
+
+  if (task.creator_id === userId) {
+    canCreate = true;
+  } else if (task.workspace_id) {
+    // Check if user is admin/owner in workspace
+    const memberCheck = await db.WorkspaceMember.findOne({
+      where: {
+        workspace_id: task.workspace_id,
+        user_id: userId,
+        role: { [Op.in]: ["owner", "admin"] },
+      },
+    });
+
+    const workspace = await db.Workspace.findOne({
+      where: { id: task.workspace_id, owner_id: userId },
+    });
+
+    if (memberCheck || workspace) {
+      canCreate = true;
+    }
+  }
+
+  if (!canCreate) {
+    return res.status(403).json({
+      message: "Bạn không có quyền thêm sub-task cho task này",
     });
   }
 
@@ -69,18 +102,39 @@ const updateSubTask = asyncHandler(async (req, res) => {
   const userId = req.user.id;
   const { title, is_done } = req.body;
 
-  // Check if user has access to the task
-  const task = await db.Task.findOne({
-    where: {
-      id: taskId,
-      creator_id: userId,
-      workspace_id: null,
-    },
-  });
-
+  // First get the task to check permissions
+  const task = await db.Task.findByPk(taskId);
   if (!task) {
-    return res.status(404).json({
-      message: "Task không tồn tại hoặc bạn không có quyền chỉnh sửa",
+    return res.status(404).json({ message: "Task không tồn tại" });
+  }
+
+  // Check permissions (creator or workspace admin)
+  let canUpdate = false;
+
+  if (task.creator_id === userId) {
+    canUpdate = true;
+  } else if (task.workspace_id) {
+    // Check if user is admin/owner in workspace
+    const memberCheck = await db.WorkspaceMember.findOne({
+      where: {
+        workspace_id: task.workspace_id,
+        user_id: userId,
+        role: { [Op.in]: ["owner", "admin"] },
+      },
+    });
+
+    const workspace = await db.Workspace.findOne({
+      where: { id: task.workspace_id, owner_id: userId },
+    });
+
+    if (memberCheck || workspace) {
+      canUpdate = true;
+    }
+  }
+
+  if (!canUpdate) {
+    return res.status(403).json({
+      message: "Bạn không có quyền chỉnh sửa sub-task này",
     });
   }
 
@@ -110,18 +164,39 @@ const deleteSubTask = asyncHandler(async (req, res) => {
   const { taskId, subTaskId } = req.params;
   const userId = req.user.id;
 
-  // Check if user has access to the task
-  const task = await db.Task.findOne({
-    where: {
-      id: taskId,
-      creator_id: userId,
-      workspace_id: null,
-    },
-  });
-
+  // First get the task to check permissions
+  const task = await db.Task.findByPk(taskId);
   if (!task) {
-    return res.status(404).json({
-      message: "Task không tồn tại hoặc bạn không có quyền xóa",
+    return res.status(404).json({ message: "Task không tồn tại" });
+  }
+
+  // Check permissions (creator or workspace admin)
+  let canDelete = false;
+
+  if (task.creator_id === userId) {
+    canDelete = true;
+  } else if (task.workspace_id) {
+    // Check if user is admin/owner in workspace
+    const memberCheck = await db.WorkspaceMember.findOne({
+      where: {
+        workspace_id: task.workspace_id,
+        user_id: userId,
+        role: { [Op.in]: ["owner", "admin"] },
+      },
+    });
+
+    const workspace = await db.Workspace.findOne({
+      where: { id: task.workspace_id, owner_id: userId },
+    });
+
+    if (memberCheck || workspace) {
+      canDelete = true;
+    }
+  }
+
+  if (!canDelete) {
+    return res.status(403).json({
+      message: "Bạn không có quyền xóa sub-task này",
     });
   }
 

@@ -23,7 +23,4 @@ router.get("/auth", authMiddleware, userController.authUser);
 router.post("/logout", authMiddleware, userController.logout);
 router.post("/refresh-token", userController.refreshToken);
 
-router.post("/forgot-password", authLimit, userController.forgotPassword);
-router.post("/reset-password/:token", authLimit, userController.resetPassword);
-
 export default router;

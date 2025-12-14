@@ -15,16 +15,39 @@ const getAllTask = asyncHandler(async (req, res) => {
     start_date,
     end_date,
     priority,
+    workspace_id,
   } = req.query;
   page = parseInt(page) || 1;
   limit = parseInt(limit) || 5;
   const offset = (page - 1) * limit;
 
-  // For personal use, only show tasks where workspace_id is NULL and user is creator or assignee
-  const whereFilter = {
+  // Base filter for tasks user can access
+  let whereFilter = {
     [Op.or]: [{ creator_id: userId }, { assignee_id: userId }],
-    workspace_id: null, // Personal tasks only
   };
+
+  // If workspace_id is specified, check workspace access
+  if (workspace_id) {
+    // Check if user is member of the workspace
+    const memberCheck = await db.WorkspaceMember.findOne({
+      where: { workspace_id: parseInt(workspace_id), user_id: userId },
+    });
+
+    const workspace = await db.Workspace.findOne({
+      where: { id: parseInt(workspace_id), owner_id: userId },
+    });
+
+    if (!memberCheck && !workspace) {
+      return res.status(403).json({
+        message: "Bạn không có quyền truy cập workspace này",
+      });
+    }
+
+    whereFilter.workspace_id = parseInt(workspace_id);
+  } else {
+    // Personal tasks only (workspace_id is null)
+    whereFilter.workspace_id = null;
+  }
 
   if (
     status &&
@@ -95,12 +118,36 @@ const getAllTask = asyncHandler(async (req, res) => {
 const getTaskById = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const userId = req.user.id;
-  const task = await db.Task.findOne({
-    where: {
-      id: id,
-      [Op.or]: [{ creator_id: userId }, { assignee_id: userId }],
-      workspace_id: null, // Personal tasks only
-    },
+
+  // First get the task to check workspace access
+  const task = await db.Task.findByPk(id);
+  if (!task) {
+    return res.status(404).json({ message: "Task không tồn tại" });
+  }
+
+  // Check access permissions
+  let hasAccess = false;
+
+  if (task.creator_id === userId || task.assignee_id === userId) {
+    hasAccess = true;
+  } else if (task.workspace_id) {
+    // Check workspace membership
+    const memberCheck = await db.WorkspaceMember.findOne({
+      where: { workspace_id: task.workspace_id, user_id: userId },
+    });
+    if (memberCheck) {
+      hasAccess = true;
+    }
+  }
+
+  if (!hasAccess) {
+    return res.status(403).json({
+      message: "Bạn không có quyền truy cập task này",
+    });
+  }
+
+  // Fetch full task with associations
+  const fullTask = await db.Task.findByPk(id, {
     include: [
       {
         model: db.User,
@@ -124,10 +171,9 @@ const getTaskById = asyncHandler(async (req, res) => {
     ],
   });
 
-  if (!task) {
-    return res.status(404).json({ message: "Task không tồn tại" });
-  }
-  return res.status(200).json({ message: "Lấy task thành công", data: task });
+  return res
+    .status(200)
+    .json({ message: "Lấy task thành công", data: fullTask });
 });
 
 const createTask = asyncHandler(async (req, res) => {
@@ -143,14 +189,46 @@ const createTask = asyncHandler(async (req, res) => {
     reminder_at,
     category_id,
     assignee_id,
+    workspace_id,
   } = req.body;
 
-  // For personal use, workspace_id is null
-  // assignee_id can be different from creator_id for personal delegation
+  let finalWorkspaceId = null;
+
+  // If workspace_id is provided, validate workspace access
+  if (workspace_id) {
+    const memberCheck = await db.WorkspaceMember.findOne({
+      where: { workspace_id: parseInt(workspace_id), user_id: userId },
+    });
+
+    const workspace = await db.Workspace.findOne({
+      where: { id: parseInt(workspace_id), owner_id: userId },
+    });
+
+    if (!memberCheck && !workspace) {
+      return res.status(403).json({
+        message: "Bạn không có quyền tạo task trong workspace này",
+      });
+    }
+
+    finalWorkspaceId = parseInt(workspace_id);
+
+    // For workspace tasks, assignee must be a workspace member
+    if (assignee_id) {
+      const assigneeCheck = await db.WorkspaceMember.findOne({
+        where: { workspace_id: finalWorkspaceId, user_id: assignee_id },
+      });
+      if (!assigneeCheck) {
+        return res.status(400).json({
+          message: "Assignee phải là thành viên của workspace",
+        });
+      }
+    }
+  }
+
   const taskData = {
     creator_id: userId,
     assignee_id: assignee_id || userId, // Default to self if not specified
-    workspace_id: null, // Personal task
+    workspace_id: finalWorkspaceId,
     title,
     description,
     status,
@@ -200,17 +278,55 @@ const updateTask = asyncHandler(async (req, res) => {
     assignee_id,
   } = req.body;
 
-  const task = await db.Task.findOne({
-    where: {
-      id: id,
-      creator_id: userId, // Only creator can update
-      workspace_id: null, // Personal tasks only
-    },
-  });
-  if (!task)
-    return res.status(404).json({
-      message: "Task không tồn tại hoặc bạn không có quyền chỉnh sửa",
+  // First get the task to check permissions
+  const task = await db.Task.findByPk(id);
+  if (!task) {
+    return res.status(404).json({ message: "Task không tồn tại" });
+  }
+
+  // Check update permissions
+  let canUpdate = false;
+  let isWorkspaceAdmin = false;
+
+  if (task.creator_id === userId) {
+    canUpdate = true;
+  } else if (task.workspace_id) {
+    // Check if user is admin/owner in workspace
+    const memberCheck = await db.WorkspaceMember.findOne({
+      where: {
+        workspace_id: task.workspace_id,
+        user_id: userId,
+        role: { [Op.in]: ["owner", "admin"] },
+      },
     });
+
+    const workspace = await db.Workspace.findOne({
+      where: { id: task.workspace_id, owner_id: userId },
+    });
+
+    if (memberCheck || workspace) {
+      canUpdate = true;
+      isWorkspaceAdmin = true;
+    }
+  }
+
+  if (!canUpdate) {
+    return res.status(403).json({
+      message: "Bạn không có quyền chỉnh sửa task này",
+    });
+  }
+
+  // For workspace tasks, validate assignee is a member
+  if (task.workspace_id && assignee_id && isWorkspaceAdmin) {
+    const assigneeCheck = await db.WorkspaceMember.findOne({
+      where: { workspace_id: task.workspace_id, user_id: assignee_id },
+    });
+    if (!assigneeCheck) {
+      return res.status(400).json({
+        message: "Assignee phải là thành viên của workspace",
+      });
+    }
+  }
 
   // Update fields if provided
   if (title !== undefined) task.title = title;
@@ -221,7 +337,12 @@ const updateTask = asyncHandler(async (req, res) => {
   if (start_date !== undefined) task.start_date = start_date;
   if (reminder_at !== undefined) task.reminder_at = reminder_at;
   if (category_id !== undefined) task.category_id = category_id;
-  if (assignee_id !== undefined) task.assignee_id = assignee_id;
+  if (
+    assignee_id !== undefined &&
+    (task.creator_id === userId || isWorkspaceAdmin)
+  ) {
+    task.assignee_id = assignee_id;
+  }
 
   // Set completed_at when status changes to completed
   if (status === "completed" && task.status !== "completed") {
@@ -258,17 +379,40 @@ const deleteTask = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const userId = req.user.id;
 
-  const task = await db.Task.findOne({
-    where: {
-      id: id,
-      creator_id: userId, // Only creator can delete
-      workspace_id: null, // Personal tasks only
-    },
-  });
+  // First get the task to check permissions
+  const task = await db.Task.findByPk(id);
   if (!task) {
-    return res
-      .status(404)
-      .json({ message: "Task không tồn tại hoặc bạn không có quyền xóa" });
+    return res.status(404).json({ message: "Task không tồn tại" });
+  }
+
+  // Check delete permissions
+  let canDelete = false;
+
+  if (task.creator_id === userId) {
+    canDelete = true;
+  } else if (task.workspace_id) {
+    // Check if user is owner/admin in workspace
+    const memberCheck = await db.WorkspaceMember.findOne({
+      where: {
+        workspace_id: task.workspace_id,
+        user_id: userId,
+        role: { [Op.in]: ["owner", "admin"] },
+      },
+    });
+
+    const workspace = await db.Workspace.findOne({
+      where: { id: task.workspace_id, owner_id: userId },
+    });
+
+    if (memberCheck || workspace) {
+      canDelete = true;
+    }
+  }
+
+  if (!canDelete) {
+    return res.status(403).json({
+      message: "Bạn không có quyền xóa task này",
+    });
   }
 
   await task.destroy(); // This will soft delete due to paranoid: true
@@ -278,35 +422,46 @@ const deleteTask = asyncHandler(async (req, res) => {
 
 const getTaskStats = asyncHandler(async (req, res) => {
   const userId = req.user.id;
+  const { workspace_id } = req.query;
+
+  let baseWhere = {
+    [Op.or]: [{ creator_id: userId }, { assignee_id: userId }],
+  };
+
+  // If workspace_id is specified, check access and filter by workspace
+  if (workspace_id) {
+    const memberCheck = await db.WorkspaceMember.findOne({
+      where: { workspace_id: parseInt(workspace_id), user_id: userId },
+    });
+
+    const workspace = await db.Workspace.findOne({
+      where: { id: parseInt(workspace_id), owner_id: userId },
+    });
+
+    if (!memberCheck && !workspace) {
+      return res.status(403).json({
+        message: "Bạn không có quyền truy cập workspace này",
+      });
+    }
+
+    baseWhere.workspace_id = parseInt(workspace_id);
+  } else {
+    // Personal tasks only
+    baseWhere.workspace_id = null;
+  }
 
   const [pending, inprogress, completed, review] = await Promise.all([
     db.Task.count({
-      where: {
-        [Op.or]: [{ creator_id: userId }, { assignee_id: userId }],
-        workspace_id: null,
-        status: "pending",
-      },
+      where: { ...baseWhere, status: "pending" },
     }),
     db.Task.count({
-      where: {
-        [Op.or]: [{ creator_id: userId }, { assignee_id: userId }],
-        workspace_id: null,
-        status: "inprogress",
-      },
+      where: { ...baseWhere, status: "inprogress" },
     }),
     db.Task.count({
-      where: {
-        [Op.or]: [{ creator_id: userId }, { assignee_id: userId }],
-        workspace_id: null,
-        status: "completed",
-      },
+      where: { ...baseWhere, status: "completed" },
     }),
     db.Task.count({
-      where: {
-        [Op.or]: [{ creator_id: userId }, { assignee_id: userId }],
-        workspace_id: null,
-        status: "review",
-      },
+      where: { ...baseWhere, status: "review" },
     }),
   ]);
 
