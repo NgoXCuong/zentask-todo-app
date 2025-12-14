@@ -1,16 +1,6 @@
-import {
-  Home,
-  CheckSquare,
-  Clock,
-  AlertCircle,
-  LogOut,
-  BarChart3,
-  Plus,
-  Settings,
-} from "lucide-react";
+import { Home, LogOut, Tag, CheckSquare } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
-import Stats from "../tasks/Stats";
 import { Button } from "../ui/button";
 import { Card, CardHeader, CardContent, CardFooter } from "../ui/card";
 
@@ -55,30 +45,34 @@ export default function Sidebar({ focusMode, stats }) {
                   ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105"
                   : ""
               }`}
+              onClick={() => navigate("/")}
             >
               <Home className="w-4 h-4" />
               <span className="text-sm">Dashboard</span>
             </Button>
             <Button
-              variant="ghost"
-              className="w-full justify-start gap-3 px-3 py-2 h-auto"
+              variant={isActive("/tasks") ? "secondary" : "ghost"}
+              className={`w-full rounded-xs justify-start gap-3 px-3 py-2 h-auto ${
+                isActive("/tasks")
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105"
+                  : ""
+              }`}
+              onClick={() => navigate("/tasks")}
             >
               <CheckSquare className="w-4 h-4" />
               <span className="text-sm">Tasks</span>
             </Button>
             <Button
-              variant="ghost"
-              className="w-full justify-start gap-3 px-3 py-2 h-auto"
+              variant={isActive("/categories") ? "secondary" : "ghost"}
+              className={`w-full rounded-xs justify-start gap-3 px-3 py-2 h-auto ${
+                isActive("/categories")
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105"
+                  : ""
+              }`}
+              onClick={() => navigate("/categories")}
             >
-              <BarChart3 className="w-4 h-4" />
-              <span className="text-sm">Analytics</span>
-            </Button>
-            <Button
-              variant="ghost"
-              className="w-full justify-start gap-3 px-3 py-2 h-auto"
-            >
-              <Settings className="w-4 h-4" />
-              <span className="text-sm">Settings</span>
+              <Tag className="w-4 h-4" />
+              <span className="text-sm">Danh mục</span>
             </Button>
           </nav>
         </div>

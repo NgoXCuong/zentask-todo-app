@@ -87,6 +87,10 @@ export const authAPI = {
     localStorage.removeItem("user");
   },
 
+  checkAuth: async () => {
+    return await apiCall("/users/auth");
+  },
+
   getCurrentUser: () => {
     const user = localStorage.getItem("user");
     return user ? JSON.parse(user) : null;

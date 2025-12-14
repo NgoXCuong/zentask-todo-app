@@ -6,6 +6,8 @@ import ZenTaskRegister from "./pages/Register";
 import ZenTaskForgotPassword from "./pages/ForgotPassword";
 import ZenTaskResetPassword from "./pages/ResetPassword";
 import ZenTaskDashboard from "./pages/Dashboard";
+import Categories from "./pages/Categories";
+import Tasks from "./pages/Tasks";
 
 // Protected Route Component
 function ProtectedRoute({ children }) {
@@ -74,6 +76,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <ZenTaskDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/categories"
+            element={
+              <ProtectedRoute>
+                <Categories />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tasks"
+            element={
+              <ProtectedRoute>
+                <Tasks />
               </ProtectedRoute>
             }
           />

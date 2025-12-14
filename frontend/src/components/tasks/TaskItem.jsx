@@ -22,6 +22,7 @@ import {
   Calendar as CalendarIcon,
   Tag,
   User,
+  MessageCircle,
 } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { format } from "date-fns";
@@ -159,6 +160,12 @@ export default function TaskItem({
                 <span>
                   Hoàn thành:{" "}
                   {format(new Date(task.completed_at), "dd/MM/yyyy")}
+                </span>
+              )}
+              {task.comments_count > 0 && (
+                <span className="flex items-center gap-1">
+                  <MessageCircle size={12} />
+                  {task.comments_count} bình luận
                 </span>
               )}
             </div>

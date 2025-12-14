@@ -11,11 +11,22 @@ export function AuthProvider({ children }) {
 
   // Check auth on mount
   useEffect(() => {
-    const currentUser = authAPI.getCurrentUser();
-    if (currentUser) {
-      setUser(currentUser);
-    }
-    setLoading(false);
+    const checkAuthStatus = async () => {
+      const currentUser = authAPI.getCurrentUser();
+      if (currentUser) {
+        // Verify token is still valid
+        const { ok } = await authAPI.checkAuth();
+        if (ok) {
+          setUser(currentUser);
+        } else {
+          // Token invalid, clear it
+          localStorage.removeItem("user");
+        }
+      }
+      setLoading(false);
+    };
+
+    checkAuthStatus();
   }, []);
 
   // Login

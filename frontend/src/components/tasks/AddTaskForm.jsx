@@ -41,13 +41,22 @@ export default function AddTaskForm({
     category_id: "",
   });
 
+  // Helper to format ISO date to datetime-local format
+  const formatForDateTimeLocal = (isoString) => {
+    if (!isoString) return "";
+    const date = new Date(isoString);
+    const offset = date.getTimezoneOffset() * 60000; // offset in milliseconds
+    const localDate = new Date(date.getTime() - offset);
+    return localDate.toISOString().slice(0, 16);
+  };
+
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     const loadCategories = async () => {
       const { data, ok } = await categoriesAPI.getAll();
-      if (ok && Array.isArray(data)) {
-        setCategories(data);
+      if (ok && data && Array.isArray(data.data)) {
+        setCategories(data.data);
       } else {
         setCategories([]);
       }
@@ -63,13 +72,13 @@ export default function AddTaskForm({
       return;
     }
 
-    if (!newTask.description.trim()) {
-      showMsg("Vui lòng nhập mô tả!", true);
+    if (newTask.title.length > 255) {
+      showMsg("Tiêu đề quá dài!", true);
       return;
     }
 
-    if (newTask.title.length > 255) {
-      showMsg("Tiêu đề quá dài!", true);
+    if (newTask.description && newTask.description.length > 1000) {
+      showMsg("Mô tả quá dài!", true);
       return;
     }
 
@@ -199,6 +208,61 @@ export default function AddTaskForm({
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label className="block text-sm font-medium text-card-foreground mb-2">
+                  Ngày bắt đầu
+                </Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !newTask.start_date && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {newTask.start_date
+                        ? format(new Date(newTask.start_date), "dd/MM/yyyy")
+                        : "Chọn ngày"}
+                    </Button>
+                  </PopoverTrigger>
+
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={
+                        newTask.start_date
+                          ? new Date(newTask.start_date)
+                          : undefined
+                      }
+                      onSelect={(date) => {
+                        if (date) {
+                          // Format as YYYY-MM-DD to avoid timezone issues
+                          const year = date.getFullYear();
+                          const month = String(date.getMonth() + 1).padStart(
+                            2,
+                            "0"
+                          );
+                          const day = String(date.getDate()).padStart(2, "0");
+                          const dateString = `${year}-${month}-${day}`;
+                          setNewTask({
+                            ...newTask,
+                            start_date: dateString,
+                          });
+                        } else {
+                          setNewTask({
+                            ...newTask,
+                            start_date: "",
+                          });
+                        }
+                      }}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              <div>
+                <Label className="block text-sm font-medium text-card-foreground mb-2">
                   Ngày hết hạn
                 </Label>
                 <Popover>
@@ -225,18 +289,50 @@ export default function AddTaskForm({
                           ? new Date(newTask.due_date)
                           : undefined
                       }
-                      onSelect={(date) =>
-                        setNewTask({
-                          ...newTask,
-                          due_date: date
-                            ? date.toISOString().split("T")[0]
-                            : "",
-                        })
-                      }
+                      onSelect={(date) => {
+                        if (date) {
+                          // Format as YYYY-MM-DD to avoid timezone issues
+                          const year = date.getFullYear();
+                          const month = String(date.getMonth() + 1).padStart(
+                            2,
+                            "0"
+                          );
+                          const day = String(date.getDate()).padStart(2, "0");
+                          const dateString = `${year}-${month}-${day}`;
+                          setNewTask({
+                            ...newTask,
+                            due_date: dateString,
+                          });
+                        } else {
+                          setNewTask({
+                            ...newTask,
+                            due_date: "",
+                          });
+                        }
+                      }}
                       initialFocus
                     />
                   </PopoverContent>
                 </Popover>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label className="block text-sm font-medium text-card-foreground mb-2">
+                  Nhắc nhở lúc
+                </Label>
+                <Input
+                  type="datetime-local"
+                  value={formatForDateTimeLocal(newTask.reminder_at)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    // Convert to ISO format for API
+                    const isoValue = value ? new Date(value).toISOString() : "";
+                    setNewTask({ ...newTask, reminder_at: isoValue });
+                  }}
+                  className="w-full"
+                />
               </div>
 
               <div>

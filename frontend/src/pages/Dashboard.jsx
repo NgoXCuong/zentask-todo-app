@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { tasksAPI, authAPI } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import Message from "../components/tasks/Message";
 import Sidebar from "../components/layout/Sidebar";
 import Header from "../components/layout/Header";
 import TaskList from "../components/tasks/TaskList";
+import TaskControls from "../components/tasks/TaskControls";
 import AddTaskForm from "../components/tasks/AddTaskForm";
 import TaskDetailsModal from "../components/tasks/TaskDetailsModal";
 import {
@@ -14,7 +16,7 @@ import {
   CardTitle,
 } from "../components/ui/card";
 import { Button } from "../components/ui/button";
-import { CheckSquare, Clock, TrendingUp, Plus } from "lucide-react";
+import { CheckSquare, Clock, TrendingUp, Plus, Tag } from "lucide-react";
 
 export default function ZenTaskDashboard() {
   const [tasks, setTasks] = useState([]);
@@ -31,6 +33,7 @@ export default function ZenTaskDashboard() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [priority, setPriority] = useState("");
+  const [categoryId, setCategoryId] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [editTask, setEditTask] = useState({ title: "", status: "" });
@@ -46,6 +49,17 @@ export default function ZenTaskDashboard() {
   const [focusMode, setFocusMode] = useState(false);
   const limit = 5;
   const { user } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Check if we should open the add form (from navigation state)
+  useEffect(() => {
+    if (location.state?.openAddForm) {
+      setShowAddForm(true);
+      // Clear the state to prevent reopening on refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   // Load data
   const loadData = async () => {
@@ -62,6 +76,7 @@ export default function ZenTaskDashboard() {
           start_date: startDate,
           end_date: endDate,
           priority,
+          category_id: categoryId,
         }),
         tasksAPI.getStats(),
       ]);
@@ -84,7 +99,17 @@ export default function ZenTaskDashboard() {
 
   useEffect(() => {
     loadData();
-  }, [page, filter, keyword, sortBy, order, startDate, endDate, priority]);
+  }, [
+    page,
+    filter,
+    keyword,
+    sortBy,
+    order,
+    startDate,
+    endDate,
+    priority,
+    categoryId,
+  ]);
 
   const showMsg = (text, isError = false) => {
     setMessage({ text, isError, show: true });
@@ -121,14 +146,7 @@ export default function ZenTaskDashboard() {
 
       {/* Main Content */}
       <div className={`flex-1 ${!focusMode ? "ml-64" : ""}`}>
-        <Header
-          focusMode={focusMode}
-          setFocusMode={setFocusMode}
-          keyword={keyword}
-          setKeyword={setKeyword}
-          setShowAddForm={setShowAddForm}
-          user={user}
-        />
+        <Header focusMode={focusMode} setFocusMode={setFocusMode} user={user} />
 
         <main className="p-6 space-y-6">
           <Message message={message} />
@@ -215,28 +233,119 @@ export default function ZenTaskDashboard() {
             </Card>
           </div>
 
-          {/* Task Board Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Task Board</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Manage your tasks across different stages
-              </p>
-            </CardHeader>
-            <CardContent>
-              <TaskList
-                tasks={tasks}
-                loading={loading}
-                editingId={editingId}
-                setEditingId={setEditingId}
-                editTask={editTask}
-                setEditTask={setEditTask}
-                loadData={loadData}
-                showMsg={showMsg}
-                setViewingTask={setViewingTask}
-              />
-            </CardContent>
-          </Card>
+          {/* Quick Actions */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card
+              className="cursor-pointer hover:shadow-lg transition-shadow"
+              onClick={() => navigate("/tasks")}
+            >
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CheckSquare className="w-5 h-5" />
+                  Xem Tasks
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Quản lý và xem tất cả các công việc của bạn
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card
+              className="cursor-pointer hover:shadow-lg transition-shadow"
+              onClick={() => setShowAddForm(true)}
+            >
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Plus className="w-5 h-5" />
+                  Thêm Task mới
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Tạo công việc mới nhanh chóng
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card
+              className="cursor-pointer hover:shadow-lg transition-shadow"
+              onClick={() => navigate("/categories")}
+            >
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Tag className="w-5 h-5" />
+                  Quản lý Danh mục
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Tạo và chỉnh sửa các danh mục công việc
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Recent Tasks Preview */}
+          {tasks.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Tasks gần đây</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Xem nhanh các công việc mới nhất
+                </p>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {tasks.slice(0, 5).map((task) => (
+                    <div
+                      key={task.id}
+                      className="flex items-center justify-between p-3 border border-border rounded-lg hover:bg-accent/50 cursor-pointer"
+                      onClick={() => setViewingTask(task)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`w-3 h-3 rounded-full ${
+                            task.status === "completed"
+                              ? "bg-green-500"
+                              : task.status === "inprogress"
+                              ? "bg-blue-500"
+                              : "bg-orange-500"
+                          }`}
+                        />
+                        <span className="font-medium">{task.title}</span>
+                        {task.category && (
+                          <span
+                            className="px-2 py-1 text-xs rounded-full"
+                            style={{
+                              backgroundColor: task.category.color + "20",
+                              color: task.category.color,
+                            }}
+                          >
+                            {task.category.name}
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-sm text-muted-foreground">
+                        {new Date(task.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                {tasks.length > 5 && (
+                  <div className="mt-4 text-center">
+                    <Button
+                      variant="outline"
+                      onClick={() => navigate("/tasks")}
+                    >
+                      Xem tất cả ({tasks.length} tasks)
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
           {/* Modals */}
           <AddTaskForm

@@ -3,14 +3,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { useTheme } from "../../context/ThemeContext";
 
-export default function Header({
-  focusMode,
-  setFocusMode,
-  keyword,
-  setKeyword,
-  setShowAddForm,
-  user,
-}) {
+export default function Header({ focusMode, setFocusMode, user }) {
   const { isDark, toggleTheme } = useTheme();
 
   return (
@@ -24,21 +17,6 @@ export default function Header({
             title={focusMode ? "Exit Focus Mode" : "Enter Focus Mode"}
           >
             <Focus className="w-5 h-5" />
-          </Button>
-
-          <div className="relative">
-            <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground z-10" />
-            <Input
-              type="text"
-              placeholder="Nhập từ khóa tìm kiếm..."
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-              className="pl-10 w-64"
-            />
-          </div>
-          <Button onClick={() => setShowAddForm(true)}>
-            <Plus className="w-4 h-4" />
-            Thêm Task
           </Button>
         </div>
 
