@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import Sidebar from "../components/layout/Sidebar";
 import TaskList from "../components/tasks/TaskList";
 import TaskControls from "../components/tasks/TaskControls";
+import KanbanBoard from "../components/tasks/KanbanBoard";
 import AddTaskForm from "../components/tasks/AddTaskForm";
 import TaskDetailsModal from "../components/tasks/TaskDetailsModal";
 import Message from "../components/tasks/Message";
@@ -15,7 +16,16 @@ import {
   CardHeader,
   CardTitle,
 } from "../components/ui/card";
-import { Search, User, Focus, Plus, Sun, Moon } from "lucide-react";
+import {
+  Search,
+  User,
+  Focus,
+  Plus,
+  Sun,
+  Moon,
+  List,
+  Kanban,
+} from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 
 export default function Tasks() {
@@ -41,6 +51,7 @@ export default function Tasks() {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [focusMode, setFocusMode] = useState(false);
+  const [viewMode, setViewMode] = useState("list"); // "list" or "kanban"
   const limit = 10; // Show more tasks per page on dedicated tasks page
   const { user } = useAuth();
   const { isDark, toggleTheme } = useTheme();
@@ -111,10 +122,13 @@ export default function Tasks() {
 
   return (
     <div className="min-h-screen bg-background flex">
-      <Sidebar focusMode={focusMode} />
+      <Sidebar
+        focusMode={focusMode}
+        onToggleFocus={() => setFocusMode(!focusMode)}
+      />
 
       {/* Main Content */}
-      <div className={`flex-1 ${!focusMode ? "ml-64" : ""}`}>
+      <div className={`flex-1 ${!focusMode ? "ml-64" : "ml-16"}`}>
         {/* Custom Header for Tasks Page */}
         <header className="sticky top-0 bg-card border-b border-border shadow-sm z-30">
           <div className="px-6 py-4 flex items-center justify-between">
@@ -176,10 +190,32 @@ export default function Tasks() {
           {/* Task Board Section */}
           <Card>
             <CardHeader>
-              <CardTitle>Task Board</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Manage your tasks across different stages
-              </p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Bảng Quản lý Task</CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Quản lý các công việc của bạn theo các giai đoạn khác nhau
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant={viewMode === "list" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setViewMode("list")}
+                  >
+                    <List className="w-4 h-4 mr-2" />
+                    Danh sách
+                  </Button>
+                  <Button
+                    variant={viewMode === "kanban" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setViewMode("kanban")}
+                  >
+                    <Kanban className="w-4 h-4 mr-2" />
+                    Kanban
+                  </Button>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               <TaskControls
@@ -201,17 +237,34 @@ export default function Tasks() {
                 setCategoryId={setCategoryId}
                 setPage={setPage}
               />
-              <TaskList
-                tasks={tasks}
-                loading={loading}
-                editingId={editingId}
-                setEditingId={setEditingId}
-                editTask={editTask}
-                setEditTask={setEditTask}
-                loadData={loadData}
-                showMsg={showMsg}
-                setViewingTask={setViewingTask}
-              />
+              {viewMode === "list" ? (
+                <TaskList
+                  tasks={tasks}
+                  loading={loading}
+                  editingId={editingId}
+                  setEditingId={setEditingId}
+                  editTask={editTask}
+                  setEditTask={setEditTask}
+                  loadData={loadData}
+                  showMsg={showMsg}
+                  setViewingTask={setViewingTask}
+                />
+              ) : (
+                <KanbanBoard
+                  kanbanTasks={{
+                    pending: tasks.filter((task) => task.status === "pending"),
+                    inprogress: tasks.filter(
+                      (task) => task.status === "inprogress"
+                    ),
+                    completed: tasks.filter(
+                      (task) => task.status === "completed"
+                    ),
+                  }}
+                  setViewingTask={setViewingTask}
+                  startEdit={startEdit}
+                  deleteTask={deleteTask}
+                />
+              )}
             </CardContent>
           </Card>
 

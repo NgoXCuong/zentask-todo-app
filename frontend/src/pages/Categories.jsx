@@ -134,10 +134,13 @@ export default function Categories() {
 
   return (
     <div className="min-h-screen bg-background flex">
-      <Sidebar focusMode={focusMode} />
+      <Sidebar
+        focusMode={focusMode}
+        onToggleFocus={() => setFocusMode(!focusMode)}
+      />
 
       {/* Main Content */}
-      <div className={`flex-1 ${!focusMode ? "ml-64" : ""}`}>
+      <div className={`flex-1 ${!focusMode ? "ml-64" : "ml-16"}`}>
         {/* Custom Header for Categories Page */}
         <header className="sticky top-0 bg-card border-b border-border shadow-sm z-30">
           <div className="px-6 py-4 flex items-center justify-between">
@@ -216,21 +219,54 @@ export default function Categories() {
                   <Label className="block text-sm font-medium mb-2">
                     Màu sắc
                   </Label>
-                  <div className="flex gap-2 flex-wrap">
-                    {colorOptions.map((color) => (
-                      <button
-                        key={color}
-                        className={`w-8 h-8 rounded-full border-2 ${
-                          newCategory.color === color
-                            ? "border-primary"
-                            : "border-border"
-                        }`}
-                        style={{ backgroundColor: color }}
-                        onClick={() =>
-                          setNewCategory({ ...newCategory, color })
+                  <div className="space-y-3">
+                    <div className="flex gap-2 flex-wrap">
+                      {colorOptions.map((color) => (
+                        <button
+                          key={color}
+                          className={`w-8 h-8 rounded-full border-2 ${
+                            newCategory.color === color
+                              ? "border-primary"
+                              : "border-border"
+                          }`}
+                          style={{ backgroundColor: color }}
+                          onClick={() =>
+                            setNewCategory({ ...newCategory, color })
+                          }
+                        />
+                      ))}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Label className="text-sm">Tùy chỉnh:</Label>
+                      <input
+                        type="color"
+                        value={
+                          newCategory.color.startsWith("#") &&
+                          newCategory.color.length === 7
+                            ? newCategory.color
+                            : "#FF5733"
                         }
+                        onChange={(e) =>
+                          setNewCategory({
+                            ...newCategory,
+                            color: e.target.value,
+                          })
+                        }
+                        className="w-12 h-8 rounded border border-border cursor-pointer"
                       />
-                    ))}
+                      <Input
+                        type="text"
+                        placeholder="#FF5733"
+                        value={newCategory.color}
+                        onChange={(e) =>
+                          setNewCategory({
+                            ...newCategory,
+                            color: e.target.value,
+                          })
+                        }
+                        className="w-24 text-sm font-mono"
+                      />
+                    </div>
                   </div>
                 </div>
                 <Button
@@ -272,25 +308,59 @@ export default function Categories() {
                             }
                             className="flex-1"
                           />
-                          <div className="flex gap-1">
-                            {colorOptions.map((color) => (
-                              <button
-                                key={color}
-                                className={`w-6 h-6 rounded-full border ${
-                                  category.color === color
-                                    ? "border-primary"
-                                    : "border-border"
-                                }`}
-                                style={{ backgroundColor: color }}
-                                onClick={() =>
+                          <div className="flex flex-col gap-2">
+                            <div className="flex gap-1 flex-wrap">
+                              {colorOptions.map((color) => (
+                                <button
+                                  key={color}
+                                  className={`w-6 h-6 rounded-full border ${
+                                    category.color === color
+                                      ? "border-primary"
+                                      : "border-border"
+                                  }`}
+                                  style={{ backgroundColor: color }}
+                                  onClick={() =>
+                                    updateCategoryField(
+                                      category.id,
+                                      "color",
+                                      color
+                                    )
+                                  }
+                                />
+                              ))}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Label className="text-xs">Tùy chỉnh:</Label>
+                              <input
+                                type="color"
+                                value={
+                                  category.color.startsWith("#") &&
+                                  category.color.length === 7
+                                    ? category.color
+                                    : "#FF5733"
+                                }
+                                onChange={(e) =>
                                   updateCategoryField(
                                     category.id,
                                     "color",
-                                    color
+                                    e.target.value
                                   )
                                 }
+                                className="w-8 h-6 rounded border border-border cursor-pointer"
                               />
-                            ))}
+                              <Input
+                                type="text"
+                                value={category.color}
+                                onChange={(e) =>
+                                  updateCategoryField(
+                                    category.id,
+                                    "color",
+                                    e.target.value
+                                  )
+                                }
+                                className="w-20 text-xs font-mono h-6"
+                              />
+                            </div>
                           </div>
                           <Button
                             size="sm"
