@@ -5,10 +5,7 @@ import cookieParser from "cookie-parser";
 
 import { apiLimiter } from "./middleware/limiter.middleware.js";
 import sequelize from "./config/db.js";
-import taskRoutes from "./routes/task.routes.js";
-import userRoutes from "./routes/user.routes.js";
-import categoryRoutes from "./routes/category.routes.js";
-import workspaceRoutes from "./routes/workspace.routes.js";
+import routes from "./routes/index.routes.js";
 import "./models/index.js";
 import startReminderJob from "./jobs/reminder.job.js";
 
@@ -16,7 +13,6 @@ dotenv.config();
 
 const PORT = process.env.PORT || 3000;
 const app = express();
-// app.set('trust proxy', 1); // Thêm vào nếu deploy vì Express có thể không nhận diện đúng IP của người dùng (nó sẽ thấy IP của server trung gian)
 app.use(
   cors({
     origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
@@ -36,17 +32,18 @@ async function startServer() {
     console.log("Cơ sở dữ liệu đã được đồng bộ hóa thành công.");
 
     app.use("/api", apiLimiter);
-    app.use("/api/tasks", taskRoutes);
-    app.use("/api/users", userRoutes);
-    app.use("/api/categories", categoryRoutes);
-    app.use("/api/workspaces", workspaceRoutes);
+
+    // Apply all routes from centralized configuration
+    routes.forEach(({ path, router }) => {
+      app.use(path, router);
+    });
 
     app.get("/", (req, res) => {
       res.send("Zen Task API is running.");
     });
 
     app.use((err, req, res, next) => {
-      console.error("❌ Lỗi:", err.stack); // Log lỗi ra terminal để dev xem
+      console.error("❌ Lỗi:", err.stack);
 
       const statusCode = err.status || 500;
       const message = err.message || "Lỗi Server Nội Bộ";
