@@ -220,9 +220,64 @@ export const categoriesAPI = {
   },
 };
 
+// ==================== WORKSPACES API ====================
+export const workspacesAPI = {
+  // Get user's workspaces
+  getUserWorkspaces: async () => {
+    return await apiCall("/workspaces");
+  },
+
+  // Create new workspace
+  create: async (workspaceData) => {
+    return await apiCall("/workspaces", "POST", workspaceData);
+  },
+
+  // Get workspace by ID
+  getById: async (id) => {
+    return await apiCall(`/workspaces/${id}`);
+  },
+
+  // Update workspace
+  update: async (id, workspaceData) => {
+    return await apiCall(`/workspaces/${id}`, "PUT", workspaceData);
+  },
+
+  // Delete workspace
+  delete: async (id) => {
+    return await apiCall(`/workspaces/${id}`, "DELETE");
+  },
+
+  // Add member to workspace
+  addMember: async (workspaceId, memberData) => {
+    return await apiCall(
+      `/workspaces/${workspaceId}/members`,
+      "POST",
+      memberData
+    );
+  },
+
+  // Update member role
+  updateMember: async (workspaceId, memberId, memberData) => {
+    return await apiCall(
+      `/workspaces/${workspaceId}/members/${memberId}`,
+      "PUT",
+      memberData
+    );
+  },
+
+  // Remove member from workspace
+  removeMember: async (workspaceId, memberId) => {
+    return await apiCall(
+      `/workspaces/${workspaceId}/members/${memberId}`,
+      "DELETE"
+    );
+  },
+};
+
 // ==================== EXPORT DEFAULT ====================
 export default {
   auth: authAPI,
   tasks: tasksAPI,
   categories: categoriesAPI,
+  workspaces: workspacesAPI,
 };

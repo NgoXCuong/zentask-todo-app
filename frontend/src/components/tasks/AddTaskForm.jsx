@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { format } from "date-fns";
+import { toast } from "sonner";
 
 export default function AddTaskForm({
   showAddForm,
@@ -68,17 +69,17 @@ export default function AddTaskForm({
 
   const createTask = async () => {
     if (!newTask.title.trim()) {
-      showMsg("Vui lòng nhập tiêu đề!", true);
+      toast.error("Vui lòng nhập tiêu đề!");
       return;
     }
 
     if (newTask.title.length > 255) {
-      showMsg("Tiêu đề quá dài!", true);
+      toast.error("Tiêu đề quá dài!");
       return;
     }
 
     if (newTask.description && newTask.description.length > 1000) {
-      showMsg("Mô tả quá dài!", true);
+      toast.error("Mô tả quá dài!");
       return;
     }
 
@@ -91,7 +92,7 @@ export default function AddTaskForm({
 
     const { ok } = await tasksAPI.create(taskData);
     if (ok) {
-      showMsg("Thêm thành công!");
+      toast.success("Đã tạo task thành công!");
       setShowAddForm(false);
       setNewTask({
         title: "",
@@ -105,7 +106,7 @@ export default function AddTaskForm({
       });
       loadData();
     } else {
-      showMsg("Thêm thất bại!", true);
+      toast.error("Tạo task thất bại!");
     }
   };
 

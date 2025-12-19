@@ -13,6 +13,7 @@ import {
   Save,
   X,
 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function TaskDetailsModal({
   viewingTask,
@@ -64,8 +65,11 @@ export default function TaskDetailsModal({
       content: newComment,
     });
     if (ok) {
+      toast.success("Đã thêm bình luận!");
       setNewComment("");
       loadComments();
+    } else {
+      toast.error("Thêm bình luận thất bại!");
     }
     setLoading(false);
   };
@@ -77,9 +81,12 @@ export default function TaskDetailsModal({
       content: editCommentText,
     });
     if (ok) {
+      toast.success("Đã cập nhật bình luận!");
       setEditingComment(null);
       setEditCommentText("");
       loadComments();
+    } else {
+      toast.error("Cập nhật bình luận thất bại!");
     }
     setLoading(false);
   };
@@ -89,7 +96,10 @@ export default function TaskDetailsModal({
     setLoading(true);
     const { ok } = await tasksAPI.deleteComment(viewingTask.id, commentId);
     if (ok) {
+      toast.success("Đã xóa bình luận!");
       loadComments();
+    } else {
+      toast.error("Xóa bình luận thất bại!");
     }
     setLoading(false);
   };
@@ -102,8 +112,11 @@ export default function TaskDetailsModal({
       is_done: false,
     });
     if (ok) {
+      toast.success("Đã thêm nhiệm vụ con!");
       setNewSubTask("");
       loadSubTasks();
+    } else {
+      toast.error("Thêm nhiệm vụ con thất bại!");
     }
     setLoading(false);
   };
@@ -116,7 +129,10 @@ export default function TaskDetailsModal({
       updates
     );
     if (ok) {
+      toast.success("Đã cập nhật nhiệm vụ con!");
       loadSubTasks();
+    } else {
+      toast.error("Cập nhật nhiệm vụ con thất bại!");
     }
     setLoading(false);
   };
@@ -126,7 +142,10 @@ export default function TaskDetailsModal({
     setLoading(true);
     const { ok } = await tasksAPI.deleteSubTask(viewingTask.id, subTaskId);
     if (ok) {
+      toast.success("Đã xóa nhiệm vụ con!");
       loadSubTasks();
+    } else {
+      toast.error("Xóa nhiệm vụ con thất bại!");
     }
     setLoading(false);
   };

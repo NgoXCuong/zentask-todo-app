@@ -26,7 +26,7 @@ export default function TaskList({
   }
 
   return (
-    <>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {tasks.map((task) => (
         <TaskItem
           key={task.id}
@@ -40,6 +40,6 @@ export default function TaskList({
           setViewingTask={setViewingTask}
         />
       ))}
-    </>
+    </div>
   );
 }

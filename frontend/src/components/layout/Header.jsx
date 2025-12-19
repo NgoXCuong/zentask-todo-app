@@ -1,4 +1,12 @@
-import { Search, User, Focus, Plus, Sun, Moon } from "lucide-react";
+import {
+  Search,
+  User,
+  PanelLeftOpen,
+  PanelLeftClose,
+  Plus,
+  Sun,
+  Moon,
+} from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { useTheme } from "../../context/ThemeContext";
@@ -14,9 +22,13 @@ export default function Header({ focusMode, setFocusMode, user }) {
             variant="ghost"
             size="icon"
             onClick={() => setFocusMode(!focusMode)}
-            title={focusMode ? "Exit Focus Mode" : "Enter Focus Mode"}
+            title={focusMode ? "Mở rộng Sidebar" : "Thu gọn Sidebar"}
           >
-            <Focus className="w-5 h-5" />
+            {focusMode ? (
+              <PanelLeftOpen className="w-5 h-5" />
+            ) : (
+              <PanelLeftClose className="w-5 h-5" />
+            )}
           </Button>
         </div>
 

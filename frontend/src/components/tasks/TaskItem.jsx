@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { format } from "date-fns";
+import { toast } from "sonner";
 
 export default function TaskItem({
   task,
@@ -39,27 +40,49 @@ export default function TaskItem({
 }) {
   const [localEditTask, setLocalEditTask] = useState(editTask);
   const [expanded, setExpanded] = useState(false);
+  const [subTasks, setSubTasks] = useState([]);
+  const [loadingSubTasks, setLoadingSubTasks] = useState(false);
+
+  const loadSubTasks = async () => {
+    if (subTasks.length > 0) return; // Already loaded
+    setLoadingSubTasks(true);
+    const { data, ok } = await tasksAPI.getSubTasks(task.id);
+    if (ok && data && Array.isArray(data.data)) {
+      setSubTasks(data.data);
+    } else {
+      setSubTasks([]);
+    }
+    setLoadingSubTasks(false);
+  };
+
+  const toggleExpanded = async () => {
+    const newExpanded = !expanded;
+    setExpanded(newExpanded);
+    if (newExpanded && subTasks.length === 0) {
+      await loadSubTasks();
+    }
+  };
 
   const deleteTask = async (id) => {
     if (!confirm("Bạn chắc chắn muốn xóa?")) return;
 
     const { ok } = await tasksAPI.delete(id);
     if (ok) {
-      showMsg("Đã xóa!");
+      toast.success("Đã xóa task thành công!");
       loadData();
     } else {
-      showMsg("Xóa thất bại!", true);
+      toast.error("Xóa task thất bại!");
     }
   };
 
   const saveEdit = async (id) => {
     const { ok } = await tasksAPI.update(id, localEditTask);
     if (ok) {
-      showMsg("Đã cập nhật!");
+      toast.success("Đã cập nhật task thành công!");
       setEditingId(null);
       loadData();
     } else {
-      showMsg("Cập nhật thất bại!", true);
+      toast.error("Cập nhật task thất bại!");
     }
   };
 
@@ -170,39 +193,47 @@ export default function TaskItem({
               )}
             </div>
 
-            {task.sub_tasks && task.sub_tasks.length > 0 && (
-              <div className="mb-3">
-                <button
-                  onClick={() => setExpanded(!expanded)}
-                  className="text-sm text-blue-600 hover:underline flex items-center gap-1"
-                >
-                  <CheckSquare size={14} />
-                  {expanded ? "Ẩn" : "Hiển thị"} nhiệm vụ con (
-                  {task.sub_tasks.length})
-                </button>
-                {expanded && (
-                  <ul className="mt-2 space-y-1 ml-4">
-                    {task.sub_tasks.map((subtask) => (
-                      <li key={subtask.id} className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={subtask.is_done}
-                          readOnly
-                          className="w-3 h-3"
-                        />
-                        <span
-                          className={`text-sm ${
-                            subtask.is_done ? "line-through text-gray-500" : ""
-                          }`}
-                        >
-                          {subtask.title}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
+            <div className="mb-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleExpanded}
+                className="text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 flex items-center gap-1 p-1 h-auto"
+                disabled={loadingSubTasks}
+              >
+                <CheckSquare size={14} />
+                {loadingSubTasks
+                  ? "Đang tải..."
+                  : expanded
+                  ? "Ẩn"
+                  : "Hiển thị"}{" "}
+                nhiệm vụ con
+                {subTasks.length > 0 && (
+                  <span className="ml-1">({subTasks.length})</span>
                 )}
-              </div>
-            )}
+              </Button>
+              {expanded && subTasks.length > 0 && (
+                <ul className="mt-2 space-y-1 ml-4">
+                  {subTasks.map((subtask) => (
+                    <li key={subtask.id} className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={subtask.is_done}
+                        readOnly
+                        className="w-3 h-3"
+                      />
+                      <span
+                        className={`text-sm ${
+                          subtask.is_done ? "line-through text-gray-500" : ""
+                        }`}
+                      >
+                        {subtask.title}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
 
             {task.assignee && task.creator.id !== task.assignee.id && (
               <div className="text-xs text-gray-500 mb-2">
@@ -353,24 +384,33 @@ export default function TaskItem({
             )}
           </div>
           <div className="flex flex-col gap-2 ml-3">
-            <button
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => setViewingTask(task)}
-              className="px-3 py-1 bg-blue-100 text-blue-600 rounded text-sm hover:bg-blue-200"
+              className="p-2 h-8 w-8"
+              title="Xem chi tiết"
             >
-              👁️
-            </button>
-            <button
+              <Eye size={16} />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => startEdit(task)}
-              className="px-3 py-1 bg-gray-100 rounded text-sm hover:bg-gray-200"
+              className="p-2 h-8 w-8"
+              title="Chỉnh sửa"
             >
-              ✏️
-            </button>
-            <button
+              <Edit size={16} />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => deleteTask(task.id)}
-              className="px-3 py-1 bg-red-100 text-red-600 rounded text-sm hover:bg-red-200"
+              className="p-2 h-8 w-8 text-destructive hover:text-destructive"
+              title="Xóa"
             >
-              🗑️
-            </button>
+              <Trash2 size={16} />
+            </Button>
           </div>
         </div>
       </CardContent>

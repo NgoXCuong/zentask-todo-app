@@ -37,8 +37,8 @@ export default function TaskControls({
   useEffect(() => {
     const loadCategories = async () => {
       const { data, ok } = await categoriesAPI.getAll();
-      if (ok && Array.isArray(data)) {
-        setCategories(data);
+      if (ok && data && Array.isArray(data.data)) {
+        setCategories(data.data);
       } else {
         setCategories([]);
       }
@@ -89,7 +89,7 @@ export default function TaskControls({
       </div>
 
       {/* Advanced Filters */}
-      <div className="flex flex-wrap gap-4 items-center bg-muted/50 p-4 rounded-lg">
+      <div className="flex flex-wrap gap-12 items-center bg-muted/50 p-2 rounded-xs">
         <div className="flex items-center gap-2">
           <Label className="text-sm font-medium">Sắp xếp:</Label>
           <Select value={sortBy} onValueChange={setSortBy}>
@@ -101,15 +101,6 @@ export default function TaskControls({
               <SelectItem value="title">Tiêu đề</SelectItem>
               <SelectItem value="due_date">Hạn hoàn thành</SelectItem>
               <SelectItem value="priority">Độ ưu tiên</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={order} onValueChange={setOrder}>
-            <SelectTrigger className="w-24">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="DESC">Giảm dần</SelectItem>
-              <SelectItem value="ASC">Tăng dần</SelectItem>
             </SelectContent>
           </Select>
         </div>
