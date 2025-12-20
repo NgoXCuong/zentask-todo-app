@@ -3,7 +3,8 @@ import reteLimit, { rateLimit } from "express-rate-limit";
 // 1. Giới hạn chung cho toàn bộ API (An toàn cơ bản)
 // Cho phép 100 request trong 15 phút từ 1 IP
 export const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
+  // windowMs: 15 * 60 * 1000,
+  windowMs: 10 * 1000,
   max: 100,
   message: {
     status: 429,

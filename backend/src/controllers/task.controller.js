@@ -21,20 +21,25 @@ const getAllTask = asyncHandler(async (req, res) => {
   limit = parseInt(limit) || 5;
   const offset = (page - 1) * limit;
 
-  // Base filter for tasks user can access
-  let whereFilter = {
-    [Op.or]: [{ creator_id: userId }, { assignee_id: userId }],
-  };
+  // Build filter based on workspace context
+  let whereFilter = {};
 
-  // If workspace_id is specified, check workspace access
-  if (workspace_id) {
+  if (workspace_id && workspace_id !== "personal") {
+    // Specific workspace requested - show ALL tasks in this workspace if user is member
+    const workspaceIdInt = parseInt(workspace_id);
+    if (isNaN(workspaceIdInt)) {
+      return res.status(400).json({
+        message: "workspace_id không hợp lệ",
+      });
+    }
+
     // Check if user is member of the workspace
     const memberCheck = await db.WorkspaceMember.findOne({
-      where: { workspace_id: parseInt(workspace_id), user_id: userId },
+      where: { workspace_id: workspaceIdInt, user_id: userId },
     });
 
     const workspace = await db.Workspace.findOne({
-      where: { id: parseInt(workspace_id), owner_id: userId },
+      where: { id: workspaceIdInt, owner_id: userId },
     });
 
     if (!memberCheck && !workspace) {
@@ -43,10 +48,44 @@ const getAllTask = asyncHandler(async (req, res) => {
       });
     }
 
-    whereFilter.workspace_id = parseInt(workspace_id);
+    // For workspace tasks, show ALL tasks in the workspace
+    whereFilter.workspace_id = workspaceIdInt;
+  } else if (workspace_id === "personal") {
+    // Personal tasks only - show only tasks user created or is assigned to
+    whereFilter = {
+      [Op.and]: [
+        { workspace_id: null },
+        {
+          [Op.or]: [{ creator_id: userId }, { assignee_id: userId }],
+        },
+      ],
+    };
   } else {
-    // Personal tasks only (workspace_id is null)
-    whereFilter.workspace_id = null;
+    // No workspace filter - show all accessible tasks
+    // Personal tasks that user created or is assigned to, plus all tasks from workspaces user is member of
+    whereFilter = {
+      [Op.or]: [
+        // Personal tasks
+        {
+          [Op.and]: [
+            { workspace_id: null },
+            {
+              [Op.or]: [{ creator_id: userId }, { assignee_id: userId }],
+            },
+          ],
+        },
+        // Workspace tasks where user is a member
+        {
+          workspace_id: {
+            [Op.in]: db.sequelize.literal(`(
+              SELECT workspace_id FROM workspace_members WHERE user_id = ${userId}
+              UNION
+              SELECT id FROM workspaces WHERE owner_id = ${userId}
+            )`),
+          },
+        },
+      ],
+    };
   }
 
   if (
@@ -424,18 +463,25 @@ const getTaskStats = asyncHandler(async (req, res) => {
   const userId = req.user.id;
   const { workspace_id } = req.query;
 
-  let baseWhere = {
-    [Op.or]: [{ creator_id: userId }, { assignee_id: userId }],
-  };
+  // Build filter based on workspace context
+  let baseWhere = {};
 
-  // If workspace_id is specified, check access and filter by workspace
-  if (workspace_id) {
+  if (workspace_id && workspace_id !== "personal") {
+    // Specific workspace requested - show ALL tasks in this workspace if user is member
+    const workspaceIdInt = parseInt(workspace_id);
+    if (isNaN(workspaceIdInt)) {
+      return res.status(400).json({
+        message: "workspace_id không hợp lệ",
+      });
+    }
+
+    // Check if user is member of the workspace
     const memberCheck = await db.WorkspaceMember.findOne({
-      where: { workspace_id: parseInt(workspace_id), user_id: userId },
+      where: { workspace_id: workspaceIdInt, user_id: userId },
     });
 
     const workspace = await db.Workspace.findOne({
-      where: { id: parseInt(workspace_id), owner_id: userId },
+      where: { id: workspaceIdInt, owner_id: userId },
     });
 
     if (!memberCheck && !workspace) {
@@ -444,10 +490,44 @@ const getTaskStats = asyncHandler(async (req, res) => {
       });
     }
 
-    baseWhere.workspace_id = parseInt(workspace_id);
+    // For workspace tasks, show ALL tasks in the workspace
+    baseWhere.workspace_id = workspaceIdInt;
+  } else if (workspace_id === "personal") {
+    // Personal tasks only - show only tasks user created or is assigned to
+    baseWhere = {
+      [Op.and]: [
+        { workspace_id: null },
+        {
+          [Op.or]: [{ creator_id: userId }, { assignee_id: userId }],
+        },
+      ],
+    };
   } else {
-    // Personal tasks only
-    baseWhere.workspace_id = null;
+    // No workspace filter - show all accessible tasks
+    // Personal tasks that user created or is assigned to, plus all tasks from workspaces user is member of
+    baseWhere = {
+      [Op.or]: [
+        // Personal tasks
+        {
+          [Op.and]: [
+            { workspace_id: null },
+            {
+              [Op.or]: [{ creator_id: userId }, { assignee_id: userId }],
+            },
+          ],
+        },
+        // Workspace tasks where user is a member
+        {
+          workspace_id: {
+            [Op.in]: db.sequelize.literal(`(
+              SELECT workspace_id FROM workspace_members WHERE user_id = ${userId}
+              UNION
+              SELECT id FROM workspaces WHERE owner_id = ${userId}
+            )`),
+          },
+        },
+      ],
+    };
   }
 
   const [pending, inprogress, completed, review] = await Promise.all([
