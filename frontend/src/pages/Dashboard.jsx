@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { tasksAPI, authAPI } from "../services/api";
 import { useAuth } from "../context/AuthContext";
+import { useLayout } from "../context/LayoutContext";
 import Message from "../components/tasks/Message";
 import Sidebar from "../components/layout/Sidebar";
 import Header from "../components/layout/Header";
@@ -46,9 +47,9 @@ export default function ZenTaskDashboard() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [focusMode, setFocusMode] = useState(false);
   const limit = 5;
   const { user } = useAuth();
+  const { focusMode, setFocusMode } = useLayout();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -145,7 +146,7 @@ export default function ZenTaskDashboard() {
       <Sidebar focusMode={focusMode} stats={stats} />
 
       {/* Main Content */}
-      <div className={`flex-1 ${!focusMode ? "ml-64" : ""}`}>
+      <div className={`flex-1 ${!focusMode ? "ml-64" : "ml-16"}`}>
         <Header focusMode={focusMode} setFocusMode={setFocusMode} user={user} />
 
         <main className="p-6 space-y-6">
@@ -158,7 +159,7 @@ export default function ZenTaskDashboard() {
                 Chào mừng trở lại, {user?.full_name || "User"}!
               </h1>
               <p className="text-muted-foreground mt-1">
-                Here's what's happening with your tasks today.
+                Đây là những gì đang diễn ra với các nhiệm vụ của bạn hôm nay.
               </p>
             </div>
           </div>

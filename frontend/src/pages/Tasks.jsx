@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { tasksAPI, authAPI } from "../services/api";
 import { useAuth } from "../context/AuthContext";
+import { useLayout } from "../context/LayoutContext";
 import Sidebar from "../components/layout/Sidebar";
 import TaskList from "../components/tasks/TaskList";
 import TaskControls from "../components/tasks/TaskControls";
@@ -38,6 +40,7 @@ export default function Tasks() {
   const [endDate, setEndDate] = useState("");
   const [priority, setPriority] = useState("");
   const [categoryId, setCategoryId] = useState("");
+  const [workspaceId, setWorkspaceId] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [editTask, setEditTask] = useState({ title: "", status: "" });
@@ -50,11 +53,20 @@ export default function Tasks() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [focusMode, setFocusMode] = useState(false);
   const [viewMode, setViewMode] = useState("list"); // "list" or "kanban"
   const limit = 10; // Show more tasks per page on dedicated tasks page
   const { user } = useAuth();
   const { isDark, toggleTheme } = useTheme();
+  const { focusMode, setFocusMode } = useLayout();
+  const [searchParams] = useSearchParams();
+
+  // Set initial workspace filter from URL params
+  useEffect(() => {
+    const workspaceParam = searchParams.get("workspace");
+    if (workspaceParam) {
+      setWorkspaceId(workspaceParam);
+    }
+  }, [searchParams]);
 
   // Load data
   const loadData = async () => {
@@ -71,6 +83,7 @@ export default function Tasks() {
         end_date: endDate,
         priority,
         category_id: categoryId,
+        workspace_id: workspaceId,
       });
 
       if (tasksRes.ok) {
@@ -96,6 +109,7 @@ export default function Tasks() {
     endDate,
     priority,
     categoryId,
+    workspaceId,
   ]);
 
   const showMsg = (text, isError = false) => {
@@ -235,6 +249,8 @@ export default function Tasks() {
                 setPriority={setPriority}
                 categoryId={categoryId}
                 setCategoryId={setCategoryId}
+                workspaceId={workspaceId}
+                setWorkspaceId={setWorkspaceId}
                 setPage={setPage}
               />
               {viewMode === "list" ? (

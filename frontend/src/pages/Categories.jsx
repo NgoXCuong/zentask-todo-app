@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { categoriesAPI } from "../services/api";
+import { useLayout } from "../context/LayoutContext";
 import Sidebar from "../components/layout/Sidebar";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -34,11 +35,11 @@ export default function Categories() {
     color: "#FF5733",
   });
   const [loading, setLoading] = useState(false);
-  const [focusMode, setFocusMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showAddTask, setShowAddTask] = useState(false);
   const { user } = useAuth();
   const { isDark, toggleTheme } = useTheme();
+  const { focusMode, setFocusMode } = useLayout();
   const navigate = useNavigate();
 
   useEffect(() => {

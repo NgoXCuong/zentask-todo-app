@@ -114,6 +114,7 @@ export const tasksAPI = {
     priority = "",
     start_date = "",
     end_date = "",
+    workspace_id = "",
   } = {}) => {
     const params = new URLSearchParams({
       page: page.toString(),
@@ -125,6 +126,7 @@ export const tasksAPI = {
       priority,
       start_date,
       end_date,
+      workspace_id,
     });
     return await apiCall(`/tasks?${params}`);
   },

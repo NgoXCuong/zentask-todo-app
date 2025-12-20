@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { workspacesAPI } from "../services/api";
+import { useLayout } from "../context/LayoutContext";
 import Sidebar from "../components/layout/Sidebar";
 import Header from "../components/layout/Header";
 import { Button } from "../components/ui/button";
@@ -55,8 +56,8 @@ export default function Workspaces() {
   });
   const [selectedWorkspace, setSelectedWorkspace] = useState(null);
   const [showAddMemberForm, setShowAddMemberForm] = useState(false);
-  const [focusMode, setFocusMode] = useState(false);
   const { user } = useAuth();
+  const { focusMode, setFocusMode } = useLayout();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -396,9 +397,7 @@ export default function Workspaces() {
                         variant="outline"
                         size="sm"
                         onClick={() =>
-                          toast.info(
-                            "Tính năng xem tasks theo workspace sẽ có trong phiên bản tiếp theo!"
-                          )
+                          navigate(`/tasks?workspace=${workspace.id}`)
                         }
                         className="flex-1"
                       >
