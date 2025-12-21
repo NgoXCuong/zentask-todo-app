@@ -77,7 +77,7 @@ export default function TaskControls({
             type="text"
             placeholder="Tìm kiếm công việc..."
             onChange={(e) => handleSearch(e.target.value)}
-            className="pl-10 rounded-full"
+            className="pl-10 rounded-xs"
           />
         </div>
         <div className="flex gap-2 flex-wrap">

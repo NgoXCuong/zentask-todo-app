@@ -206,7 +206,9 @@ export default function Tasks() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>Bảng Quản lý Task</CardTitle>
+                  <CardTitle className="font-bold text-xl">
+                    Bảng Quản lý Task
+                  </CardTitle>
                   <p className="text-sm text-muted-foreground">
                     Quản lý các công việc của bạn theo các giai đoạn khác nhau
                   </p>

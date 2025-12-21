@@ -13,13 +13,13 @@ export default function TaskList({
 }) {
   if (loading) {
     return (
-      <div className="text-center text-gray-500 py-8">Đang tải dữ liệu...</div>
+      <div className="text-center text-gray-500 py-16">Đang tải dữ liệu...</div>
     );
   }
 
   if (tasks.length === 0) {
     return (
-      <div className="text-center text-gray-400 py-8">
+      <div className="text-center text-gray-400 py-16">
         Không tìm thấy công việc nào.
       </div>
     );

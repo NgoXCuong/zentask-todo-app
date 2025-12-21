@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { workspacesAPI } from "../services/api";
+import { workspacesAPI, tasksAPI } from "../services/api";
 import { useLayout } from "../context/LayoutContext";
 import Sidebar from "../components/layout/Sidebar";
 import Header from "../components/layout/Header";
@@ -41,6 +41,9 @@ import {
 import { useAuth } from "../context/AuthContext";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import TaskList from "../components/tasks/TaskList";
+import TaskDetailsModal from "../components/tasks/TaskDetailsModal";
+import AddTaskForm from "../components/tasks/AddTaskForm";
 
 export default function Workspaces() {
   const [workspaces, setWorkspaces] = useState([]);
@@ -56,6 +59,26 @@ export default function Workspaces() {
   });
   const [selectedWorkspace, setSelectedWorkspace] = useState(null);
   const [showAddMemberForm, setShowAddMemberForm] = useState(false);
+  const [showTasksModal, setShowTasksModal] = useState(false);
+  const [tasksWorkspace, setTasksWorkspace] = useState(null);
+  const [tasks, setTasks] = useState([]);
+  const [tasksLoading, setTasksLoading] = useState(false);
+  const [filter, setFilter] = useState("");
+  const [keyword, setKeyword] = useState("");
+  const [sortBy, setSortBy] = useState("created_at");
+  const [order, setOrder] = useState("DESC");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [priority, setPriority] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [showAddTaskForm, setShowAddTaskForm] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [editTask, setEditTask] = useState({ title: "", status: "" });
+  const [viewingTask, setViewingTask] = useState(null);
+  const [viewMode, setViewMode] = useState("list"); // "list" or "kanban"
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 10;
   const { user } = useAuth();
   const { focusMode, setFocusMode } = useLayout();
   const navigate = useNavigate();
@@ -168,6 +191,83 @@ export default function Workspaces() {
       default:
         return "Thành viên";
     }
+  };
+
+  const openTasksModal = (workspace) => {
+    setTasksWorkspace(workspace);
+    setShowTasksModal(true);
+    loadTasks(workspace.id);
+  };
+
+  const loadTasks = async (workspaceId) => {
+    setTasksLoading(true);
+    try {
+      const tasksRes = await tasksAPI.getAll({
+        page,
+        limit,
+        status: filter,
+        keyword,
+        sort_by: sortBy,
+        order,
+        start_date: startDate,
+        end_date: endDate,
+        priority,
+        category_id: categoryId,
+        workspace_id: workspaceId,
+      });
+
+      if (tasksRes.ok) {
+        setTasks(tasksRes.data.data || []);
+        setTotalPages(tasksRes.data.meta?.totalPages || 1);
+      }
+    } catch (error) {
+      console.error("Error loading tasks:", error);
+    } finally {
+      setTasksLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (tasksWorkspace) {
+      loadTasks(tasksWorkspace.id);
+    }
+  }, [
+    page,
+    filter,
+    keyword,
+    sortBy,
+    order,
+    startDate,
+    endDate,
+    priority,
+    categoryId,
+  ]);
+
+  const showMsg = (text, isError = false) => {
+    if (isError) {
+      toast.error(text);
+    } else {
+      toast.success(text);
+    }
+  };
+
+  const deleteTask = async (id) => {
+    if (!confirm("Bạn chắc chắn muốn xóa?")) return;
+
+    const { ok } = await tasksAPI.delete(id);
+    if (ok) {
+      showMsg("Đã xóa!");
+      if (tasksWorkspace) {
+        loadTasks(tasksWorkspace.id);
+      }
+    } else {
+      showMsg("Xóa thất bại!", true);
+    }
+  };
+
+  const startEdit = (task) => {
+    setEditingId(task.id);
+    setEditTask({ title: task.title, status: task.status });
   };
 
   return (
@@ -312,6 +412,30 @@ export default function Workspaces() {
                 </div>
               </DialogContent>
             </Dialog>
+
+            {/* Tasks Modal */}
+            <Dialog open={showTasksModal} onOpenChange={setShowTasksModal}>
+              <DialogContent className="w-1/2! h-[70vh]! max-w-none! overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Tasks trong {tasksWorkspace?.name}</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <TaskList
+                    tasks={tasks}
+                    loading={tasksLoading}
+                    editingId={editingId}
+                    setEditingId={setEditingId}
+                    editTask={editTask}
+                    setEditTask={setEditTask}
+                    loadData={() =>
+                      tasksWorkspace && loadTasks(tasksWorkspace.id)
+                    }
+                    showMsg={showMsg}
+                    setViewingTask={setViewingTask}
+                  />
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -396,9 +520,7 @@ export default function Workspaces() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() =>
-                          navigate(`/tasks?workspace=${workspace.id}`)
-                        }
+                        onClick={() => openTasksModal(workspace)}
                         className="flex-1"
                       >
                         Xem Tasks
@@ -432,6 +554,22 @@ export default function Workspaces() {
               </Button>
             </Card>
           )}
+
+          {/* Task Details Modal */}
+          <TaskDetailsModal
+            viewingTask={viewingTask}
+            setViewingTask={setViewingTask}
+            startEdit={startEdit}
+            deleteTask={deleteTask}
+          />
+
+          {/* Add Task Form Modal */}
+          <AddTaskForm
+            showAddForm={showAddTaskForm}
+            setShowAddForm={setShowAddTaskForm}
+            loadData={() => tasksWorkspace && loadTasks(tasksWorkspace.id)}
+            showMsg={showMsg}
+          />
         </main>
       </div>
     </div>
