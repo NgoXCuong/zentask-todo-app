@@ -4,6 +4,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Checkbox } from "../ui/checkbox";
+import { Label } from "../ui/label";
 import {
   MessageCircle,
   CheckSquare,
@@ -12,6 +13,10 @@ import {
   Trash2,
   Save,
   X,
+  Calendar,
+  User,
+  Clock,
+  Tag,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -159,6 +164,20 @@ export default function TaskDetailsModal({
     review: "bg-chart-4/20 text-chart-4 border border-chart-4/30",
   };
 
+  const statusTranslations = {
+    pending: "Chưa giải quyết",
+    inprogress: "Đang tiến hành",
+    completed: "Đã hoàn thành",
+    review: "Đang xem xét",
+  };
+
+  const priorityTranslations = {
+    low: "Thấp",
+    medium: "Trung bình",
+    high: "Cao",
+    urgent: "Khẩn cấp",
+  };
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <div className="bg-card rounded-xl shadow-xl border border-border max-w-4xl w-full max-h-[90vh] overflow-y-auto">
@@ -167,98 +186,127 @@ export default function TaskDetailsModal({
             <h2 className="text-2xl font-bold text-card-foreground">
               Chi tiết Task
             </h2>
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => setViewingTask(null)}
-              className="p-2 hover:bg-accent rounded-lg transition-colors"
             >
-              ✕
-            </button>
+              <X className="w-5 h-5" />
+            </Button>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Task Details */}
             <div className="lg:col-span-2 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-muted-foreground mb-2">
+                <Label className="text-sm font-medium text-muted-foreground">
                   Tiêu đề
-                </label>
-                <p className="text-lg font-semibold text-card-foreground">
+                </Label>
+                <p className="text-lg font-semibold text-card-foreground mt-1">
                   {viewingTask.title}
                 </p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-muted-foreground mb-2">
+                <Label className="text-sm font-medium text-muted-foreground">
                   Mô tả
-                </label>
-                <p className="text-card-foreground whitespace-pre-wrap">
+                </Label>
+                <p className="text-card-foreground whitespace-pre-wrap mt-1">
                   {viewingTask.description || "Không có mô tả"}
                 </p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-muted-foreground mb-2">
-                    Trạng thái
-                  </label>
-                  <span
-                    className={`inline-block px-3 py-1 rounded-full text-sm font-medium capitalize ${
-                      statusClass[viewingTask.status]
-                    }`}
-                  >
-                    {viewingTask.status}
-                  </span>
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-2 h-2 rounded-full bg-current"
+                    style={{
+                      color:
+                        viewingTask.status === "completed"
+                          ? "#10b981"
+                          : viewingTask.status === "inprogress"
+                          ? "#f59e0b"
+                          : viewingTask.status === "pending"
+                          ? "#6b7280"
+                          : "#ef4444",
+                    }}
+                  ></div>
+                  <div>
+                    <Label className="text-sm font-medium text-muted-foreground">
+                      Trạng thái
+                    </Label>
+                    <p className="text-card-foreground mt-1">
+                      {statusTranslations[viewingTask.status] ||
+                        viewingTask.status}
+                    </p>
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-muted-foreground mb-2">
-                    Mức độ ưu tiên
-                  </label>
-                  <span className="text-card-foreground capitalize">
-                    {viewingTask.priority}
-                  </span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-muted-foreground mb-2">
-                    Hạn chót
-                  </label>
-                  <p className="text-card-foreground">
-                    {viewingTask.due_date
-                      ? new Date(viewingTask.due_date).toLocaleDateString()
-                      : "Không có hạn"}
-                  </p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-muted-foreground mb-2">
-                    Danh mục
-                  </label>
-                  <p className="text-card-foreground">
-                    {viewingTask.category?.name || "Không có danh mục"}
-                  </p>
+                <div className="flex items-center gap-2">
+                  <Tag className="w-4 h-4 text-muted-foreground" />
+                  <div>
+                    <Label className="text-sm font-medium text-muted-foreground">
+                      Mức độ ưu tiên
+                    </Label>
+                    <p className="text-card-foreground mt-1">
+                      {priorityTranslations[viewingTask.priority] ||
+                        viewingTask.priority}
+                    </p>
+                  </div>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-muted-foreground mb-2">
-                    Tạo
-                  </label>
-                  <p className="text-card-foreground">
-                    {new Date(viewingTask.created_at).toLocaleString()}
-                  </p>
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-muted-foreground" />
+                  <div>
+                    <Label className="text-sm font-medium text-muted-foreground">
+                      Hạn chót
+                    </Label>
+                    <p className="text-card-foreground mt-1">
+                      {viewingTask.due_date
+                        ? new Date(viewingTask.due_date).toLocaleDateString()
+                        : "Không có hạn"}
+                    </p>
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-muted-foreground mb-2">
-                    Sửa đổi lần cuối
-                  </label>
-                  <p className="text-card-foreground">
-                    {new Date(viewingTask.updated_at).toLocaleString()}
-                  </p>
+                <div className="flex items-center gap-2">
+                  <Tag className="w-4 h-4 text-muted-foreground" />
+                  <div>
+                    <Label className="text-sm font-medium text-muted-foreground">
+                      Danh mục
+                    </Label>
+                    <p className="text-card-foreground mt-1">
+                      {viewingTask.category?.name || "Không có danh mục"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-muted-foreground" />
+                  <div>
+                    <Label className="text-sm font-medium text-muted-foreground">
+                      Tạo
+                    </Label>
+                    <p className="text-card-foreground text-sm mt-1">
+                      {new Date(viewingTask.created_at).toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-muted-foreground" />
+                  <div>
+                    <Label className="text-sm font-medium text-muted-foreground">
+                      Sửa đổi lần cuối
+                    </Label>
+                    <p className="text-card-foreground text-sm mt-1">
+                      {new Date(viewingTask.updated_at).toLocaleString()}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -442,30 +490,29 @@ export default function TaskDetailsModal({
           </div>
 
           <div className="flex gap-3 mt-6 pt-4 border-t border-border">
-            <button
+            <Button
               onClick={() => {
                 setViewingTask(null);
                 startEdit(viewingTask);
               }}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
             >
+              <Edit2 className="w-4 h-4 mr-2" />
               Sửa
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="destructive"
               onClick={() => {
                 setViewingTask(null);
                 deleteTask(viewingTask.id);
               }}
-              className="px-4 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 transition-colors"
             >
+              <Trash2 className="w-4 h-4 mr-2" />
               Xóa
-            </button>
-            <button
-              onClick={() => setViewingTask(null)}
-              className="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors"
-            >
+            </Button>
+            <Button variant="outline" onClick={() => setViewingTask(null)}>
+              <X className="w-4 h-4 mr-2" />
               Đóng
-            </button>
+            </Button>
           </div>
         </div>
       </div>

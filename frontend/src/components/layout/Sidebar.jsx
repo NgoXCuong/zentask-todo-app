@@ -26,7 +26,7 @@ export default function Sidebar({ focusMode, stats, onToggleFocus }) {
 
   return (
     <Card
-      className={`fixed left-0 top-0 h-full border-r shadow-lg z-40 flex flex-col transition-all duration-300 ${
+      className={`fixed left-0 top-0 rounded-none h-full border-r shadow-lg z-40 flex flex-col transition-all duration-300 ${
         focusMode ? "w-16" : "w-64"
       }`}
     >
@@ -133,14 +133,14 @@ export default function Sidebar({ focusMode, stats, onToggleFocus }) {
         </div>
       </CardContent>
 
-      <CardFooter className={`${focusMode ? "p-2" : "p-4"} border-t`}>
+      <CardFooter className={`${focusMode ? "px-2" : "px-4"} border-t`}>
         <Button
           variant="ghost"
           onClick={handleLogout}
           className={`${
             focusMode
               ? "w-12 h-12 p-0 justify-center"
-              : "w-full justify-start gap-3 px-3 py-2 h-12"
+              : "w-full justify-start gap-3 px-3 h-12"
           } text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/20`}
           title={focusMode ? "Đăng xuất" : ""}
         >

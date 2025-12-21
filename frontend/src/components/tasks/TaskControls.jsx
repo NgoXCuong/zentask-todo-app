@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react";
-import { categoriesAPI } from "../../services/api";
+import { categoriesAPI, workspacesAPI } from "../../services/api";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
@@ -29,9 +29,12 @@ export default function TaskControls({
   setPriority,
   categoryId,
   setCategoryId,
+  workspaceId,
+  setWorkspaceId,
   setPage,
 }) {
   const [categories, setCategories] = useState([]);
+  const [workspaces, setWorkspaces] = useState([]);
   const debounceRef = useRef(null);
 
   useEffect(() => {
@@ -43,7 +46,18 @@ export default function TaskControls({
         setCategories([]);
       }
     };
+
+    const loadWorkspaces = async () => {
+      const { data, ok } = await workspacesAPI.getUserWorkspaces();
+      if (ok && data && Array.isArray(data.data)) {
+        setWorkspaces(data.data);
+      } else {
+        setWorkspaces([]);
+      }
+    };
+
     loadCategories();
+    loadWorkspaces();
   }, []);
 
   const handleSearch = (val) => {
@@ -164,12 +178,36 @@ export default function TaskControls({
           </Select>
         </div>
 
+        <div className="flex items-center gap-2">
+          <Label className="text-sm font-medium">Workspace:</Label>
+          <Select
+            value={workspaceId || "all"}
+            onValueChange={(value) =>
+              setWorkspaceId(value === "all" ? "" : value)
+            }
+          >
+            <SelectTrigger className="w-44">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tất cả workspace</SelectItem>
+              <SelectItem value="personal">Task cá nhân</SelectItem>
+              {workspaces.map((workspace) => (
+                <SelectItem key={workspace.id} value={workspace.id}>
+                  {workspace.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         {(sortBy !== "created_at" ||
           order !== "DESC" ||
           startDate ||
           endDate ||
           priority ||
-          categoryId) && (
+          categoryId ||
+          workspaceId) && (
           <Button
             variant="outline"
             size="sm"
@@ -180,6 +218,7 @@ export default function TaskControls({
               setEndDate("");
               setPriority("");
               setCategoryId("");
+              setWorkspaceId("");
               setPage(1);
             }}
           >

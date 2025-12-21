@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { tasksAPI, categoriesAPI } from "../../services/api";
+import { tasksAPI, categoriesAPI, workspacesAPI } from "../../services/api";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
@@ -40,6 +40,7 @@ export default function AddTaskForm({
     start_date: "",
     reminder_at: "",
     category_id: "",
+    workspace_id: "",
   });
 
   // Helper to format ISO date to datetime-local format
@@ -52,6 +53,7 @@ export default function AddTaskForm({
   };
 
   const [categories, setCategories] = useState([]);
+  const [workspaces, setWorkspaces] = useState([]);
 
   useEffect(() => {
     const loadCategories = async () => {
@@ -62,8 +64,19 @@ export default function AddTaskForm({
         setCategories([]);
       }
     };
+
+    const loadWorkspaces = async () => {
+      const { data, ok } = await workspacesAPI.getUserWorkspaces();
+      if (ok && data && Array.isArray(data.data)) {
+        setWorkspaces(data.data);
+      } else {
+        setWorkspaces([]);
+      }
+    };
+
     if (showAddForm) {
       loadCategories();
+      loadWorkspaces();
     }
   }, [showAddForm]);
 
@@ -88,6 +101,8 @@ export default function AddTaskForm({
       ...newTask,
       category_id:
         newTask.category_id === "none" ? null : newTask.category_id || null,
+      workspace_id:
+        newTask.workspace_id === "none" ? null : newTask.workspace_id || null,
     };
 
     const { ok } = await tasksAPI.create(taskData);
@@ -103,6 +118,7 @@ export default function AddTaskForm({
         start_date: "",
         reminder_at: "",
         category_id: "",
+        workspace_id: "",
       });
       loadData();
     } else {
@@ -362,6 +378,33 @@ export default function AddTaskForm({
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+
+            <div>
+              <Label className="block text-sm font-medium text-card-foreground mb-2">
+                Workspace
+              </Label>
+              <Select
+                value={newTask.workspace_id}
+                onValueChange={(value) =>
+                  setNewTask({ ...newTask, workspace_id: value })
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Chọn workspace (tùy chọn)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Task cá nhân</SelectItem>
+                  {workspaces.map((workspace) => (
+                    <SelectItem
+                      key={workspace.id}
+                      value={workspace.id.toString()}
+                    >
+                      {workspace.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
