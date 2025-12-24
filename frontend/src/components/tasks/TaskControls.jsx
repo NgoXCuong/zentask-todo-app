@@ -103,7 +103,7 @@ export default function TaskControls({
       </div>
 
       {/* Advanced Filters */}
-      <div className="flex gap-12 items-center bg-muted/50 p-2 rounded-xs overflow-x-auto">
+      <div className="flex gap-11 items-center bg-muted/50 p-2 rounded-xs overflow-x-auto">
         <div className="flex items-center gap-1">
           <Label className="text-sm font-medium">Sắp xếp:</Label>
           <Select value={sortBy} onValueChange={setSortBy}>

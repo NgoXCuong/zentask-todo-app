@@ -294,7 +294,7 @@ export default function Categories() {
                   {filteredCategories.map((category) => (
                     <div
                       key={category.id}
-                      className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-accent/50 transition-colors"
+                      className="flex items-center justify-between p-4 border border-border rounded-xs hover:bg-accent/50 transition-colors"
                     >
                       {editingId === category.id ? (
                         <div className="flex-1 flex items-center gap-3">

@@ -342,7 +342,7 @@ export default function ZenTaskDashboard() {
                   {tasks.slice(0, 5).map((task) => (
                     <div
                       key={task.id}
-                      className="flex items-center justify-between p-3 border border-border rounded-lg hover:bg-accent/50 cursor-pointer"
+                      className="flex items-center justify-between p-3 border border-border rounded-xs hover:bg-accent/50 cursor-pointer"
                       onClick={() => setViewingTask(task)}
                     >
                       <div className="flex items-center gap-3">
