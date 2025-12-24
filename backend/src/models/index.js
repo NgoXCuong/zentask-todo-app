@@ -5,6 +5,7 @@ import WorkspaceMember from "./workspace_member.model.js";
 import Category from "./category.model.js";
 import SubTask from "./sub_task.model.js";
 import Comment from "./comment.model.js";
+import sequelize from "../config/db.js";
 
 // User associations
 User.hasMany(Workspace, { foreignKey: "owner_id", onDelete: "CASCADE" });
@@ -71,6 +72,7 @@ const db = {
   Category,
   SubTask,
   Comment,
+  sequelize,
 };
 
 export default db;
