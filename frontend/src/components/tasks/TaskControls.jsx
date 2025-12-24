@@ -103,8 +103,8 @@ export default function TaskControls({
       </div>
 
       {/* Advanced Filters */}
-      <div className="flex flex-wrap gap-12 items-center bg-muted/50 p-2 rounded-xs">
-        <div className="flex items-center gap-2">
+      <div className="flex gap-12 items-center bg-muted/50 p-2 rounded-xs overflow-x-auto">
+        <div className="flex items-center gap-1">
           <Label className="text-sm font-medium">Sắp xếp:</Label>
           <Select value={sortBy} onValueChange={setSortBy}>
             <SelectTrigger className="w-32">
@@ -119,7 +119,7 @@ export default function TaskControls({
           </Select>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <Label className="text-sm font-medium">Từ ngày:</Label>
           <Input
             type="date"
@@ -128,7 +128,7 @@ export default function TaskControls({
           />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <Label className="text-sm font-medium">Đến ngày:</Label>
           <Input
             type="date"
@@ -137,7 +137,7 @@ export default function TaskControls({
           />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <Label className="text-sm font-medium">Ưu tiên:</Label>
           <Select
             value={priority || "all"}
@@ -156,7 +156,7 @@ export default function TaskControls({
           </Select>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <Label className="text-sm font-medium">Danh mục:</Label>
           <Select
             value={categoryId || "all"}
@@ -178,7 +178,7 @@ export default function TaskControls({
           </Select>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <Label className="text-sm font-medium">Workspace:</Label>
           <Select
             value={workspaceId || "all"}

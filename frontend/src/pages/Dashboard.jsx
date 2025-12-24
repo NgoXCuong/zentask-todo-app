@@ -17,7 +17,18 @@ import {
   CardTitle,
 } from "../components/ui/card";
 import { Button } from "../components/ui/button";
-import { CheckSquare, Clock, TrendingUp, Plus, Tag } from "lucide-react";
+import {
+  CheckSquare,
+  Clock,
+  TrendingUp,
+  Plus,
+  Tag,
+  ClipboardList,
+  Hourglass,
+  Activity,
+  CheckCircle2,
+  Building,
+} from "lucide-react";
 
 export default function ZenTaskDashboard() {
   const [tasks, setTasks] = useState([]);
@@ -166,83 +177,95 @@ export default function ZenTaskDashboard() {
 
           {/* Stats Overview */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Total Tasks
+            {/* Card 1: Tổng Tasks - Màu Tím Indigo */}
+            <Card className="relative overflow-hidden group transition-all duration-300 hover:shadow-lg border-t-4 border-t-indigo-500 shadow-sm">
+              <div className="absolute -top-6 -right-6 w-24 h-24 border-8 border-indigo-500/10 rounded-full transition-all duration-500 ease-out group-hover:scale-150 group-hover:border-indigo-500/20 group-hover:bg-indigo-500/5" />
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+                <CardTitle className="text-sm font-semibold ">
+                  Tổng Tasks
                 </CardTitle>
-                <CheckSquare className="h-4 w-4 text-muted-foreground" />
+                <ClipboardList className="h-5 w-5 text-indigo-500 transition-transform group-hover:scale-110" />
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
+              <CardContent className="relative z-10">
+                <div className="text-3xl font-extrabold text-indigo-600">
                   {stats.pending +
                     stats.inprogress +
                     stats.completed +
                     stats.review}
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Tất cả các công việc của bạn
+                <p className="text-xs text-muted-foreground mt-1 font-medium">
+                  Hệ thống ghi nhận
                 </p>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Pending</CardTitle>
-                <Clock className="h-4 w-4 text-orange-500" />
+            {/* Card 2: Pending - Màu Vàng Amber */}
+            <Card className="relative overflow-hidden group transition-all duration-300 hover:shadow-lg border-t-4 border-t-amber-500 shadow-sm">
+              <div className="absolute -top-6 -right-6 w-24 h-24 border-8 border-amber-500/10 rounded-full transition-all duration-500 ease-out group-hover:scale-150 group-hover:border-amber-500/20 group-hover:bg-amber-500/5" />
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+                <CardTitle className="text-sm font-semibold ">
+                  Đang chờ
+                </CardTitle>
+                <Hourglass className="h-5 w-5 text-amber-500 animate-pulse transition-transform group-hover:rotate-180 duration-700" />
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-orange-500">
+              <CardContent className="relative z-10">
+                <div className="text-3xl font-extrabold text-amber-600">
                   {stats.pending}
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Nhiệm vụ đang chờ bắt đầu
+                <p className="text-xs text-muted-foreground mt-1 font-medium">
+                  Cần xử lý ngay
                 </p>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  In Progress
+            {/* Card 3: In Progress - Màu Xanh Dương Sky */}
+            <Card className="relative overflow-hidden group transition-all duration-300 hover:shadow-lg border-t-4 border-t-blue-500 shadow-sm">
+              <div className="absolute -top-6 -right-6 w-24 h-24 border-8 border-blue-500/10 rounded-full transition-all duration-500 ease-out group-hover:scale-150 group-hover:border-blue-500/20 group-hover:bg-blue-500/5" />
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+                <CardTitle className="text-sm font-semibold ">
+                  Đang làm
                 </CardTitle>
-                <TrendingUp className="h-4 w-4 text-blue-500" />
+                <Activity className="h-5 w-5 text-blue-500 transition-transform group-hover:skew-x-12" />
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-blue-500">
+              <CardContent className="relative z-10">
+                <div className="text-3xl font-extrabold text-blue-600">
                   {stats.inprogress}
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Hiện đang làm việc
+                <p className="text-xs text-muted-foreground mt-1 font-medium">
+                  Tiến độ đang chạy
                 </p>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Completed</CardTitle>
-                <CheckSquare className="h-4 w-4 text-green-500" />
+            {/* Card 4: Completed - Màu Xanh Lá Emerald */}
+            <Card className="relative overflow-hidden group transition-all duration-300 hover:shadow-lg border-t-4 border-t-emerald-500 shadow-sm">
+              <div className="absolute -top-6 -right-6 w-24 h-24 border-8 border-emerald-500/10 rounded-full transition-all duration-500 ease-out group-hover:scale-150 group-hover:border-emerald-500/20 group-hover:bg-emerald-500/5" />
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+                <CardTitle className="text-sm font-semibold ">
+                  Hoàn thành
+                </CardTitle>
+                <CheckCircle2 className="h-5 w-5 text-emerald-500 transition-transform group-hover:scale-125" />
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-green-500">
+              <CardContent className="relative z-10">
+                <div className="text-3xl font-extrabold text-emerald-600">
                   {stats.completed}
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Nhiệm vụ đã hoàn thành thành công
+                <p className="text-xs text-muted-foreground mt-1 font-medium">
+                  Đã chốt xong
                 </p>
               </CardContent>
             </Card>
           </div>
 
           {/* Quick Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <Card
               className="cursor-pointer hover:shadow-lg transition-shadow"
               onClick={() => navigate("/tasks")}
             >
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <CheckSquare className="w-5 h-5" />
+                  <CheckSquare className="w-5 h-5 text-blue-500" />
                   Xem Tasks
                 </CardTitle>
               </CardHeader>
@@ -259,7 +282,7 @@ export default function ZenTaskDashboard() {
             >
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Plus className="w-5 h-5" />
+                  <Plus className="w-5 h-5 text-green-500" />
                   Thêm Task mới
                 </CardTitle>
               </CardHeader>
@@ -283,6 +306,23 @@ export default function ZenTaskDashboard() {
               <CardContent>
                 <p className="text-sm text-muted-foreground">
                   Tạo và chỉnh sửa các danh mục công việc
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card
+              className="cursor-pointer hover:shadow-lg transition-shadow"
+              onClick={() => navigate("/workspaces")}
+            >
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Building className="w-5 h-5 text-purple-500" />
+                  Quản lý Workspace
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Tạo và quản lý các không gian làm việc
                 </p>
               </CardContent>
             </Card>

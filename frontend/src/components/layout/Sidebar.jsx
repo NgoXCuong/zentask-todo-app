@@ -2,10 +2,11 @@ import {
   Home,
   LogOut,
   Tag,
-  CheckSquare,
   PanelLeftClose,
   PanelLeftOpen,
   Users,
+  Notebook,
+  ListTodo,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -30,24 +31,23 @@ export default function Sidebar({ focusMode, stats, onToggleFocus }) {
         focusMode ? "w-16" : "w-64"
       }`}
     >
-      <CardHeader className={`border-b ${focusMode ? "p-1.5" : ""}`}>
+      <CardHeader className={`border-b ${focusMode ? "p-2" : "py-1.5"}`}>
         {focusMode ? (
           <div className="flex justify-center">
             <div
-              className="w-8 h-8 bg-linear-to-r from-primary to-purple-600 rounded-xs flex items-center justify-center cursor-pointer"
+              className="w-8 h-8  rounded-xs flex items-center justify-center cursor-pointer"
               onClick={onToggleFocus}
             >
-              <CheckSquare className="w-5 h-5 text-white" />
+              <Notebook className="w-8 h-8 dark:text-white " />
             </div>
           </div>
         ) : (
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-linear-to-r from-primary to-purple-600 rounded-xs flex items-center justify-center">
-              <CheckSquare className="w-5 h-5 text-white" />
+            <div className="w-8 h-8  rounded-xs flex items-center justify-center">
+              <Notebook className="w-10 h-10  dark:text-white " />
             </div>
             <div>
-              <h1 className="text-lg font-bold">ZenTask</h1>
-              <p className="text-xs text-muted-foreground">Task Management</p>
+              <h1 className="text-2xl font-bold">ZenTask</h1>
             </div>
           </div>
         )}
@@ -76,7 +76,7 @@ export default function Sidebar({ focusMode, stats, onToggleFocus }) {
               title={focusMode ? "Dashboard" : ""}
             >
               <Home className="w-4 h-4" />
-              {!focusMode && <span className="text-sm">Dashboard</span>}
+              {!focusMode && <span className="text-sm">Trang chủ</span>}
             </Button>
             <Button
               variant={isActive("/tasks") ? "secondary" : "ghost"}
@@ -92,7 +92,7 @@ export default function Sidebar({ focusMode, stats, onToggleFocus }) {
               onClick={() => navigate("/tasks")}
               title={focusMode ? "Tasks" : ""}
             >
-              <CheckSquare className="w-4 h-4" />
+              <ListTodo className="w-4 h-4" />
               {!focusMode && <span className="text-sm">Tasks</span>}
             </Button>
             <Button

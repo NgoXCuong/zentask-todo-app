@@ -169,11 +169,12 @@ export default function TaskItem({
 
             <div className="flex items-center gap-4 text-xs text-gray-500 mb-3">
               <span className="flex items-center gap-1">
-                <CalendarIcon size={12} />
+                <CalendarIcon size={12} /> Hạn:
                 {task.due_date
                   ? format(new Date(task.due_date), "dd/MM/yyyy")
                   : "Không thời hạn"}
               </span>
+              <span>-</span>
               {task.start_date && (
                 <span>
                   Bắt đầu: {format(new Date(task.start_date), "dd/MM/yyyy")}
@@ -208,8 +209,8 @@ export default function TaskItem({
                   ? "Ẩn"
                   : "Hiển thị"}{" "}
                 nhiệm vụ con
-                {subTasks.length > 0 && (
-                  <span className="ml-1">({subTasks.length})</span>
+                {task.subTasks && task.subTasks.length > 0 && (
+                  <span> ({task.subTasks.length})</span>
                 )}
               </Button>
               {expanded && subTasks.length > 0 && (
