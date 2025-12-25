@@ -15,7 +15,12 @@ const WorkspaceMember = sequelize.define(
       allowNull: false,
       defaultValue: "member",
     },
-    joined_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
+    status: {
+      type: DataTypes.ENUM("invited", "active", "declined"),
+      allowNull: false,
+      defaultValue: "invited",
+    },
+    joined_at: { type: DataTypes.DATE, allowNull: true },
   },
   {
     tableName: "workspace_members",

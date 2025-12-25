@@ -12,11 +12,11 @@ const User = sequelize.define(
 
     hash_password: { type: DataTypes.STRING(255), allowNull: false },
 
+    avatar_url: { type: DataTypes.STRING(255), allowNull: true },
+
     is_active: { type: DataTypes.BOOLEAN, defaultValue: true },
 
     refresh_token_hash: { type: DataTypes.TEXT, allowNull: true },
-
-    refresh_token_expires: { type: DataTypes.DATE, allowNull: true },
   },
   {
     tableName: "users",

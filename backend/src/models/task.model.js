@@ -16,7 +16,13 @@ const Task = sequelize.define(
     description: DataTypes.TEXT,
 
     status: {
-      type: DataTypes.ENUM("pending", "inprogress", "completed", "review"),
+      type: DataTypes.ENUM(
+        "pending",
+        "inprogress",
+        "completed",
+        "review",
+        "canceled"
+      ),
       allowNull: false,
       defaultValue: "pending",
     },
