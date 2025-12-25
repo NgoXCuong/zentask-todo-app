@@ -22,4 +22,17 @@ router.delete(
   workspaceController.removeWorkspaceMember
 );
 
+// Workspace invitation management
+router.post(
+  "/:id/accept-invitation",
+  workspaceController.acceptWorkspaceInvitation
+);
+router.post(
+  "/:id/decline-invitation",
+  workspaceController.declineWorkspaceInvitation
+);
+
+// Leave workspace
+router.post("/:id/leave", workspaceController.leaveWorkspace);
+
 export default router;

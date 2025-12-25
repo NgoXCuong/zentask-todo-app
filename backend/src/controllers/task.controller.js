@@ -90,7 +90,9 @@ const getAllTask = asyncHandler(async (req, res) => {
 
   if (
     status &&
-    ["pending", "inprogress", "completed", "review"].includes(status)
+    ["pending", "inprogress", "completed", "review", "canceled"].includes(
+      status
+    )
   )
     whereFilter.status = status;
 
@@ -530,7 +532,7 @@ const getTaskStats = asyncHandler(async (req, res) => {
     };
   }
 
-  const [pending, inprogress, completed, review] = await Promise.all([
+  const [pending, inprogress, completed, review, canceled] = await Promise.all([
     db.Task.count({
       where: { ...baseWhere, status: "pending" },
     }),
@@ -543,6 +545,9 @@ const getTaskStats = asyncHandler(async (req, res) => {
     db.Task.count({
       where: { ...baseWhere, status: "review" },
     }),
+    db.Task.count({
+      where: { ...baseWhere, status: "canceled" },
+    }),
   ]);
 
   return res.status(200).json({
@@ -552,7 +557,8 @@ const getTaskStats = asyncHandler(async (req, res) => {
       inprogress,
       completed,
       review,
-      total: pending + inprogress + completed + review,
+      canceled,
+      total: pending + inprogress + completed + review + canceled,
     },
   });
 });
