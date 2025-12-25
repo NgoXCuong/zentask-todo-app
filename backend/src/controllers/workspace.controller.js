@@ -89,11 +89,13 @@ const createWorkspace = asyncHandler(async (req, res) => {
     owner_id: userId,
   });
 
-  // Add owner as a member with 'owner' role
+  // Add owner as a member with 'owner' role and active status
   await db.WorkspaceMember.create({
     workspace_id: workspace.id,
     user_id: userId,
     role: "owner",
+    status: "active",
+    joined_at: new Date(),
   });
 
   // Fetch created workspace with members

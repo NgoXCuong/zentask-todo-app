@@ -123,6 +123,70 @@ class UserController {
       .json({ message: "Xác thực thành công", user: findUser });
   });
 
+  updateProfile = asyncHandler(async (req, res) => {
+    const userId = req.user.id;
+    const { full_name, avatar_url } = req.body;
+
+    const updateData = {};
+    if (full_name !== undefined) updateData.full_name = full_name;
+    if (avatar_url !== undefined) updateData.avatar_url = avatar_url;
+
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({ message: "Không có dữ liệu để cập nhật" });
+    }
+
+    const [updatedRows] = await User.update(updateData, {
+      where: { id: userId },
+    });
+
+    if (updatedRows === 0) {
+      return res.status(404).json({ message: "User không tồn tại" });
+    }
+
+    // Fetch updated user data
+    const updatedUser = await User.findOne({
+      where: { id: userId },
+      attributes: { exclude: ["hash_password", "refresh_token"] },
+    });
+
+    return res.status(200).json({
+      message: "Cập nhật profile thành công",
+      user: updatedUser,
+    });
+  });
+
+  uploadAvatar = asyncHandler(async (req, res) => {
+    const userId = req.user.id;
+
+    if (!req.file) {
+      return res.status(400).json({ message: "Không có file được upload" });
+    }
+
+    // Create the avatar URL path
+    const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+
+    // Update user's avatar_url
+    const [updatedRows] = await User.update(
+      { avatar_url: avatarUrl },
+      { where: { id: userId } }
+    );
+
+    if (updatedRows === 0) {
+      return res.status(404).json({ message: "User không tồn tại" });
+    }
+
+    // Fetch updated user data
+    const updatedUser = await User.findOne({
+      where: { id: userId },
+      attributes: { exclude: ["hash_password", "refresh_token"] },
+    });
+
+    return res.status(200).json({
+      message: "Upload avatar thành công",
+      user: updatedUser,
+    });
+  });
+
   // Cấp lại access token mới
   refreshToken = asyncHandler(async (req, res) => {
     const refreshToken = req.cookies.refreshToken;

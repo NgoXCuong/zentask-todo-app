@@ -25,6 +25,9 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
+// Serve static files from uploads directory
+app.use("/uploads", express.static("uploads"));
+
 async function startServer() {
   try {
     console.log("Đang đồng bộ hóa cơ sở dữ liệu...");
