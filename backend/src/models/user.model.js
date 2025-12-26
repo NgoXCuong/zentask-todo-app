@@ -14,6 +14,10 @@ const User = sequelize.define(
 
     avatar_url: { type: DataTypes.STRING(255), allowNull: true },
 
+    reset_token: { type: DataTypes.STRING(255), allowNull: true },
+
+    reset_token_expires: { type: DataTypes.DATE, allowNull: true },
+
     is_active: { type: DataTypes.BOOLEAN, defaultValue: true },
 
     refresh_token_hash: { type: DataTypes.TEXT, allowNull: true },

@@ -29,6 +29,8 @@ router.post(
   userController.uploadAvatar
 );
 router.post("/logout", authMiddleware, userController.logout);
+router.post("/forgot-password", userController.forgotPassword);
+router.post("/reset-password", userController.resetPassword);
 router.post("/refresh-token", userController.refreshToken);
 
 export default router;

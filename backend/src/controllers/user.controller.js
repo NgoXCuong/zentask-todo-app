@@ -92,6 +92,7 @@ class UserController {
         id: findUser.id,
         full_name: findUser.full_name,
         email: findUser.email,
+        avatar_url: findUser.avatar_url,
       },
     });
   });
@@ -185,6 +186,104 @@ class UserController {
       message: "Upload avatar thành công",
       user: updatedUser,
     });
+  });
+
+  forgotPassword = asyncHandler(async (req, res) => {
+    const { email } = req.body;
+
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res
+        .status(404)
+        .json({ message: "Email không tồn tại trong hệ thống" });
+    }
+
+    // Generate reset token
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const resetTokenExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    // Save reset token to database
+    await User.update(
+      {
+        reset_token: resetToken,
+        reset_token_expires: resetTokenExpires,
+      },
+      { where: { id: user.id } }
+    );
+
+    // Send email
+    const resetUrl = `${
+      process.env.FRONTEND_URL || "http://localhost:5173"
+    }/reset-password?token=${resetToken}`;
+
+    try {
+      await sendEmail({
+        email: user.email,
+        subject: "Đặt lại mật khẩu ZenTask",
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #333;">Đặt lại mật khẩu ZenTask</h2>
+            <p>Xin chào ${user.full_name},</p>
+            <p>Bạn đã yêu cầu đặt lại mật khẩu cho tài khoản ZenTask.</p>
+            <p>Vui lòng nhấp vào liên kết dưới đây để đặt lại mật khẩu:</p>
+            <a href="${resetUrl}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">Đặt lại mật khẩu</a>
+            <p>Liên kết này sẽ hết hạn sau 10 phút.</p>
+            <p>Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.</p>
+            <br>
+            <p>Trân trọng,<br>Đội ngũ ZenTask</p>
+          </div>
+        `,
+      });
+
+      return res.status(200).json({
+        message:
+          "Email đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra hộp thư.",
+      });
+    } catch (error) {
+      // If email fails, clear the reset token
+      await User.update(
+        { reset_token: null, reset_token_expires: null },
+        { where: { id: user.id } }
+      );
+
+      return res
+        .status(500)
+        .json({ message: "Không thể gửi email. Vui lòng thử lại sau." });
+    }
+  });
+
+  resetPassword = asyncHandler(async (req, res) => {
+    const { token, newPassword } = req.body;
+
+    const user = await User.findOne({
+      where: {
+        reset_token: token,
+        reset_token_expires: { [Op.gt]: new Date() },
+      },
+    });
+
+    if (!user) {
+      return res
+        .status(400)
+        .json({ message: "Token không hợp lệ hoặc đã hết hạn" });
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update password and clear reset token
+    await User.update(
+      {
+        hash_password: hashedPassword,
+        reset_token: null,
+        reset_token_expires: null,
+      },
+      { where: { id: user.id } }
+    );
+
+    return res
+      .status(200)
+      .json({ message: "Mật khẩu đã được đặt lại thành công" });
   });
 
   // Cấp lại access token mới
