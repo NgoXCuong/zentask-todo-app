@@ -105,6 +105,8 @@ export default function TaskItem({
     pending: "bg-yellow-100 text-yellow-800",
     inprogress: "bg-blue-100 text-blue-800",
     completed: "bg-green-100 text-green-800",
+    review: "bg-purple-100 text-purple-800",
+    canceled: "bg-red-100 text-red-800",
   };
 
   const priorityClass = {
@@ -119,6 +121,7 @@ export default function TaskItem({
     inprogress: "Đang tiến hành",
     completed: "Đã hoàn thành",
     review: "Đang xem xét",
+    canceled: "Đã hủy",
   };
 
   const priorityLabels = {
@@ -282,6 +285,7 @@ export default function TaskItem({
                         </SelectItem>
                         <SelectItem value="completed">Đã hoàn thành</SelectItem>
                         <SelectItem value="review">Đang xem xét</SelectItem>
+                        <SelectItem value="canceled">Đã hủy</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

@@ -5,6 +5,7 @@ import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Checkbox } from "../ui/checkbox";
 import { Label } from "../ui/label";
+import AttachmentList from "../attachments/AttachmentList";
 import {
   MessageCircle,
   CheckSquare,
@@ -17,6 +18,7 @@ import {
   User,
   Clock,
   Tag,
+  Paperclip,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -195,7 +197,7 @@ export default function TaskDetailsModal({
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {/* Task Details */}
             <div className="lg:col-span-2 space-y-4">
               <div>
@@ -401,6 +403,15 @@ export default function TaskDetailsModal({
                   <Plus className="w-4 h-4" />
                 </Button>
               </div>
+            </div>
+
+            {/* Attachments */}
+            <div className="space-y-4">
+              <AttachmentList
+                taskId={viewingTask.id}
+                canUpload={true}
+                canDelete={true}
+              />
             </div>
           </div>
 

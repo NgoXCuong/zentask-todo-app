@@ -7,6 +7,8 @@ import {
   Users,
   Notebook,
   ListTodo,
+  Bell,
+  Activity,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -31,7 +33,7 @@ export default function Sidebar({ focusMode, stats, onToggleFocus }) {
         focusMode ? "w-16" : "w-64"
       }`}
     >
-      <CardHeader className={`border-b ${focusMode ? "p-2" : "py-1.5"}`}>
+      <CardHeader className={`border-b ${focusMode ? "p-3" : "py-3"}`}>
         {focusMode ? (
           <div className="flex justify-center">
             <div
@@ -128,6 +130,24 @@ export default function Sidebar({ focusMode, stats, onToggleFocus }) {
             >
               <Users className="w-4 h-4" />
               {!focusMode && <span className="text-sm">Workspaces</span>}
+            </Button>
+
+            <Button
+              variant={isActive("/activity-logs") ? "secondary" : "ghost"}
+              className={`${
+                focusMode
+                  ? "w-12 h-12 p-0 justify-center"
+                  : "w-full justify-start gap-3 px-3 py-2 h-12"
+              } rounded-xs ${
+                isActive("/activity-logs")
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105"
+                  : ""
+              }`}
+              onClick={() => navigate("/activity-logs")}
+              title={focusMode ? "Lịch sử hoạt động" : ""}
+            >
+              <Activity className="w-4 h-4" />
+              {!focusMode && <span className="text-sm">Lịch sử</span>}
             </Button>
           </nav>
         </div>
