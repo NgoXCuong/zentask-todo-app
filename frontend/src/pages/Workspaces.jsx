@@ -37,6 +37,7 @@ import {
   Shield,
   User,
   Eye,
+  LogOut,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { toast } from "sonner";
@@ -270,6 +271,20 @@ export default function Workspaces() {
     setEditTask({ title: task.title, status: task.status });
   };
 
+  const leaveWorkspace = async (workspaceId) => {
+    if (!confirm("Bạn chắc chắn muốn rời khỏi workspace này?")) return;
+
+    setLoading(true);
+    const { ok } = await workspacesAPI.leaveWorkspace(workspaceId);
+    if (ok) {
+      toast.success("Đã rời khỏi workspace!");
+      loadWorkspaces();
+    } else {
+      toast.error("Rời khỏi workspace thất bại!");
+    }
+    setLoading(false);
+  };
+
   return (
     <div className="min-h-screen bg-background flex">
       <Sidebar
@@ -479,7 +494,10 @@ export default function Workspaces() {
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Users className="w-4 h-4" />
                       <span>
-                        {workspace.WorkspaceMembers?.length || 0} thành viên
+                        {workspace.WorkspaceMembers?.filter(
+                          (member) => member.status === "active"
+                        ).length || 0}{" "}
+                        thành viên
                       </span>
                     </div>
 
@@ -490,8 +508,11 @@ export default function Workspaces() {
                             Thành viên:
                           </Label>
                           <div className="space-y-1 max-h-32 overflow-y-auto">
-                            {workspace.WorkspaceMembers.slice(0, 5).map(
-                              (member) => (
+                            {workspace.WorkspaceMembers.filter(
+                              (member) => member.status === "active"
+                            )
+                              .slice(0, 5)
+                              .map((member) => (
                                 <div
                                   key={member.id}
                                   className="flex items-center gap-2 text-sm"
@@ -504,12 +525,16 @@ export default function Workspaces() {
                                     ({getRoleLabel(member.role)})
                                   </span>
                                 </div>
-                              )
-                            )}
-                            {workspace.WorkspaceMembers.length > 5 && (
+                              ))}
+                            {workspace.WorkspaceMembers.filter(
+                              (member) => member.status === "active"
+                            ).length > 5 && (
                               <div className="text-xs text-muted-foreground">
-                                và {workspace.WorkspaceMembers.length - 5} người
-                                khác...
+                                và{" "}
+                                {workspace.WorkspaceMembers.filter(
+                                  (member) => member.status === "active"
+                                ).length - 5}{" "}
+                                người khác...
                               </div>
                             )}
                           </div>
@@ -525,13 +550,24 @@ export default function Workspaces() {
                       >
                         Xem Tasks
                       </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => openAddMemberDialog(workspace)}
-                      >
-                        <UserPlus className="w-4 h-4" />
-                      </Button>
+                      {workspace.owner_id === user?.id ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => openAddMemberDialog(workspace)}
+                        >
+                          <UserPlus className="w-4 h-4" />
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => leaveWorkspace(workspace.id)}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <LogOut className="w-4 h-4" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </CardContent>

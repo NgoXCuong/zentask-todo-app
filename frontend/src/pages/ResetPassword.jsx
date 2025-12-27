@@ -62,11 +62,11 @@ export default function ZenTaskResetPassword() {
     setIsLoading(true);
     try {
       const response = await fetch(
-        `http://localhost:3000/api/users/reset-password/${token}`,
+        "http://localhost:3000/api/users/reset-password",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ password: values.password }),
+          body: JSON.stringify({ token, newPassword: values.password }),
         }
       );
 
