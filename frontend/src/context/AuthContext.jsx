@@ -14,10 +14,11 @@ export function AuthProvider({ children }) {
     const checkAuthStatus = async () => {
       const currentUser = authAPI.getCurrentUser();
       if (currentUser) {
-        // Verify token is still valid
-        const { ok } = await authAPI.checkAuth();
-        if (ok) {
-          setUser(currentUser);
+        // Verify token is still valid and get fresh user data
+        const { data, ok } = await authAPI.checkAuth();
+        if (ok && data.user) {
+          setUser(data.user);
+          localStorage.setItem("user", JSON.stringify(data.user));
         } else {
           // Token invalid, clear it
           localStorage.removeItem("user");
@@ -32,8 +33,9 @@ export function AuthProvider({ children }) {
   // Login
   const login = async (email, password) => {
     const { data, ok } = await authAPI.login(email, password);
-    if (ok) {
+    if (ok && data.user) {
       setUser(data.user);
+      localStorage.setItem("user", JSON.stringify(data.user));
       return { ok: true };
     }
     return { ok: false, message: data?.message || "Đăng nhập thất bại" };
@@ -42,8 +44,9 @@ export function AuthProvider({ children }) {
   // Register
   const register = async (full_name, email, password) => {
     const { data, ok } = await authAPI.register(full_name, email, password);
-    if (ok) {
+    if (ok && data.user) {
       setUser(data.user);
+      localStorage.setItem("user", JSON.stringify(data.user));
       return { ok: true };
     }
     return { ok: false, message: data?.message || "Đăng ký thất bại" };
@@ -53,6 +56,24 @@ export function AuthProvider({ children }) {
   const logout = async () => {
     await authAPI.logout();
     setUser(null);
+    localStorage.removeItem("user");
+  };
+
+  // Update profile
+  const updateProfile = async (profileData) => {
+    const { data, ok } = await authAPI.updateProfile(profileData);
+    if (ok && data.user) {
+      setUser(data.user);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      return { ok: true };
+    }
+    return { ok: false, message: data?.message || "Cập nhật thất bại" };
+  };
+
+  // Update user data directly (for cases where API was already called)
+  const updateUserData = (userData) => {
+    setUser(userData);
+    localStorage.setItem("user", JSON.stringify(userData));
   };
 
   // Context value
@@ -63,6 +84,8 @@ export function AuthProvider({ children }) {
     login,
     register,
     logout,
+    updateProfile,
+    updateUserData,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
