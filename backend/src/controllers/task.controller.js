@@ -282,6 +282,16 @@ const createTask = asyncHandler(async (req, res) => {
 
   const task = await db.Task.create(taskData);
 
+  // Log activity
+  await db.ActivityLog.create({
+    workspace_id: finalWorkspaceId,
+    task_id: task.id,
+    user_id: userId,
+    action: "CREATE_TASK",
+    entity_name: "Task",
+    description: `Tạo task mới: ${title}`,
+  });
+
   // Fetch the created task with associations
   const createdTask = await db.Task.findByPk(task.id, {
     include: [
@@ -394,6 +404,16 @@ const updateTask = asyncHandler(async (req, res) => {
 
   await task.save();
 
+  // Log activity
+  await db.ActivityLog.create({
+    workspace_id: task.workspace_id,
+    task_id: task.id,
+    user_id: userId,
+    action: "UPDATE_TASK",
+    entity_name: "Task",
+    description: `Cập nhật task: ${task.title}`,
+  });
+
   // Fetch updated task with associations
   const updatedTask = await db.Task.findByPk(task.id, {
     include: [
@@ -455,6 +475,16 @@ const deleteTask = asyncHandler(async (req, res) => {
       message: "Bạn không có quyền xóa task này",
     });
   }
+
+  // Log activity before deleting
+  await db.ActivityLog.create({
+    workspace_id: task.workspace_id,
+    task_id: task.id,
+    user_id: userId,
+    action: "DELETE_TASK",
+    entity_name: "Task",
+    description: `Xóa task: ${task.title}`,
+  });
 
   await task.destroy(); // This will soft delete due to paranoid: true
 

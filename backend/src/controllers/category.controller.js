@@ -4,7 +4,7 @@ import { Op } from "sequelize";
 
 const getAllCategories = asyncHandler(async (req, res) => {
   const userId = req.user.id;
-  const { workspace_id } = req.query;
+  const { workspace_id, page = 1, limit = 6 } = req.query;
 
   let whereFilter = { user_id: userId };
 
@@ -30,14 +30,26 @@ const getAllCategories = asyncHandler(async (req, res) => {
     whereFilter.workspace_id = null;
   }
 
-  const categories = await db.Category.findAll({
+  const offset = (parseInt(page) - 1) * parseInt(limit);
+
+  const { count, rows: categories } = await db.Category.findAndCountAll({
     where: whereFilter,
     order: [["created_at", "DESC"]],
+    limit: parseInt(limit),
+    offset: offset,
   });
+
+  const totalPages = Math.ceil(count / parseInt(limit));
 
   return res.status(200).json({
     message: "Lấy danh sách categories thành công",
     data: categories,
+    meta: {
+      total: count,
+      page: parseInt(page),
+      limit: parseInt(limit),
+      totalPages: totalPages,
+    },
   });
 });
 

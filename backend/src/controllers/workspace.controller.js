@@ -4,6 +4,7 @@ import { Op } from "sequelize";
 
 const getUserWorkspaces = asyncHandler(async (req, res) => {
   const userId = req.user.id;
+  const { page = 1, limit = 6 } = req.query;
 
   try {
     // Get workspaces where user is owner
@@ -67,9 +68,23 @@ const getUserWorkspaces = asyncHandler(async (req, res) => {
       }
     });
 
+    // Apply pagination
+    const offset = (parseInt(page) - 1) * parseInt(limit);
+    const paginatedWorkspaces = allWorkspaces.slice(
+      offset,
+      offset + parseInt(limit)
+    );
+    const totalPages = Math.ceil(allWorkspaces.length / parseInt(limit));
+
     return res.status(200).json({
       message: "Lấy danh sách workspaces thành công",
-      data: allWorkspaces,
+      data: paginatedWorkspaces,
+      meta: {
+        total: allWorkspaces.length,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        totalPages: totalPages,
+      },
     });
   } catch (error) {
     console.error("Error getting user workspaces:", error);

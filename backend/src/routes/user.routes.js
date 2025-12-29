@@ -11,7 +11,6 @@ import { uploadAvatar } from "../middleware/upload.middleware.js";
 
 const router = express.Router();
 
-// Tạo user mới
 router.post(
   "/register",
   authLimit,

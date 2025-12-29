@@ -91,6 +91,16 @@ const createSubTask = asyncHandler(async (req, res) => {
     is_done,
   });
 
+  // Log activity
+  await db.ActivityLog.create({
+    workspace_id: task.workspace_id,
+    task_id: taskId,
+    user_id: userId,
+    action: "CREATE_SUBTASK",
+    entity_name: "SubTask",
+    description: `Thêm nhiệm vụ con cho task: ${task.title}`,
+  });
+
   return res.status(201).json({
     message: "Tạo sub-task thành công",
     data: subTask,

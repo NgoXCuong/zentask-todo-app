@@ -261,24 +261,37 @@ const getActivityStats = asyncHandler(async (req, res) => {
   }
 
   // Get activity counts by action type
-  const [createTask, updateTask, deleteTask, assignTask, completeTask] =
-    await Promise.all([
-      db.ActivityLog.count({
-        where: { ...baseWhere, action: "CREATE_TASK" },
-      }),
-      db.ActivityLog.count({
-        where: { ...baseWhere, action: "UPDATE_TASK" },
-      }),
-      db.ActivityLog.count({
-        where: { ...baseWhere, action: "DELETE_TASK" },
-      }),
-      db.ActivityLog.count({
-        where: { ...baseWhere, action: "ASSIGN_TASK" },
-      }),
-      db.ActivityLog.count({
-        where: { ...baseWhere, action: "COMPLETE_TASK" },
-      }),
-    ]);
+  const [
+    createTask,
+    updateTask,
+    deleteTask,
+    assignTask,
+    completeTask,
+    addComment,
+    createSubtask,
+  ] = await Promise.all([
+    db.ActivityLog.count({
+      where: { ...baseWhere, action: "CREATE_TASK" },
+    }),
+    db.ActivityLog.count({
+      where: { ...baseWhere, action: "UPDATE_TASK" },
+    }),
+    db.ActivityLog.count({
+      where: { ...baseWhere, action: "DELETE_TASK" },
+    }),
+    db.ActivityLog.count({
+      where: { ...baseWhere, action: "ASSIGN_TASK" },
+    }),
+    db.ActivityLog.count({
+      where: { ...baseWhere, action: "COMPLETE_TASK" },
+    }),
+    db.ActivityLog.count({
+      where: { ...baseWhere, action: "ADD_COMMENT" },
+    }),
+    db.ActivityLog.count({
+      where: { ...baseWhere, action: "CREATE_SUBTASK" },
+    }),
+  ]);
 
   return res.status(200).json({
     message: "Thống kê hoạt động thành công",
@@ -288,7 +301,16 @@ const getActivityStats = asyncHandler(async (req, res) => {
       delete_task: deleteTask,
       assign_task: assignTask,
       complete_task: completeTask,
-      total: createTask + updateTask + deleteTask + assignTask + completeTask,
+      add_comment: addComment,
+      create_subtask: createSubtask,
+      total:
+        createTask +
+        updateTask +
+        deleteTask +
+        assignTask +
+        completeTask +
+        addComment +
+        createSubtask,
     },
   });
 });

@@ -88,6 +88,16 @@ const createComment = asyncHandler(async (req, res) => {
     content,
   });
 
+  // Log activity
+  await db.ActivityLog.create({
+    workspace_id: task.workspace_id,
+    task_id: taskId,
+    user_id: userId,
+    action: "ADD_COMMENT",
+    entity_name: "Comment",
+    description: `Thêm bình luận cho task: ${task.title}`,
+  });
+
   // Fetch the created comment with user info
   const createdComment = await db.Comment.findByPk(comment.id, {
     include: [
