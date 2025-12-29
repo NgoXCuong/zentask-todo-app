@@ -5,7 +5,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Users,
-  Notebook,
+  CheckSquare,
   ListTodo,
   Bell,
   Activity,
@@ -40,13 +40,13 @@ export default function Sidebar({ focusMode, stats, onToggleFocus }) {
               className="w-8 h-8  rounded-xs flex items-center justify-center cursor-pointer"
               onClick={onToggleFocus}
             >
-              <Notebook className="w-8 h-8 dark:text-white " />
+              <CheckSquare className="w-8 h-8 dark:text-white " />
             </div>
           </div>
         ) : (
           <div className="flex items-center gap-3">
             <div className="w-8 h-8  rounded-xs flex items-center justify-center">
-              <Notebook className="w-10 h-10  dark:text-white " />
+              <CheckSquare className="w-10 h-10  dark:text-white " />
             </div>
             <div>
               <h1 className="text-2xl font-bold">ZenTask</h1>

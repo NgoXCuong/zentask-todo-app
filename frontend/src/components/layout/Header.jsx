@@ -53,7 +53,7 @@ export default function Header({ focusMode, setFocusMode, user: propUser }) {
         <div className="flex items-center gap-2">
           <NotificationDropdown />
           <Button
-            className={"rounded-sm"}
+            className={"rounded-xs"}
             variant="ghost"
             size="icon"
             onClick={toggleTheme}
@@ -70,10 +70,10 @@ export default function Header({ focusMode, setFocusMode, user: propUser }) {
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setShowAvatarDropdown(!showAvatarDropdown)}
-              className="flex items-center gap-2 hover:bg-gray-100 rounded-lg p-2 transition-colors"
+              className="flex items-center gap-2 hover:bg-accent rounded-xs p-2 transition-colors"
               title="Cài đặt tài khoản"
             >
-              <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-200">
+              <div className="w-8 h-8 rounded-full overflow-hidden border border-border">
                 {user?.avatar_url ? (
                   <>
                     <img
@@ -107,12 +107,12 @@ export default function Header({ focusMode, setFocusMode, user: propUser }) {
 
             {/* Avatar Dropdown Menu */}
             {showAvatarDropdown && (
-              <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+              <div className="absolute right-0 mt-2 w-64 bg-card rounded-lg shadow-lg border border-border z-50">
                 {!showAvatarUpdate ? (
                   <div className="p-4">
                     {/* User Info */}
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="w-12 h-12 rounded-full overflow-hidden border border-gray-200">
+                      <div className="w-12 h-12 rounded-full overflow-hidden border border-border">
                         {user?.avatar_url ? (
                           <img
                             src={
@@ -138,7 +138,9 @@ export default function Header({ focusMode, setFocusMode, user: propUser }) {
                       </div>
                       <div>
                         <p className="font-medium text-sm">{user?.full_name}</p>
-                        <p className="text-xs text-gray-500">{user?.email}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {user?.email}
+                        </p>
                       </div>
                     </div>
 
@@ -146,14 +148,14 @@ export default function Header({ focusMode, setFocusMode, user: propUser }) {
                     <div className="space-y-1">
                       <button
                         onClick={() => setShowAvatarUpdate(true)}
-                        className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 rounded transition-colors flex items-center gap-2"
+                        className="w-full text-left px-3 py-2 text-sm hover:bg-accent rounded transition-colors flex items-center gap-2"
                       >
                         <Settings className="w-4 h-4" />
                         Cập nhật ảnh đại diện
                       </button>
                       <button
                         onClick={handleLogout}
-                        className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded transition-colors"
+                        className="w-full text-left px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded transition-colors"
                       >
                         Đăng xuất
                       </button>

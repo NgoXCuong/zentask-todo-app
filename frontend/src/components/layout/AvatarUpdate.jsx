@@ -100,10 +100,10 @@ const AvatarUpdate = ({ onClose }) => {
   };
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="p-4 space-y-4 bg-white dark:bg-gray-800">
       {/* Current Avatar Display */}
       <div className="flex items-center justify-center">
-        <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-gray-200">
+        <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-border">
           {user?.avatar_url ? (
             <img
               src={
@@ -121,11 +121,11 @@ const AvatarUpdate = ({ onClose }) => {
             />
           ) : null}
           <div
-            className={`w-full h-full bg-gray-100 flex items-center justify-center ${
+            className={`w-full h-full bg-muted flex items-center justify-center ${
               user?.avatar_url ? "hidden" : "flex"
             }`}
           >
-            <User className="w-8 h-8 text-gray-400" />
+            <User className="w-8 h-8 text-muted-foreground" />
           </div>
         </div>
       </div>
@@ -166,7 +166,7 @@ const AvatarUpdate = ({ onClose }) => {
           <Upload className="w-4 h-4 mr-2" />
           Chọn file ảnh
         </Button>
-        <p className="text-xs text-gray-500 mt-1">
+        <p className="text-xs text-muted-foreground mt-1">
           Chấp nhận: JPEG, PNG, GIF, WebP (tối đa 5MB)
         </p>
       </div>
@@ -176,10 +176,9 @@ const AvatarUpdate = ({ onClose }) => {
         {user?.avatar_url && (
           <Button
             type="button"
-            variant="outline"
+            variant="destructive"
             onClick={removeAvatar}
             disabled={loading}
-            className="text-red-600 hover:text-red-700"
           >
             <Trash2Icon className="w-4 h-4" />
           </Button>

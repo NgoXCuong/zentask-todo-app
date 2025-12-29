@@ -8,7 +8,7 @@ export default function Pagination({ page, totalPages, setPage }) {
         onClick={() => setPage((p) => p - 1)}
         className="px-4 py-2 bg-gray-100 rounded-lg disabled:opacity-50"
       >
-        Prev
+        Trước
       </button>
       {Array.from({ length: totalPages }, (_, i) => (
         <button
@@ -26,7 +26,7 @@ export default function Pagination({ page, totalPages, setPage }) {
         onClick={() => setPage((p) => p + 1)}
         className="px-4 py-2 bg-gray-100 rounded-lg disabled:opacity-50"
       >
-        Next
+        Sau
       </button>
     </div>
   );

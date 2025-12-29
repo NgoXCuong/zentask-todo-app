@@ -102,18 +102,23 @@ export default function TaskItem({
   };
 
   const statusClass = {
-    pending: "bg-yellow-100 text-yellow-800",
-    inprogress: "bg-blue-100 text-blue-800",
-    completed: "bg-green-100 text-green-800",
-    review: "bg-purple-100 text-purple-800",
-    canceled: "bg-red-100 text-red-800",
+    pending:
+      "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300",
+    inprogress:
+      "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300",
+    completed:
+      "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300",
+    review:
+      "bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300",
+    canceled: "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300",
   };
 
   const priorityClass = {
-    low: "bg-green-100 text-green-800",
-    medium: "bg-yellow-100 text-yellow-800",
-    high: "bg-red-100 text-red-800",
-    urgent: "bg-red-200 text-red-900",
+    low: "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300",
+    medium:
+      "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300",
+    high: "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300",
+    urgent: "bg-red-200 text-red-900 dark:bg-red-900/30 dark:text-red-200",
   };
 
   const statusLabels = {
@@ -139,13 +144,15 @@ export default function TaskItem({
             <div className="flex items-start justify-between mb-2">
               <h4 className="font-semibold">{task.title}</h4>
               {task.creator && (
-                <div className="flex items-center gap-1 text-xs text-gray-500">
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
                   <User size={12} />
                   {task.creator.full_name}
                 </div>
               )}
             </div>
-            <p className="text-gray-600 text-sm mb-3">{task.description}</p>
+            <p className="text-muted-foreground text-sm mb-3">
+              {task.description}
+            </p>
 
             <div className="flex items-center gap-2 mb-3 flex-wrap">
               <span
@@ -163,16 +170,17 @@ export default function TaskItem({
                 {priorityLabels[task.priority]}
               </span>
               {task.category && (
-                <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium flex items-center gap-1">
+                <span className="px-2 py-1 bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300 rounded-full text-xs font-medium flex items-center gap-1">
                   <Tag size={10} />
                   {task.category.name}
                 </span>
               )}
             </div>
 
-            <div className="flex items-center gap-4 text-xs text-gray-500 mb-3">
+            <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
               <span className="flex items-center gap-1">
-                <CalendarIcon size={12} /> Hạn:
+                <CalendarIcon size={12} className="text-muted-foreground" />{" "}
+                Hạn:
                 {task.due_date
                   ? format(new Date(task.due_date), "dd/MM/yyyy")
                   : "Không thời hạn"}
@@ -191,7 +199,7 @@ export default function TaskItem({
               )}
               {task.comments_count > 0 && (
                 <span className="flex items-center gap-1">
-                  <MessageCircle size={12} />
+                  <MessageCircle size={12} className="text-muted-foreground" />
                   {task.comments_count} bình luận
                 </span>
               )}
@@ -202,7 +210,7 @@ export default function TaskItem({
                 variant="ghost"
                 size="sm"
                 onClick={toggleExpanded}
-                className="text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 flex items-center gap-1 p-1 h-auto"
+                className="text-sm text-primary hover:text-primary/80 hover:bg-accent flex items-center gap-1 p-1 h-auto"
                 disabled={loadingSubTasks}
               >
                 <CheckSquare size={14} />
@@ -228,7 +236,9 @@ export default function TaskItem({
                       />
                       <span
                         className={`text-sm ${
-                          subtask.is_done ? "line-through text-gray-500" : ""
+                          subtask.is_done
+                            ? "line-through text-muted-foreground"
+                            : ""
                         }`}
                       >
                         {subtask.title}
@@ -240,7 +250,7 @@ export default function TaskItem({
             </div>
 
             {task.assignee && task.creator.id !== task.assignee.id && (
-              <div className="text-xs text-gray-500 mb-2">
+              <div className="text-xs text-muted-foreground mb-2">
                 Phân công cho: {task.assignee.full_name}
               </div>
             )}
@@ -326,7 +336,7 @@ export default function TaskItem({
                             !localEditTask.due_date && "text-muted-foreground"
                           )}
                         >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
                           {localEditTask.due_date
                             ? format(
                                 new Date(localEditTask.due_date),

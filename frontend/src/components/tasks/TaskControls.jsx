@@ -10,7 +10,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { Search, X } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Calendar } from "../ui/calendar";
+import { Search, X, Calendar as CalendarIcon } from "lucide-react";
+import { cn } from "../../lib/utils";
+import { format } from "date-fns";
 
 export default function TaskControls({
   filter,
@@ -121,20 +125,80 @@ export default function TaskControls({
 
         <div className="flex items-center gap-1">
           <Label className="text-sm font-medium">Từ ngày:</Label>
-          <Input
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-          />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-32 justify-start text-left font-normal",
+                  !startDate && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
+                {startDate
+                  ? format(new Date(startDate), "dd/MM/yyyy")
+                  : "Chọn ngày"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={startDate ? new Date(startDate) : undefined}
+                onSelect={(date) => {
+                  if (date) {
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, "0");
+                    const day = String(date.getDate()).padStart(2, "0");
+                    const dateString = `${year}-${month}-${day}`;
+                    setStartDate(dateString);
+                  } else {
+                    setStartDate("");
+                  }
+                  setPage(1);
+                }}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
         </div>
 
         <div className="flex items-center gap-1">
           <Label className="text-sm font-medium">Đến ngày:</Label>
-          <Input
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-          />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-32 justify-start text-left font-normal",
+                  !endDate && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
+                {endDate
+                  ? format(new Date(endDate), "dd/MM/yyyy")
+                  : "Chọn ngày"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={endDate ? new Date(endDate) : undefined}
+                onSelect={(date) => {
+                  if (date) {
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, "0");
+                    const day = String(date.getDate()).padStart(2, "0");
+                    const dateString = `${year}-${month}-${day}`;
+                    setEndDate(dateString);
+                  } else {
+                    setEndDate("");
+                  }
+                  setPage(1);
+                }}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
         </div>
 
         <div className="flex items-center gap-1">

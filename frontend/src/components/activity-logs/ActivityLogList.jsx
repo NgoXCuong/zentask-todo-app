@@ -9,6 +9,8 @@ import {
 } from "lucide-react";
 import { activityLogsAPI } from "../../services/api";
 import ActivityLogItem from "./ActivityLogItem";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Button } from "../ui/button";
 
 const ActivityLogList = ({ workspaceId = "", taskId = "" }) => {
   const [logs, setLogs] = useState([]);
@@ -90,95 +92,96 @@ const ActivityLogList = ({ workspaceId = "", taskId = "" }) => {
     { value: "ASSIGN_TASK", label: "Giao task" },
     { value: "COMPLETE_TASK", label: "Hoàn thành task" },
     { value: "ADD_COMMENT", label: "Thêm bình luận" },
+    { value: "CREATE_SUBTASK", label: "Thêm nhiệm vụ con" },
     { value: "UPLOAD_FILE", label: "Upload file" },
   ];
 
   if (error) {
     return (
-      <div className="p-4 text-center text-red-600">
-        <p>{error}</p>
-        <button
-          onClick={() => loadLogs()}
-          className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-        >
-          Thử lại
-        </button>
-      </div>
+      <Card>
+        <CardContent className="p-8 text-center">
+          <p className="text-destructive mb-4">{error}</p>
+          <Button onClick={() => loadLogs()} variant="destructive">
+            Thử lại
+          </Button>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-sm border">
-      {/* Header */}
-      <div className="p-4 border-b border-gray-200">
+    <Card>
+      <CardHeader>
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Activity className="w-5 h-5 text-gray-600" />
-            <h2 className="text-lg font-semibold text-gray-900">
-              Lịch sử hoạt động
-            </h2>
-          </div>
+          <CardTitle className="flex items-center gap-2">
+            <Activity className="w-5 h-5" />
+            Lịch sử hoạt động
+          </CardTitle>
 
-          <button
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() =>
               setFilters((prev) => ({
                 ...prev,
                 showFilters: !prev.showFilters,
               }))
             }
-            className="flex items-center space-x-2 px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded transition-colors"
+            className="flex items-center gap-2"
           >
             <Filter className="w-4 h-4" />
-            <span>Lọc</span>
-          </button>
+            Lọc
+          </Button>
         </div>
 
         {/* Context Info */}
         {(workspaceId || taskId) && (
-          <div className="flex items-center space-x-4 mt-3 text-sm text-gray-600">
+          <div className="flex items-center gap-4 mt-3 text-sm text-muted-foreground">
             {workspaceId && (
-              <span className="flex items-center space-x-1">
+              <span className="flex items-center gap-1">
                 <Building className="w-4 h-4" />
                 <span>Workspace: {workspaceId}</span>
               </span>
             )}
             {taskId && (
-              <span className="flex items-center space-x-1">
+              <span className="flex items-center gap-1">
                 <FileText className="w-4 h-4" />
                 <span>Task: {taskId}</span>
               </span>
             )}
           </div>
         )}
-      </div>
+      </CardHeader>
 
       {/* Stats */}
       {stats && (
-        <div className="p-4 bg-gray-50 border-b border-gray-200">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="px-6 pb-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-muted/50 rounded-lg">
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                 {stats.create_task}
               </div>
-              <div className="text-sm text-gray-600">Task tạo</div>
+              <div className="text-sm text-muted-foreground">Task tạo</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                 {stats.update_task}
               </div>
-              <div className="text-sm text-gray-600">Task sửa</div>
+              <div className="text-sm text-muted-foreground">Task sửa</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">
+              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
                 {stats.assign_task}
               </div>
-              <div className="text-sm text-gray-600">Task giao</div>
+              <div className="text-sm text-muted-foreground">Task giao</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-emerald-600">
+              <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
                 {stats.complete_task}
               </div>
-              <div className="text-sm text-gray-600">Task hoàn thành</div>
+              <div className="text-sm text-muted-foreground">
+                Task hoàn thành
+              </div>
             </div>
           </div>
         </div>
@@ -186,69 +189,72 @@ const ActivityLogList = ({ workspaceId = "", taskId = "" }) => {
 
       {/* Filters */}
       {filters.showFilters && (
-        <div className="p-4 border-b border-gray-200 bg-gray-50">
-          <div className="flex flex-wrap gap-2">
+        <div className="px-6 pb-4">
+          <div className="flex flex-wrap gap-2 p-4 bg-muted/50 rounded-lg">
             {actionOptions.map((option) => (
-              <button
+              <Button
                 key={option.value}
+                variant={
+                  filters.action === option.value ? "default" : "outline"
+                }
+                size="sm"
                 onClick={() => handleFilterChange(option.value)}
-                className={`px-3 py-1 text-sm rounded-full transition-colors ${
-                  filters.action === option.value
-                    ? "bg-blue-600 text-white"
-                    : "bg-white text-gray-700 hover:bg-gray-100"
-                }`}
               >
                 {option.label}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
       )}
 
-      {/* Activity Logs List */}
-      <div className="max-h-96 overflow-y-auto">
-        {logs.length === 0 && !loading ? (
-          <div className="p-8 text-center text-gray-500">
-            <Activity className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-            <p>Chưa có hoạt động nào</p>
-          </div>
-        ) : (
-          <>
-            {logs.map((log) => (
-              <ActivityLogItem key={log.id} log={log} />
-            ))}
+      <CardContent className="p-0">
+        {/* Activity Logs List */}
+        <div className="max-h-96 overflow-y-auto">
+          {logs.length === 0 && !loading ? (
+            <div className="p-8 text-center text-muted-foreground">
+              <Activity className="w-12 h-12 mx-auto mb-4 text-muted-foreground/50" />
+              <p>Chưa có hoạt động nào</p>
+            </div>
+          ) : (
+            <>
+              {logs.map((log) => (
+                <ActivityLogItem key={log.id} log={log} />
+              ))}
 
-            {/* Load More */}
-            {hasMore && (
-              <div className="p-4 text-center border-t border-gray-200">
-                <button
-                  onClick={handleLoadMore}
-                  disabled={loading}
-                  className="px-4 py-2 text-blue-600 hover:bg-blue-50 rounded transition-colors disabled:opacity-50"
-                >
-                  {loading ? (
-                    <div className="flex items-center space-x-2">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Đang tải...</span>
-                    </div>
-                  ) : (
-                    "Tải thêm"
-                  )}
-                </button>
-              </div>
-            )}
-          </>
-        )}
+              {/* Load More */}
+              {hasMore && (
+                <div className="p-4 text-center border-t">
+                  <Button
+                    onClick={handleLoadMore}
+                    disabled={loading}
+                    variant="outline"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Đang tải...
+                      </>
+                    ) : (
+                      "Tải thêm"
+                    )}
+                  </Button>
+                </div>
+              )}
+            </>
+          )}
 
-        {/* Loading State */}
-        {loading && logs.length === 0 && (
-          <div className="p-8 text-center">
-            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
-            <p className="text-gray-600">Đang tải lịch sử hoạt động...</p>
-          </div>
-        )}
-      </div>
-    </div>
+          {/* Loading State */}
+          {loading && logs.length === 0 && (
+            <div className="p-8 text-center">
+              <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
+              <p className="text-muted-foreground">
+                Đang tải lịch sử hoạt động...
+              </p>
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

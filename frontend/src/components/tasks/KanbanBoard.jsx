@@ -84,7 +84,7 @@ export default function KanbanBoard({
                     <div className="mb-3">
                       <button
                         onClick={(e) => toggleExpanded(task.id, e)}
-                        className="text-sm text-blue-600 hover:underline flex items-center gap-1"
+                        className="text-sm text-primary hover:underline flex items-center gap-1"
                       >
                         <CheckSquare size={14} />
                         {expandedTasks.has(task.id) ? "Ẩn" : "Hiển thị"} nhiệm
@@ -106,7 +106,7 @@ export default function KanbanBoard({
                               <span
                                 className={`text-sm ${
                                   subtask.is_done
-                                    ? "line-through text-gray-500"
+                                    ? "line-through text-muted-foreground"
                                     : ""
                                 }`}
                               >

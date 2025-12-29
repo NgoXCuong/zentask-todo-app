@@ -236,7 +236,7 @@ export default function AddTaskForm({
                         !newTask.start_date && "text-muted-foreground"
                       )}
                     >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
                       {newTask.start_date
                         ? format(new Date(newTask.start_date), "dd/MM/yyyy")
                         : "Chọn ngày"}
@@ -291,7 +291,7 @@ export default function AddTaskForm({
                         !newTask.due_date && "text-muted-foreground"
                       )}
                     >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
                       {newTask.due_date
                         ? format(new Date(newTask.due_date), "dd/MM/yyyy")
                         : "Chọn ngày"}
