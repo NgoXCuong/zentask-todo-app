@@ -86,20 +86,20 @@ export default function ZenTaskResetPassword() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-5">
+    <div className="min-h-screen bg-background flex items-center justify-center p-5">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-6">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl font-bold text-foreground mb-4">
             Đặt lại mật khẩu Zen Task
           </h1>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-muted-foreground">
             Tạo mật khẩu mới cho tài khoản của bạn
           </p>
         </div>
 
         {/* Auth Card */}
-        <Card className="border border-gray-200 bg-white">
+        <Card className="border border-border bg-card">
           <CardContent className="p-8">
             {token ? (
               <>
@@ -117,7 +117,7 @@ export default function ZenTaskResetPassword() {
                           <FormLabel>Mật khẩu mới</FormLabel>
                           <FormControl>
                             <div className="relative">
-                              <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-900" />
+                              <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                               <Input
                                 type={showPassword ? "text" : "password"}
                                 placeholder="••••••••"
@@ -126,19 +126,19 @@ export default function ZenTaskResetPassword() {
                               />
                               {showPassword ? (
                                 <EyeOff
-                                  className="absolute right-3 top-3 h-4 w-4 text-gray-400 cursor-pointer hover:text-gray-600"
+                                  className="absolute right-3 top-3 h-4 w-4 text-muted-foreground cursor-pointer hover:text-foreground"
                                   onClick={() => setShowPassword(false)}
                                 />
                               ) : (
                                 <Eye
-                                  className="absolute right-3 top-3 h-4 w-4 text-gray-400 cursor-pointer hover:text-gray-600"
+                                  className="absolute right-3 top-3 h-4 w-4 text-muted-foreground cursor-pointer hover:text-foreground"
                                   onClick={() => setShowPassword(true)}
                                 />
                               )}
                             </div>
                           </FormControl>
                           <FormMessage />
-                          <p className="text-xs text-gray-500 mt-1">
+                          <p className="text-xs text-muted-foreground mt-1">
                             Mật khẩu tối thiểu 6 ký tự
                           </p>
                         </FormItem>
@@ -153,7 +153,7 @@ export default function ZenTaskResetPassword() {
                           <FormLabel>Xác nhận mật khẩu</FormLabel>
                           <FormControl>
                             <div className="relative">
-                              <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-900" />
+                              <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                               <Input
                                 type={showConfirmPassword ? "text" : "password"}
                                 placeholder="••••••••"
@@ -162,12 +162,12 @@ export default function ZenTaskResetPassword() {
                               />
                               {showConfirmPassword ? (
                                 <EyeOff
-                                  className="absolute right-3 top-3 h-4 w-4 text-gray-400 cursor-pointer hover:text-gray-600"
+                                  className="absolute right-3 top-3 h-4 w-4 text-muted-foreground cursor-pointer hover:text-foreground"
                                   onClick={() => setShowConfirmPassword(false)}
                                 />
                               ) : (
                                 <Eye
-                                  className="absolute right-3 top-3 h-4 w-4 text-gray-400 cursor-pointer hover:text-gray-600"
+                                  className="absolute right-3 top-3 h-4 w-4 text-muted-foreground cursor-pointer hover:text-foreground"
                                   onClick={() => setShowConfirmPassword(true)}
                                 />
                               )}
@@ -202,17 +202,17 @@ export default function ZenTaskResetPassword() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  <h3 className="text-xl font-semibold">
+                  <h3 className="text-xl font-semibold text-foreground">
                     Liên kết không hợp lệ
                   </h3>
                 </div>
-                <p className="text-gray-600 mb-6">
+                <p className="text-muted-foreground mb-6">
                   Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn. Vui
                   lòng yêu cầu đặt lại mật khẩu mới.
                 </p>
                 <Link
                   to="/forgot-password"
-                  className="inline-block px-6 py-3 bg-indigo-500 text-white rounded-sm font-semibold hover:bg-indigo-600 transition"
+                  className="inline-block px-6 py-3 bg-primary text-primary-foreground rounded-sm font-semibold hover:bg-primary/90 transition"
                 >
                   Yêu cầu đặt lại mật khẩu
                 </Link>

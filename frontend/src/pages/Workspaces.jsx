@@ -1,8 +1,7 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { workspacesAPI, tasksAPI } from "../services/api";
 import { useLayout } from "../context/LayoutContext";
-import Sidebar from "../components/layout/Sidebar";
-import Header from "../components/layout/Header";
+import Layout from "../components/layout/Layout";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -13,6 +12,14 @@ import {
   CardHeader,
   CardTitle,
 } from "../components/ui/card";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "../components/ui/pagination";
 import {
   Dialog,
   DialogContent,
@@ -79,22 +86,27 @@ export default function Workspaces() {
   const [viewMode, setViewMode] = useState("list"); // "list" or "kanban"
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const limit = 10;
+  const [total, setTotal] = useState(0);
+  const limit = 6; // Show 6 workspaces per page
   const { user } = useAuth();
   const { focusMode, setFocusMode } = useLayout();
   const navigate = useNavigate();
 
   useEffect(() => {
     loadWorkspaces();
-  }, []);
+  }, [page]);
 
   const loadWorkspaces = async () => {
     setLoading(true);
-    const { data, ok } = await workspacesAPI.getUserWorkspaces();
+    const { data, ok } = await workspacesAPI.getUserWorkspaces({ page, limit });
     if (ok && data && Array.isArray(data.data)) {
       setWorkspaces(data.data);
+      setTotal(data.meta?.total || 0);
+      setTotalPages(data.meta?.totalPages || 1);
     } else {
       setWorkspaces([]);
+      setTotal(0);
+      setTotalPages(1);
     }
     setLoading(false);
   };
@@ -286,328 +298,382 @@ export default function Workspaces() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
-      <Sidebar
-        focusMode={focusMode}
-        onToggleFocus={() => setFocusMode(!focusMode)}
-      />
-
-      <div className={`flex-1 ${!focusMode ? "ml-64" : "ml-16"}`}>
-        <Header focusMode={focusMode} setFocusMode={setFocusMode} user={user} />
-
-        <main className="p-6 space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">
-                Quản lý Workspaces
-              </h1>
-              <p className="text-muted-foreground mt-1">
-                Tạo và quản lý các nhóm làm việc của bạn
-              </p>
-            </div>
-            <Dialog open={showCreateForm} onOpenChange={setShowCreateForm}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="w-4 h-4 mr-2" />
+    <Layout>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">
+            Quản lý Workspaces
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Tạo và quản lý các nhóm làm việc của bạn
+          </p>
+        </div>
+        <Dialog open={showCreateForm} onOpenChange={setShowCreateForm}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="w-4 h-4 mr-2" />
+              Tạo Workspace
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Tạo Workspace mới</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label className="block text-sm font-medium mb-2">
+                  Tên Workspace
+                </Label>
+                <Input
+                  placeholder="Nhập tên workspace..."
+                  value={newWorkspace.name}
+                  onChange={(e) =>
+                    setNewWorkspace({
+                      ...newWorkspace,
+                      name: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div>
+                <Label className="block text-sm font-medium mb-2">
+                  Mô tả (tùy chọn)
+                </Label>
+                <Textarea
+                  placeholder="Mô tả về workspace này..."
+                  rows={3}
+                  value={newWorkspace.description}
+                  onChange={(e) =>
+                    setNewWorkspace({
+                      ...newWorkspace,
+                      description: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowCreateForm(false)}
+                  className="flex-1"
+                >
+                  Hủy
+                </Button>
+                <Button onClick={createWorkspace} className="flex-1">
                   Tạo Workspace
                 </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Tạo Workspace mới</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <Label className="block text-sm font-medium mb-2">
-                      Tên Workspace
-                    </Label>
-                    <Input
-                      placeholder="Nhập tên workspace..."
-                      value={newWorkspace.name}
-                      onChange={(e) =>
-                        setNewWorkspace({
-                          ...newWorkspace,
-                          name: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div>
-                    <Label className="block text-sm font-medium mb-2">
-                      Mô tả (tùy chọn)
-                    </Label>
-                    <Textarea
-                      placeholder="Mô tả về workspace này..."
-                      rows={3}
-                      value={newWorkspace.description}
-                      onChange={(e) =>
-                        setNewWorkspace({
-                          ...newWorkspace,
-                          description: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="flex gap-3">
-                    <Button
-                      variant="outline"
-                      onClick={() => setShowCreateForm(false)}
-                      className="flex-1"
-                    >
-                      Hủy
-                    </Button>
-                    <Button onClick={createWorkspace} className="flex-1">
-                      Tạo Workspace
-                    </Button>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
-            {/* Add Member Dialog */}
-            <Dialog
-              open={showAddMemberForm}
-              onOpenChange={setShowAddMemberForm}
-            >
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>
-                    Thêm thành viên vào {selectedWorkspace?.name}
-                  </DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <Label className="block text-sm font-medium mb-2">
-                      Email người dùng
-                    </Label>
-                    <Input
-                      type="email"
-                      placeholder="Nhập email của người dùng..."
-                      value={newMember.email}
-                      onChange={(e) =>
-                        setNewMember({
-                          ...newMember,
-                          email: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div>
-                    <Label className="block text-sm font-medium mb-2">
-                      Vai trò
-                    </Label>
-                    <Select
-                      value={newMember.role}
-                      onValueChange={(value) =>
-                        setNewMember({ ...newMember, role: value })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="member">Thành viên</SelectItem>
-                        <SelectItem value="admin">Quản trị viên</SelectItem>
-                        <SelectItem value="viewer">Người xem</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex gap-3">
-                    <Button
-                      variant="outline"
-                      onClick={() => setShowAddMemberForm(false)}
-                      className="flex-1"
-                    >
-                      Hủy
-                    </Button>
-                    <Button onClick={addMember} className="flex-1">
-                      Thêm thành viên
-                    </Button>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
+        {/* Add Member Dialog */}
+        <Dialog open={showAddMemberForm} onOpenChange={setShowAddMemberForm}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>
+                Thêm thành viên vào {selectedWorkspace?.name}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label className="block text-sm font-medium mb-2">
+                  Email người dùng
+                </Label>
+                <Input
+                  type="email"
+                  placeholder="Nhập email của người dùng..."
+                  value={newMember.email}
+                  onChange={(e) =>
+                    setNewMember({
+                      ...newMember,
+                      email: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div>
+                <Label className="block text-sm font-medium mb-2">
+                  Vai trò
+                </Label>
+                <Select
+                  value={newMember.role}
+                  onValueChange={(value) =>
+                    setNewMember({ ...newMember, role: value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="member">Thành viên</SelectItem>
+                    <SelectItem value="admin">Quản trị viên</SelectItem>
+                    <SelectItem value="viewer">Người xem</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowAddMemberForm(false)}
+                  className="flex-1"
+                >
+                  Hủy
+                </Button>
+                <Button onClick={addMember} className="flex-1">
+                  Thêm thành viên
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
-            {/* Tasks Modal */}
-            <Dialog open={showTasksModal} onOpenChange={setShowTasksModal}>
-              <DialogContent className="w-1/2! h-[70vh]! max-w-none! overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>Tasks trong {tasksWorkspace?.name}</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <TaskList
-                    tasks={tasks}
-                    loading={tasksLoading}
-                    editingId={editingId}
-                    setEditingId={setEditingId}
-                    editTask={editTask}
-                    setEditTask={setEditTask}
-                    loadData={() =>
-                      tasksWorkspace && loadTasks(tasksWorkspace.id)
-                    }
-                    showMsg={showMsg}
-                    setViewingTask={setViewingTask}
-                  />
-                </div>
-              </DialogContent>
-            </Dialog>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {workspaces.map((workspace) => (
-              <Card
-                key={workspace.id}
-                className="hover:shadow-lg transition-shadow"
-              >
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">{workspace.name}</CardTitle>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          toast.info(
-                            "Tính năng cài đặt workspace sẽ có trong phiên bản tiếp theo!"
-                          )
-                        }
-                      >
-                        <Settings className="w-4 h-4" />
-                      </Button>
-                      {workspace.owner_id === user?.id && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => deleteWorkspace(workspace.id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    {workspace.description || "Không có mô tả"}
-                  </p>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Users className="w-4 h-4" />
-                      <span>
-                        {workspace.WorkspaceMembers?.filter(
-                          (member) => member.status === "active"
-                        ).length || 0}{" "}
-                        thành viên
-                      </span>
-                    </div>
-
-                    {workspace.WorkspaceMembers &&
-                      workspace.WorkspaceMembers.length > 0 && (
-                        <div className="space-y-2">
-                          <Label className="text-sm font-medium">
-                            Thành viên:
-                          </Label>
-                          <div className="space-y-1 max-h-32 overflow-y-auto">
-                            {workspace.WorkspaceMembers.filter(
-                              (member) => member.status === "active"
-                            )
-                              .slice(0, 5)
-                              .map((member) => (
-                                <div
-                                  key={member.id}
-                                  className="flex items-center gap-2 text-sm"
-                                >
-                                  {getRoleIcon(member.role)}
-                                  <span>
-                                    {member.User?.full_name || "Unknown"}
-                                  </span>
-                                  <span className="text-xs text-muted-foreground">
-                                    ({getRoleLabel(member.role)})
-                                  </span>
-                                </div>
-                              ))}
-                            {workspace.WorkspaceMembers.filter(
-                              (member) => member.status === "active"
-                            ).length > 5 && (
-                              <div className="text-xs text-muted-foreground">
-                                và{" "}
-                                {workspace.WorkspaceMembers.filter(
-                                  (member) => member.status === "active"
-                                ).length - 5}{" "}
-                                người khác...
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-
-                    <div className="flex gap-2 pt-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => openTasksModal(workspace)}
-                        className="flex-1"
-                      >
-                        Xem Tasks
-                      </Button>
-                      {workspace.owner_id === user?.id ? (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => openAddMemberDialog(workspace)}
-                        >
-                          <UserPlus className="w-4 h-4" />
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => leaveWorkspace(workspace.id)}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <LogOut className="w-4 h-4" />
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {workspaces.length === 0 && !loading && (
-            <Card className="p-12 text-center">
-              <Users className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">
-                Chưa có workspace nào
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                Tạo workspace đầu tiên để bắt đầu làm việc nhóm
-              </p>
-              <Button onClick={() => setShowCreateForm(true)}>
-                <Plus className="w-4 h-4 mr-2" />
-                Tạo Workspace
-              </Button>
-            </Card>
-          )}
-
-          {/* Task Details Modal */}
-          <TaskDetailsModal
-            viewingTask={viewingTask}
-            setViewingTask={setViewingTask}
-            startEdit={startEdit}
-            deleteTask={deleteTask}
-          />
-
-          {/* Add Task Form Modal */}
-          <AddTaskForm
-            showAddForm={showAddTaskForm}
-            setShowAddForm={setShowAddTaskForm}
-            loadData={() => tasksWorkspace && loadTasks(tasksWorkspace.id)}
-            showMsg={showMsg}
-          />
-        </main>
+        {/* Tasks Modal */}
+        <Dialog open={showTasksModal} onOpenChange={setShowTasksModal}>
+          <DialogContent className="w-1/2! h-[70vh]! max-w-none! overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Tasks trong {tasksWorkspace?.name}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <TaskList
+                tasks={tasks}
+                loading={tasksLoading}
+                editingId={editingId}
+                setEditingId={setEditingId}
+                editTask={editTask}
+                setEditTask={setEditTask}
+                loadData={() => tasksWorkspace && loadTasks(tasksWorkspace.id)}
+                showMsg={showMsg}
+                setViewingTask={setViewingTask}
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
-    </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {workspaces.map((workspace) => (
+          <Card
+            key={workspace.id}
+            className="hover:shadow-lg transition-shadow"
+          >
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg">{workspace.name}</CardTitle>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      toast.info(
+                        "Tính năng cài đặt workspace sẽ có trong phiên bản tiếp theo!"
+                      )
+                    }
+                  >
+                    <Settings className="w-4 h-4" />
+                  </Button>
+                  {workspace.owner_id === user?.id && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => deleteWorkspace(workspace.id)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {workspace.description || "Không có mô tả"}
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Users className="w-4 h-4" />
+                  <span>
+                    {workspace.WorkspaceMembers?.filter(
+                      (member) => member.status === "active"
+                    ).length || 0}{" "}
+                    thành viên
+                  </span>
+                </div>
+
+                {workspace.WorkspaceMembers &&
+                  workspace.WorkspaceMembers.length > 0 && (
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Thành viên:</Label>
+                      <div className="space-y-1 max-h-32 overflow-y-auto">
+                        {workspace.WorkspaceMembers.filter(
+                          (member) => member.status === "active"
+                        )
+                          .slice(0, 5)
+                          .map((member) => (
+                            <div
+                              key={member.id}
+                              className="flex items-center gap-2 text-sm"
+                            >
+                              {getRoleIcon(member.role)}
+                              <span>{member.User?.full_name || "Unknown"}</span>
+                              <span className="text-xs text-muted-foreground">
+                                ({getRoleLabel(member.role)})
+                              </span>
+                            </div>
+                          ))}
+                        {workspace.WorkspaceMembers.filter(
+                          (member) => member.status === "active"
+                        ).length > 5 && (
+                          <div className="text-xs text-muted-foreground">
+                            và{" "}
+                            {workspace.WorkspaceMembers.filter(
+                              (member) => member.status === "active"
+                            ).length - 5}{" "}
+                            người khác...
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                <div className="flex gap-2 pt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => openTasksModal(workspace)}
+                    className="flex-1"
+                  >
+                    Xem Tasks
+                  </Button>
+                  {workspace.owner_id === user?.id ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => openAddMemberDialog(workspace)}
+                    >
+                      <UserPlus className="w-4 h-4" />
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => leaveWorkspace(workspace.id)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <LogOut className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="mt-6 flex justify-center">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => page > 1 && setPage(page - 1)}
+                  className={
+                    page <= 1
+                      ? "pointer-events-none opacity-50"
+                      : "cursor-pointer"
+                  }
+                />
+              </PaginationItem>
+
+              {/* Page numbers */}
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter((pageNum) => {
+                  // Show first page, last page, current page, and pages around current
+                  return (
+                    pageNum === 1 ||
+                    pageNum === totalPages ||
+                    (pageNum >= page - 1 && pageNum <= page + 1)
+                  );
+                })
+                .map((pageNum, index, array) => {
+                  // Add ellipsis if there's a gap
+                  const prevPage = array[index - 1];
+                  if (prevPage && pageNum - prevPage > 1) {
+                    return (
+                      <React.Fragment key={`ellipsis-${pageNum}`}>
+                        <PaginationItem>
+                          <span className="px-3 py-2">...</span>
+                        </PaginationItem>
+                        <PaginationItem>
+                          <PaginationLink
+                            onClick={() => setPage(pageNum)}
+                            isActive={page === pageNum}
+                            className="cursor-pointer"
+                          >
+                            {pageNum}
+                          </PaginationLink>
+                        </PaginationItem>
+                      </React.Fragment>
+                    );
+                  }
+
+                  return (
+                    <PaginationItem key={pageNum}>
+                      <PaginationLink
+                        onClick={() => setPage(pageNum)}
+                        isActive={page === pageNum}
+                        className="cursor-pointer"
+                      >
+                        {pageNum}
+                      </PaginationLink>
+                    </PaginationItem>
+                  );
+                })}
+
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => page < totalPages && setPage(page + 1)}
+                  className={
+                    page >= totalPages
+                      ? "pointer-events-none opacity-50"
+                      : "cursor-pointer"
+                  }
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
+
+      {workspaces.length === 0 && !loading && total === 0 && (
+        <Card className="p-12 text-center">
+          <Users className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-semibold mb-2">Chưa có workspace nào</h3>
+          <p className="text-muted-foreground mb-4">
+            Tạo workspace đầu tiên để bắt đầu làm việc nhóm
+          </p>
+          <Button onClick={() => setShowCreateForm(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            Tạo Workspace
+          </Button>
+        </Card>
+      )}
+
+      {/* Task Details Modal */}
+      <TaskDetailsModal
+        viewingTask={viewingTask}
+        setViewingTask={setViewingTask}
+        startEdit={startEdit}
+        deleteTask={deleteTask}
+      />
+
+      {/* Add Task Form Modal */}
+      <AddTaskForm
+        showAddForm={showAddTaskForm}
+        setShowAddForm={setShowAddTaskForm}
+        loadData={() => tasksWorkspace && loadTasks(tasksWorkspace.id)}
+        showMsg={showMsg}
+      />
+    </Layout>
   );
 }

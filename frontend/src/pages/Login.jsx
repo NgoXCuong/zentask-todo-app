@@ -57,17 +57,17 @@ export default function ZenTaskLogin() {
   };
 
   return (
-    <div className="min-h-screen  flex items-center justify-center p-5">
+    <div className="min-h-screen bg-background flex items-center justify-center p-5">
       <div className="w-full max-w-max">
         {/* Auth Card */}
-        <Card className="border border-gray-200 bg-white">
+        <Card className="border border-border bg-card">
           <CardContent className="p-8">
             {/* Header */}
             <div className="text-center mb-10">
-              <h1 className="text-4xl font-bold text-gray-900 mb-4">
+              <h1 className="text-4xl font-bold text-foreground mb-4">
                 Đăng nhập
               </h1>
-              <p className="text-base text-gray-600">
+              <p className="text-base text-muted-foreground">
                 Quản lý công việc hiệu quả nâng cao năng suất
               </p>
             </div>
@@ -85,7 +85,7 @@ export default function ZenTaskLogin() {
                       <FormLabel>Email</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-900" />
+                          <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                           <Input
                             type="email"
                             placeholder="example@gmail.com"
@@ -107,7 +107,7 @@ export default function ZenTaskLogin() {
                       <FormLabel>Mật khẩu</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-900" />
+                          <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                           <Input
                             type={showPassword ? "text" : "password"}
                             placeholder="••••••••"
@@ -116,12 +116,12 @@ export default function ZenTaskLogin() {
                           />
                           {showPassword ? (
                             <EyeOff
-                              className="absolute right-3 top-3 h-4 w-4 text-gray-400 cursor-pointer hover:text-gray-600"
+                              className="absolute right-3 top-3 h-4 w-4 text-muted-foreground cursor-pointer hover:text-foreground"
                               onClick={() => setShowPassword(false)}
                             />
                           ) : (
                             <Eye
-                              className="absolute right-3 top-3 h-4 w-4 text-gray-400 cursor-pointer hover:text-gray-600"
+                              className="absolute right-3 top-3 h-4 w-4 text-muted-foreground cursor-pointer hover:text-foreground"
                               onClick={() => setShowPassword(true)}
                             />
                           )}
@@ -135,7 +135,7 @@ export default function ZenTaskLogin() {
                 <div className="text-right">
                   <Link
                     to="/forgot-password"
-                    className="text-indigo-500 text-sm hover:underline"
+                    className="text-primary text-sm hover:underline"
                   >
                     Quên mật khẩu?
                   </Link>
@@ -152,16 +152,16 @@ export default function ZenTaskLogin() {
             </Form>
 
             <div className="flex items-center my-2">
-              <div className="flex-1 h-px bg-gray-200"></div>
-              <span className="px-4 text-gray-400">hoặc</span>
-              <div className="flex-1 h-px bg-gray-200"></div>
+              <div className="flex-1 h-px bg-border"></div>
+              <span className="px-4 text-muted-foreground">hoặc</span>
+              <div className="flex-1 h-px bg-border"></div>
             </div>
 
-            <p className="mt-2 text-center text-sm text-gray-600">
+            <p className="mt-2 text-center text-sm text-muted-foreground">
               Chưa có tài khoản?{" "}
               <Link
                 to="/register"
-                className="font-medium text-indigo-600 hover:text-indigo-700 hover:underline"
+                className="font-medium text-primary hover:underline"
               >
                 Đăng ký ngay
               </Link>

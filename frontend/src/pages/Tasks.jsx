@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { tasksAPI } from "../services/api";
 import { useAuth } from "../context/AuthContext";
@@ -16,6 +16,14 @@ import {
   CardHeader,
   CardTitle,
 } from "../components/ui/card";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "../components/ui/pagination";
 import { Plus, List, Kanban } from "lucide-react";
 
 export default function Tasks() {
@@ -42,7 +50,7 @@ export default function Tasks() {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [viewMode, setViewMode] = useState("list"); // "list" or "kanban"
-  const limit = 10; // Show more tasks per page on dedicated tasks page
+  const limit = 9; // Show 9 tasks per page on dedicated tasks page
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
 
@@ -124,7 +132,7 @@ export default function Tasks() {
     <Layout>
       <Message message={message} />
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Quản lý Tasks</h1>
           <p className="text-muted-foreground mt-1">
@@ -216,6 +224,82 @@ export default function Tasks() {
               startEdit={startEdit}
               deleteTask={deleteTask}
             />
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-6">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      onClick={() => page > 1 && setPage(page - 1)}
+                      className={
+                        page <= 1
+                          ? "pointer-events-none opacity-50"
+                          : "cursor-pointer"
+                      }
+                    />
+                  </PaginationItem>
+
+                  {/* Page numbers */}
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter((pageNum) => {
+                      // Show first page, last page, current page, and pages around current
+                      return (
+                        pageNum === 1 ||
+                        pageNum === totalPages ||
+                        (pageNum >= page - 1 && pageNum <= page + 1)
+                      );
+                    })
+                    .map((pageNum, index, array) => {
+                      // Add ellipsis if there's a gap
+                      const prevPage = array[index - 1];
+                      if (prevPage && pageNum - prevPage > 1) {
+                        return (
+                          <React.Fragment key={`ellipsis-${pageNum}`}>
+                            <PaginationItem>
+                              <span className="px-3 py-2">...</span>
+                            </PaginationItem>
+                            <PaginationItem>
+                              <PaginationLink
+                                onClick={() => setPage(pageNum)}
+                                isActive={page === pageNum}
+                                className="cursor-pointer"
+                              >
+                                {pageNum}
+                              </PaginationLink>
+                            </PaginationItem>
+                          </React.Fragment>
+                        );
+                      }
+
+                      return (
+                        <PaginationItem key={pageNum}>
+                          <PaginationLink
+                            onClick={() => setPage(pageNum)}
+                            isActive={page === pageNum}
+                            className="cursor-pointer"
+                          >
+                            {pageNum}
+                          </PaginationLink>
+                        </PaginationItem>
+                      );
+                    })}
+
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() => page < totalPages && setPage(page + 1)}
+                      className={
+                        page >= totalPages
+                          ? "pointer-events-none opacity-50"
+                          : "cursor-pointer"
+                      }
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
           )}
         </CardContent>
       </Card>

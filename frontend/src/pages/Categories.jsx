@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { categoriesAPI } from "../services/api";
 import Layout from "../components/layout/Layout";
@@ -11,6 +11,14 @@ import {
   CardHeader,
   CardTitle,
 } from "../components/ui/card";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "../components/ui/pagination";
 import { Plus, Edit2, Trash2, Tag, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
@@ -24,20 +32,28 @@ export default function Categories() {
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showAddTask, setShowAddTask] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
+  const limit = 6; // Show 6 categories per page
   const { user } = useAuth();
 
   useEffect(() => {
     loadCategories();
-  }, []);
+  }, [page]);
 
   const loadCategories = async () => {
     console.log("Loading categories...");
-    const { data, ok } = await categoriesAPI.getAll();
+    const { data, ok } = await categoriesAPI.getAll({ page, limit });
     console.log("Categories loaded:", { data, ok });
     if (ok && data && Array.isArray(data.data)) {
       setCategories(data.data);
+      setTotal(data.meta?.total || 0);
+      setTotalPages(data.meta?.totalPages || 1);
     } else {
       setCategories([]);
+      setTotal(0);
+      setTotalPages(1);
     }
   };
 
@@ -119,7 +135,7 @@ export default function Categories() {
 
   return (
     <Layout>
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold text-foreground">
             Quản lý danh mục
@@ -218,7 +234,7 @@ export default function Categories() {
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Tag className="w-5 h-5" />
-              Danh sách danh mục ({categories.length})
+              Danh sách danh mục ({total})
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -338,13 +354,89 @@ export default function Categories() {
                   )}
                 </div>
               ))}
-              {categories.length === 0 && (
+              {categories.length === 0 && total === 0 && (
                 <div className="text-center py-8">
                   <Tag className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                   <p className="text-muted-foreground">Chưa có danh mục nào</p>
                   <p className="text-sm text-muted-foreground mt-1">
                     Tạo danh mục đầu tiên của bạn ở bên trái
                   </p>
+                </div>
+              )}
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="mt-6">
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious
+                          onClick={() => page > 1 && setPage(page - 1)}
+                          className={
+                            page <= 1
+                              ? "pointer-events-none opacity-50"
+                              : "cursor-pointer"
+                          }
+                        />
+                      </PaginationItem>
+
+                      {/* Page numbers */}
+                      {Array.from({ length: totalPages }, (_, i) => i + 1)
+                        .filter((pageNum) => {
+                          // Show first page, last page, current page, and pages around current
+                          return (
+                            pageNum === 1 ||
+                            pageNum === totalPages ||
+                            (pageNum >= page - 1 && pageNum <= page + 1)
+                          );
+                        })
+                        .map((pageNum, index, array) => {
+                          // Add ellipsis if there's a gap
+                          const prevPage = array[index - 1];
+                          if (prevPage && pageNum - prevPage > 1) {
+                            return (
+                              <React.Fragment key={`ellipsis-${pageNum}`}>
+                                <PaginationItem>
+                                  <span className="px-3 py-2">...</span>
+                                </PaginationItem>
+                                <PaginationItem>
+                                  <PaginationLink
+                                    onClick={() => setPage(pageNum)}
+                                    isActive={page === pageNum}
+                                    className="cursor-pointer"
+                                  >
+                                    {pageNum}
+                                  </PaginationLink>
+                                </PaginationItem>
+                              </React.Fragment>
+                            );
+                          }
+
+                          return (
+                            <PaginationItem key={pageNum}>
+                              <PaginationLink
+                                onClick={() => setPage(pageNum)}
+                                isActive={page === pageNum}
+                                className="cursor-pointer"
+                              >
+                                {pageNum}
+                              </PaginationLink>
+                            </PaginationItem>
+                          );
+                        })}
+
+                      <PaginationItem>
+                        <PaginationNext
+                          onClick={() => page < totalPages && setPage(page + 1)}
+                          className={
+                            page >= totalPages
+                              ? "pointer-events-none opacity-50"
+                              : "cursor-pointer"
+                          }
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
                 </div>
               )}
             </div>

@@ -41,12 +41,14 @@ export default function Notifications() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Bell className="w-6 h-6 text-blue-600" />
+            <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
+              <Bell className="w-6 h-6 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Thông báo</h1>
-              <p className="text-gray-600">Quản lý tất cả thông báo của bạn</p>
+              <h1 className="text-2xl font-bold text-foreground">Thông báo</h1>
+              <p className="text-muted-foreground">
+                Quản lý tất cả thông báo của bạn
+              </p>
             </div>
           </div>
 

@@ -85,17 +85,17 @@ export default function ZenTaskRegister() {
   };
 
   return (
-    <div className="bg-white min-h-screen flex items-center justify-center p-4 font-sans text-gray-700">
+    <div className="bg-background min-h-screen flex items-center justify-center p-4 font-sans text-foreground">
       <div className="w-full max-w-max">
         {/* Auth Card */}
-        <Card className="border border-gray-200 bg-white">
+        <Card className="border border-border bg-card">
           <CardContent className="p-8">
             {/* Header */}
             <div className="text-center mb-10">
-              <h1 className="text-4xl font-bold text-gray-900 mb-4">
+              <h1 className="text-4xl font-bold text-foreground mb-4">
                 Tạo tài khoản mới
               </h1>
-              <p className="text-base text-gray-600">
+              <p className="text-base text-muted-foreground">
                 Bắt đầu quản lý công việc hiệu quả cùng Zen Task.
               </p>
             </div>
@@ -113,7 +113,7 @@ export default function ZenTaskRegister() {
                       <FormLabel>Họ và tên</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <User className="absolute left-3 top-3 h-4 w-4 text-gray-900" />
+                          <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                           <Input
                             placeholder="Nhập họ tên của bạn"
                             className="pl-10 text-sm rounded-xs"
@@ -134,7 +134,7 @@ export default function ZenTaskRegister() {
                       <FormLabel>Email</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-900" />
+                          <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                           <Input
                             type="email"
                             placeholder="example@gmail.com"
@@ -156,7 +156,7 @@ export default function ZenTaskRegister() {
                       <FormLabel>Mật khẩu</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-900" />
+                          <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                           <Input
                             type={showPassword ? "text" : "password"}
                             placeholder="••••••••"
@@ -165,12 +165,12 @@ export default function ZenTaskRegister() {
                           />
                           {showPassword ? (
                             <EyeOff
-                              className="absolute right-3 top-3 h-4 w-4 text-gray-400 cursor-pointer hover:text-gray-600"
+                              className="absolute right-3 top-3 h-4 w-4 text-muted-foreground cursor-pointer hover:text-foreground"
                               onClick={() => setShowPassword(false)}
                             />
                           ) : (
                             <Eye
-                              className="absolute right-3 top-3 h-4 w-4 text-gray-400 cursor-pointer hover:text-gray-600"
+                              className="absolute right-3 top-3 h-4 w-4 text-muted-foreground cursor-pointer hover:text-foreground"
                               onClick={() => setShowPassword(true)}
                             />
                           )}
@@ -189,7 +189,7 @@ export default function ZenTaskRegister() {
                       <FormLabel>Xác nhận mật khẩu</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-900" />
+                          <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                           <Input
                             type={showConfirmPassword ? "text" : "password"}
                             placeholder="••••••••"
@@ -198,12 +198,12 @@ export default function ZenTaskRegister() {
                           />
                           {showConfirmPassword ? (
                             <EyeOff
-                              className="absolute right-3 top-3 h-4 w-4 text-gray-400 cursor-pointer hover:text-gray-600"
+                              className="absolute right-3 top-3 h-4 w-4 text-muted-foreground cursor-pointer hover:text-foreground"
                               onClick={() => setShowConfirmPassword(false)}
                             />
                           ) : (
                             <Eye
-                              className="absolute right-3 top-3 h-4 w-4 text-gray-400 cursor-pointer hover:text-gray-600"
+                              className="absolute right-3 top-3 h-4 w-4 text-muted-foreground cursor-pointer hover:text-foreground"
                               onClick={() => setShowConfirmPassword(true)}
                             />
                           )}
@@ -226,18 +226,18 @@ export default function ZenTaskRegister() {
                             onCheckedChange={field.onChange}
                           />
                         </FormControl>
-                        <div className="text-sm text-gray-600 leading-5">
+                        <div className="text-sm text-muted-foreground leading-5">
                           Tôi đồng ý với{" "}
                           <a
                             href="#"
-                            className="font-medium text-blue-600 hover:text-blue-700 hover:underline"
+                            className="font-medium text-primary hover:underline"
                           >
                             Điều khoản dịch vụ
                           </a>{" "}
                           và{" "}
                           <a
                             href="#"
-                            className="font-medium text-blue-600 hover:text-blue-700 hover:underline"
+                            className="font-medium text-primary hover:underline"
                           >
                             Chính sách bảo mật
                           </a>
@@ -260,16 +260,16 @@ export default function ZenTaskRegister() {
             </Form>
 
             <div className="flex items-center my-2">
-              <div className="flex-1 h-px bg-gray-200"></div>
-              <span className="px-4 text-gray-400">hoặc</span>
-              <div className="flex-1 h-px bg-gray-200"></div>
+              <div className="flex-1 h-px bg-border"></div>
+              <span className="px-4 text-muted-foreground">hoặc</span>
+              <div className="flex-1 h-px bg-border"></div>
             </div>
 
-            <p className="mt-2 text-center text-sm text-gray-600">
+            <p className="mt-2 text-center text-sm text-muted-foreground">
               Đã có tài khoản?{" "}
               <Link
                 to="/login"
-                className="font-medium text-blue-600 hover:text-blue-700 hover:underline"
+                className="font-medium text-primary hover:underline"
               >
                 Đăng nhập ngay
               </Link>

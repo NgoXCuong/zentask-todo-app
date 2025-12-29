@@ -49,28 +49,7 @@ async function apiCall(endpoint, method = "GET", body = null, isRetry = false) {
 
 export const authAPI = {
   login: async (email, password) => {
-    const options = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ email, password }),
-    };
-
-    try {
-      const res = await fetch(API_BASE + "/users/login", options);
-      const data = await res.json();
-
-      if (res.ok) {
-        localStorage.setItem("user", JSON.stringify(data.user));
-        return { data, ok: true };
-      } else {
-        // For login failures, don't redirect - just return the error
-        return { data, ok: false };
-      }
-    } catch (error) {
-      console.error("Login API Error:", error);
-      return { ok: false, error: "Network error" };
-    }
+    return await apiCall("/users/login", "POST", { email, password });
   },
 
   register: async (full_name, email, password) => {
@@ -98,6 +77,27 @@ export const authAPI = {
 
   isAuthenticated: () => {
     return !!localStorage.getItem("user");
+  },
+
+  updateProfile: async (profileData) => {
+    return await apiCall("/users/profile", "PUT", profileData);
+  },
+
+  uploadAvatar: async (formData) => {
+    const options = {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    };
+
+    try {
+      const res = await fetch(API_BASE + "/users/upload-avatar", options);
+      const data = await res.json();
+      return { data, ok: res.ok };
+    } catch (error) {
+      console.error("Upload Avatar Error:", error);
+      return { ok: false, error: "Network error" };
+    }
   },
 };
 
@@ -202,8 +202,12 @@ export const tasksAPI = {
 // ==================== CATEGORIES API ====================
 export const categoriesAPI = {
   // Get all categories
-  getAll: async () => {
-    return await apiCall("/categories");
+  getAll: async ({ page = 1, limit = 6 } = {}) => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+    return await apiCall(`/categories?${params}`);
   },
 
   // Create new category
@@ -225,8 +229,12 @@ export const categoriesAPI = {
 // ==================== WORKSPACES API ====================
 export const workspacesAPI = {
   // Get user's workspaces
-  getUserWorkspaces: async () => {
-    return await apiCall("/workspaces");
+  getUserWorkspaces: async ({ page = 1, limit = 6 } = {}) => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+    return await apiCall(`/workspaces?${params}`);
   },
 
   // Create new workspace
@@ -274,6 +282,130 @@ export const workspacesAPI = {
       "DELETE"
     );
   },
+
+  // Accept workspace invitation
+  acceptInvitation: async (workspaceId) => {
+    return await apiCall(
+      `/workspaces/${workspaceId}/accept-invitation`,
+      "POST"
+    );
+  },
+
+  // Decline workspace invitation
+  declineInvitation: async (workspaceId) => {
+    return await apiCall(
+      `/workspaces/${workspaceId}/decline-invitation`,
+      "POST"
+    );
+  },
+
+  // Leave workspace
+  leaveWorkspace: async (workspaceId) => {
+    return await apiCall(`/workspaces/${workspaceId}/leave`, "POST");
+  },
+};
+
+// ==================== NOTIFICATIONS API ====================
+export const notificationsAPI = {
+  // Get user's notifications
+  getUserNotifications: async ({ page = 1, limit = 10, is_read = "" } = {}) => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+      ...(is_read !== "" && { is_read }),
+    });
+    return await apiCall(`/notifications?${params}`);
+  },
+
+  // Get unread count
+  getUnreadCount: async () => {
+    return await apiCall("/notifications/unread-count");
+  },
+
+  // Mark as read
+  markAsRead: async (id) => {
+    return await apiCall(`/notifications/${id}/read`, "PUT");
+  },
+
+  // Mark all as read
+  markAllAsRead: async () => {
+    return await apiCall("/notifications/mark-all-read", "PUT");
+  },
+
+  // Create notification
+  create: async (notificationData) => {
+    return await apiCall("/notifications", "POST", notificationData);
+  },
+
+  // Delete notification
+  delete: async (id) => {
+    return await apiCall(`/notifications/${id}`, "DELETE");
+  },
+};
+
+// ==================== ATTACHMENTS API ====================
+export const attachmentsAPI = {
+  // Get attachments by task
+  getByTask: async (taskId) => {
+    return await apiCall(`/tasks/${taskId}/attachments`);
+  },
+
+  // Upload attachment
+  upload: async (taskId, attachmentData) => {
+    return await apiCall(
+      `/tasks/${taskId}/attachments`,
+      "POST",
+      attachmentData
+    );
+  },
+
+  // Get attachment by ID
+  getById: async (taskId, attachmentId) => {
+    return await apiCall(`/tasks/${taskId}/attachments/${attachmentId}`);
+  },
+
+  // Delete attachment
+  delete: async (taskId, attachmentId) => {
+    return await apiCall(
+      `/tasks/${taskId}/attachments/${attachmentId}`,
+      "DELETE"
+    );
+  },
+};
+
+// ==================== ACTIVITY LOGS API ====================
+export const activityLogsAPI = {
+  // Get activity logs
+  getAll: async ({
+    page = 1,
+    limit = 20,
+    workspace_id = "",
+    task_id = "",
+    action = "",
+  } = {}) => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+      ...(workspace_id && { workspace_id }),
+      ...(task_id && { task_id }),
+      ...(action && { action }),
+    });
+    return await apiCall(`/activity-logs?${params}`);
+  },
+
+  // Get activity stats
+  getStats: async ({ workspace_id = "", task_id = "" } = {}) => {
+    const params = new URLSearchParams({
+      ...(workspace_id && { workspace_id }),
+      ...(task_id && { task_id }),
+    });
+    return await apiCall(`/activity-logs/stats?${params}`);
+  },
+
+  // Create activity log
+  create: async (logData) => {
+    return await apiCall("/activity-logs", "POST", logData);
+  },
 };
 
 // ==================== EXPORT DEFAULT ====================
@@ -282,4 +414,7 @@ export default {
   tasks: tasksAPI,
   categories: categoriesAPI,
   workspaces: workspacesAPI,
+  notifications: notificationsAPI,
+  attachments: attachmentsAPI,
+  activityLogs: activityLogsAPI,
 };

@@ -63,20 +63,20 @@ export default function ZenTaskForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-5">
+    <div className="min-h-screen bg-background flex items-center justify-center p-5">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-6">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl font-bold text-foreground mb-4">
             Quên mật khẩu Zen Task
           </h1>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-muted-foreground">
             Khôi phục mật khẩu tài khoản của bạn
           </p>
         </div>
 
         {/* Auth Card */}
-        <Card className="border border-gray-200 bg-white">
+        <Card className="border border-border bg-card">
           <CardContent className="p-8">
             {!emailSent ? (
               <>
@@ -94,7 +94,7 @@ export default function ZenTaskForgotPassword() {
                           <FormLabel>Email</FormLabel>
                           <FormControl>
                             <div className="relative">
-                              <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-900" />
+                              <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                               <Input
                                 type="email"
                                 placeholder="example@gmail.com"
@@ -104,7 +104,7 @@ export default function ZenTaskForgotPassword() {
                             </div>
                           </FormControl>
                           <FormMessage />
-                          <p className="text-xs text-gray-500 mt-1">
+                          <p className="text-xs text-muted-foreground mt-1">
                             Nhập email đã đăng ký để nhận liên kết đặt lại mật
                             khẩu
                           </p>
@@ -125,16 +125,16 @@ export default function ZenTaskForgotPassword() {
                 </Form>
 
                 <div className="flex items-center my-2">
-                  <div className="flex-1 h-px bg-gray-200"></div>
-                  <span className="px-4 text-gray-400">hoặc</span>
-                  <div className="flex-1 h-px bg-gray-200"></div>
+                  <div className="flex-1 h-px bg-border"></div>
+                  <span className="px-4 text-muted-foreground">hoặc</span>
+                  <div className="flex-1 h-px bg-border"></div>
                 </div>
 
-                <p className="mt-2 text-center text-sm text-gray-600">
+                <p className="mt-2 text-center text-sm text-muted-foreground">
                   Nhớ mật khẩu?{" "}
                   <Link
                     to="/login"
-                    className="font-medium text-indigo-600 hover:text-indigo-700 hover:underline"
+                    className="font-medium text-primary hover:underline"
                   >
                     Đăng nhập
                   </Link>
@@ -154,15 +154,17 @@ export default function ZenTaskForgotPassword() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  <h3 className="text-xl font-semibold">Email đã được gửi!</h3>
+                  <h3 className="text-xl font-semibold text-foreground">
+                    Email đã được gửi!
+                  </h3>
                 </div>
-                <p className="text-gray-600 mb-6">
+                <p className="text-muted-foreground mb-6">
                   Chúng tôi đã gửi liên kết đặt lại mật khẩu đến email của bạn.
                   Vui lòng kiểm tra hộp thư và làm theo hướng dẫn.
                 </p>
                 <Link
                   to="/login"
-                  className="inline-block px-6 py-3 bg-indigo-500 text-white rounded-sm font-semibold hover:bg-indigo-600 transition"
+                  className="inline-block px-6 py-3 bg-primary text-primary-foreground rounded-sm font-semibold hover:bg-primary/90 transition"
                 >
                   Quay lại đăng nhập
                 </Link>
