@@ -159,10 +159,71 @@ const updateSubTask = asyncHandler(async (req, res) => {
     return res.status(404).json({ message: "Sub-task không tồn tại" });
   }
 
+  const oldIsDone = subTask.is_done;
+
   subTask.title = title ?? subTask.title;
   subTask.is_done = is_done ?? subTask.is_done;
 
   await subTask.save();
+
+  // Create notification when subtask is completed
+  if (is_done === true && oldIsDone === false) {
+    // Notify task creator if different from updater
+    if (task.creator_id !== userId) {
+      await db.Notification.create({
+        recipient_id: task.creator_id,
+        sender_id: userId,
+        type: "subtask_completed",
+        reference_id: task.id,
+        reference_type: "task",
+        message: `Sub-task "${subTask.title}" trong task "${task.title}" đã được hoàn thành`,
+        is_read: false,
+      });
+    }
+
+    // Notify task assignee if different from updater and creator
+    if (task.assignee_id !== userId && task.assignee_id !== task.creator_id) {
+      await db.Notification.create({
+        recipient_id: task.assignee_id,
+        sender_id: userId,
+        type: "subtask_completed",
+        reference_id: task.id,
+        reference_type: "task",
+        message: `Sub-task "${subTask.title}" trong task "${task.title}" đã được hoàn thành`,
+        is_read: false,
+      });
+    }
+
+    // Notify workspace members for workspace tasks (excluding updater)
+    if (task.workspace_id) {
+      const workspaceMembers = await db.WorkspaceMember.findAll({
+        where: {
+          workspace_id: task.workspace_id,
+          user_id: { [Op.ne]: userId },
+        },
+      });
+
+      for (const member of workspaceMembers) {
+        // Skip if already notified as creator or assignee
+        if (
+          member.user_id === task.creator_id ||
+          member.user_id === task.assignee_id
+        ) {
+          continue;
+        }
+
+        await db.Notification.create({
+          recipient_id: member.user_id,
+          sender_id: userId,
+          type: "subtask_completed",
+          reference_id: task.id,
+          reference_type: "task",
+          message: `Sub-task "${subTask.title}" trong task "${task.title}" của workspace đã được hoàn thành`,
+          is_read: false,
+        });
+      }
+    }
+  }
 
   return res.status(200).json({
     message: "Cập nhật sub-task thành công",

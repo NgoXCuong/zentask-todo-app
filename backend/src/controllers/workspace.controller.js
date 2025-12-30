@@ -14,12 +14,23 @@ const getUserWorkspaces = asyncHandler(async (req, res) => {
     });
 
     // Get workspaces where user is a member (filter by status later)
+    const memberWorkspaceIds = await db.WorkspaceMember.findAll({
+      where: {
+        user_id: userId,
+        status: "active",
+      },
+      attributes: ["workspace_id"],
+    });
+
+    const workspaceIds = memberWorkspaceIds.map((m) => m.workspace_id);
+
+    // Get workspaces with all their members
     const allMemberWorkspaces = await db.Workspace.findAll({
+      where: { id: { [Op.in]: workspaceIds } },
       include: [
         {
           model: db.WorkspaceMember,
-          where: { user_id: userId },
-          required: true,
+          required: false, // Include all members, not just the current user
           include: [
             { model: db.User, attributes: ["id", "full_name", "email"] },
           ],
@@ -28,12 +39,12 @@ const getUserWorkspaces = asyncHandler(async (req, res) => {
       order: [["created_at", "DESC"]],
     });
 
-    // Filter workspaces where user has active status
+    // Filter workspaces where user has active status (though we already filtered above)
     const memberWorkspaces = allMemberWorkspaces.filter((workspace) => {
       const memberRecord = workspace.WorkspaceMembers.find(
-        (member) => member.user_id === userId
+        (member) => member.user_id === userId && member.status === "active"
       );
-      return memberRecord && memberRecord.status === "active";
+      return memberRecord;
     });
 
     // For owner workspaces, get their members separately
@@ -47,6 +58,19 @@ const getUserWorkspaces = asyncHandler(async (req, res) => {
       });
     }
 
+    // Get owner user information for workspaces where user is owner
+    const ownerUserIds = [...new Set(ownerWorkspaces.map((ws) => ws.owner_id))];
+    const ownerUsers = await db.User.findAll({
+      where: { id: { [Op.in]: ownerUserIds } },
+      attributes: ["id", "full_name", "email"],
+    });
+
+    // Create a map for quick lookup
+    const ownerUserMap = {};
+    ownerUsers.forEach((user) => {
+      ownerUserMap[user.id] = user;
+    });
+
     // Combine workspaces and add members
     const allWorkspaces = [];
 
@@ -55,6 +79,28 @@ const getUserWorkspaces = asyncHandler(async (req, res) => {
       const members = ownerWorkspaceMembers.filter(
         (member) => member.workspace_id === workspace.id
       );
+
+      // Ensure owner is included in members list with correct role
+      const ownerMember = members.find(
+        (member) => member.user_id === workspace.owner_id
+      );
+      if (!ownerMember) {
+        // If owner is not in members list, add them with real user data
+        const ownerUser = ownerUserMap[workspace.owner_id];
+        members.push({
+          id: `owner-${workspace.id}`,
+          user_id: workspace.owner_id,
+          workspace_id: workspace.id,
+          role: "owner",
+          status: "active",
+          User: ownerUser || {
+            id: workspace.owner_id,
+            full_name: "Unknown Owner",
+            email: "",
+          },
+        });
+      }
+
       allWorkspaces.push({
         ...workspace.toJSON(),
         WorkspaceMembers: members,

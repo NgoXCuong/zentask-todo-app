@@ -15,7 +15,13 @@ const Notification = sequelize.define(
         "task_assigned",
         "task_deadline",
         "new_comment",
-        "task_completed"
+        "task_completed",
+        "task_created",
+        "task_updated",
+        "task_overdue",
+        "comment_updated",
+        "subtask_completed",
+        "mention"
       ),
       allowNull: false,
     },

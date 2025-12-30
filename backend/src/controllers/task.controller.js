@@ -292,6 +292,42 @@ const createTask = asyncHandler(async (req, res) => {
     description: `Tạo task mới: ${title}`,
   });
 
+  // Create notification for assignee if different from creator
+  if (assignee_id && assignee_id !== userId) {
+    await db.Notification.create({
+      recipient_id: assignee_id,
+      sender_id: userId,
+      type: "task_assigned",
+      reference_id: task.id,
+      reference_type: "task",
+      message: `Bạn đã được giao task: "${title}"`,
+      is_read: false,
+    });
+  }
+
+  // Create notification for workspace members if it's a workspace task
+  if (finalWorkspaceId) {
+    const workspaceMembers = await db.WorkspaceMember.findAll({
+      where: {
+        workspace_id: finalWorkspaceId,
+        user_id: { [db.Sequelize.Op.ne]: userId },
+      },
+      include: [{ model: db.User, attributes: ["id"] }],
+    });
+
+    for (const member of workspaceMembers) {
+      await db.Notification.create({
+        recipient_id: member.user_id,
+        sender_id: userId,
+        type: "task_created",
+        reference_id: task.id,
+        reference_type: "task",
+        message: `Task mới được tạo trong workspace: "${title}"`,
+        is_read: false,
+      });
+    }
+  }
+
   // Fetch the created task with associations
   const createdTask = await db.Task.findByPk(task.id, {
     include: [
@@ -395,6 +431,10 @@ const updateTask = asyncHandler(async (req, res) => {
     task.assignee_id = assignee_id;
   }
 
+  // Track changes for notifications
+  const oldAssigneeId = task.assignee_id;
+  const oldStatus = task.status;
+
   // Set completed_at when status changes to completed
   if (status === "completed" && task.status !== "completed") {
     task.completed_at = new Date();
@@ -413,6 +453,90 @@ const updateTask = asyncHandler(async (req, res) => {
     entity_name: "Task",
     description: `Cập nhật task: ${task.title}`,
   });
+
+  // Create notifications based on changes
+  // Task completed notification
+  if (status === "completed" && oldStatus !== "completed") {
+    // Notify creator if different from completer
+    if (task.creator_id !== userId) {
+      await db.Notification.create({
+        recipient_id: task.creator_id,
+        sender_id: userId,
+        type: "task_completed",
+        reference_id: task.id,
+        reference_type: "task",
+        message: `Task "${task.title}" đã được hoàn thành`,
+        is_read: false,
+      });
+    }
+
+    // Notify workspace members for workspace tasks
+    if (task.workspace_id) {
+      const workspaceMembers = await db.WorkspaceMember.findAll({
+        where: {
+          workspace_id: task.workspace_id,
+          user_id: { [db.Sequelize.Op.ne]: userId },
+        },
+      });
+
+      for (const member of workspaceMembers) {
+        await db.Notification.create({
+          recipient_id: member.user_id,
+          sender_id: userId,
+          type: "task_completed",
+          reference_id: task.id,
+          reference_type: "task",
+          message: `Task "${task.title}" trong workspace đã được hoàn thành`,
+          is_read: false,
+        });
+      }
+    }
+  }
+
+  // Task assigned notification (when assignee changes)
+  if (
+    assignee_id !== undefined &&
+    assignee_id !== oldAssigneeId &&
+    assignee_id !== userId
+  ) {
+    await db.Notification.create({
+      recipient_id: assignee_id,
+      sender_id: userId,
+      type: "task_assigned",
+      reference_id: task.id,
+      reference_type: "task",
+      message: `Bạn đã được giao task: "${task.title}"`,
+      is_read: false,
+    });
+  }
+
+  // Task updated notification for workspace members (excluding the updater)
+  if (
+    task.workspace_id &&
+    (title !== undefined ||
+      description !== undefined ||
+      priority !== undefined ||
+      due_date !== undefined)
+  ) {
+    const workspaceMembers = await db.WorkspaceMember.findAll({
+      where: {
+        workspace_id: task.workspace_id,
+        user_id: { [Op.ne]: userId },
+      },
+    });
+
+    for (const member of workspaceMembers) {
+      await db.Notification.create({
+        recipient_id: member.user_id,
+        sender_id: userId,
+        type: "task_updated",
+        reference_id: task.id,
+        reference_type: "task",
+        message: `Task "${task.title}" đã được cập nhật`,
+        is_read: false,
+      });
+    }
+  }
 
   // Fetch updated task with associations
   const updatedTask = await db.Task.findByPk(task.id, {

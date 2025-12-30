@@ -98,6 +98,63 @@ const createComment = asyncHandler(async (req, res) => {
     description: `Thêm bình luận cho task: ${task.title}`,
   });
 
+  // Create notifications for new comment
+  // Notify task creator if different from commenter
+  if (task.creator_id !== userId) {
+    await db.Notification.create({
+      recipient_id: task.creator_id,
+      sender_id: userId,
+      type: "new_comment",
+      reference_id: task.id,
+      reference_type: "task",
+      message: `Có bình luận mới trong task: "${task.title}"`,
+      is_read: false,
+    });
+  }
+
+  // Notify task assignee if different from commenter and creator
+  if (task.assignee_id !== userId && task.assignee_id !== task.creator_id) {
+    await db.Notification.create({
+      recipient_id: task.assignee_id,
+      sender_id: userId,
+      type: "new_comment",
+      reference_id: task.id,
+      reference_type: "task",
+      message: `Có bình luận mới trong task: "${task.title}"`,
+      is_read: false,
+    });
+  }
+
+  // Notify workspace members for workspace tasks (excluding commenter)
+  if (task.workspace_id) {
+    const workspaceMembers = await db.WorkspaceMember.findAll({
+      where: {
+        workspace_id: task.workspace_id,
+        user_id: { [Op.ne]: userId },
+      },
+    });
+
+    for (const member of workspaceMembers) {
+      // Skip if already notified as creator or assignee
+      if (
+        member.user_id === task.creator_id ||
+        member.user_id === task.assignee_id
+      ) {
+        continue;
+      }
+
+      await db.Notification.create({
+        recipient_id: member.user_id,
+        sender_id: userId,
+        type: "new_comment",
+        reference_id: task.id,
+        reference_type: "task",
+        message: `Có bình luận mới trong task "${task.title}" của workspace`,
+        is_read: false,
+      });
+    }
+  }
+
   // Fetch the created comment with user info
   const createdComment = await db.Comment.findByPk(comment.id, {
     include: [
@@ -164,6 +221,63 @@ const updateComment = asyncHandler(async (req, res) => {
   comment.updated_at = new Date();
 
   await comment.save();
+
+  // Create notification for comment update
+  // Notify task creator if different from comment author
+  if (task.creator_id !== userId) {
+    await db.Notification.create({
+      recipient_id: task.creator_id,
+      sender_id: userId,
+      type: "comment_updated",
+      reference_id: task.id,
+      reference_type: "task",
+      message: `Bình luận trong task "${task.title}" đã được chỉnh sửa`,
+      is_read: false,
+    });
+  }
+
+  // Notify task assignee if different from comment author and creator
+  if (task.assignee_id !== userId && task.assignee_id !== task.creator_id) {
+    await db.Notification.create({
+      recipient_id: task.assignee_id,
+      sender_id: userId,
+      type: "comment_updated",
+      reference_id: task.id,
+      reference_type: "task",
+      message: `Bình luận trong task "${task.title}" đã được chỉnh sửa`,
+      is_read: false,
+    });
+  }
+
+  // Notify workspace members for workspace tasks (excluding comment author)
+  if (task.workspace_id) {
+    const workspaceMembers = await db.WorkspaceMember.findAll({
+      where: {
+        workspace_id: task.workspace_id,
+        user_id: { [Op.ne]: userId },
+      },
+    });
+
+    for (const member of workspaceMembers) {
+      // Skip if already notified as creator or assignee
+      if (
+        member.user_id === task.creator_id ||
+        member.user_id === task.assignee_id
+      ) {
+        continue;
+      }
+
+      await db.Notification.create({
+        recipient_id: member.user_id,
+        sender_id: userId,
+        type: "comment_updated",
+        reference_id: task.id,
+        reference_type: "task",
+        message: `Bình luận trong task "${task.title}" của workspace đã được chỉnh sửa`,
+        is_read: false,
+      });
+    }
+  }
 
   // Fetch updated comment with user info
   const updatedComment = await db.Comment.findByPk(comment.id, {
