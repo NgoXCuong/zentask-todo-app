@@ -143,7 +143,7 @@ export default function ZenTaskLogin() {
 
                 <Button
                   type="submit"
-                  className="w-full glass-effect rounded-sm text-white font-medium py-3 mt-2"
+                  className="w-full glass-effect  text-white bg-blue-500 hover:bg-blue-700 hover:scale-105 font-medium py-3 mt-2"
                   disabled={isLoading}
                 >
                   {isLoading ? "Đang xử lý..." : "Đăng nhập"}

@@ -13,6 +13,8 @@ import {
   CheckCircle,
   XCircle,
 } from "lucide-react";
+import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
 import { notificationsAPI, workspacesAPI } from "../../services/api";
 
 const NotificationItem = ({
@@ -127,6 +129,18 @@ const NotificationItem = ({
         return <MessageSquare className="w-5 h-5 text-purple-500" />;
       case "task_completed":
         return <Check className="w-5 h-5 text-emerald-500" />;
+      case "task_created":
+        return <FileText className="w-5 h-5 text-indigo-500" />;
+      case "task_updated":
+        return <FileText className="w-5 h-5 text-orange-500" />;
+      case "task_overdue":
+        return <Calendar className="w-5 h-5 text-red-600" />;
+      case "comment_updated":
+        return <MessageSquare className="w-5 h-5 text-pink-500" />;
+      case "subtask_completed":
+        return <CheckCircle className="w-5 h-5 text-teal-500" />;
+      case "mention":
+        return <User className="w-5 h-5 text-cyan-500" />;
       default:
         return <Bell className="w-5 h-5 text-gray-500" />;
     }
@@ -190,49 +204,52 @@ const NotificationItem = ({
             notification.message.includes("Bạn đã được mời") &&
             !compact && (
               <>
-                <button
+                <Button
                   onClick={handleAcceptInvitation}
                   disabled={isActionLoading}
-                  className="px-2 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 transition-colors"
+                  size="sm"
+                  variant="default"
+                  className="bg-green-600 hover:bg-green-700 text-white"
                   title="Chấp nhận lời mời"
                 >
                   {isActionLoading ? "..." : "OK"}
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={handleDeclineInvitation}
                   disabled={isActionLoading}
-                  className="px-2 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 transition-colors"
+                  size="sm"
+                  variant="destructive"
                   title="Từ chối lời mời"
                 >
                   {isActionLoading ? "..." : "✕"}
-                </button>
+                </Button>
               </>
             )}
 
           {!notification.is_read &&
             notification.type !== "workspace_invite" && (
-              <button
+              <Button
                 onClick={handleMarkAsRead}
                 disabled={isLoading}
-                className={`${
-                  compact ? "p-1" : "p-1"
-                } text-blue-600 hover:bg-blue-100 rounded transition-colors`}
+                size={compact ? "sm" : "default"}
+                variant="ghost"
+                className="text-blue-600 hover:bg-blue-100"
                 title="Đánh dấu đã đọc"
               >
                 <Check className={`${compact ? "w-3 h-3" : "w-4 h-4"}`} />
-              </button>
+              </Button>
             )}
 
-          <button
+          <Button
             onClick={handleDelete}
             disabled={isLoading}
-            className={`${
-              compact ? "p-1" : "p-1"
-            } text-red-600 hover:bg-red-100 rounded transition-colors`}
+            size={compact ? "sm" : "default"}
+            variant="ghost"
+            className="text-red-600 hover:bg-red-100"
             title="Xóa thông báo"
           >
             <X className={`${compact ? "w-3 h-3" : "w-4 h-4"}`} />
-          </button>
+          </Button>
         </div>
       </div>
     </div>

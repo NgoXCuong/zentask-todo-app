@@ -461,24 +461,13 @@ export default function Workspaces() {
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg">{workspace.name}</CardTitle>
                 <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      toast.info(
-                        "Tính năng cài đặt workspace sẽ có trong phiên bản tiếp theo!"
-                      )
-                    }
-                  >
-                    <Settings className="w-4 h-4" />
-                  </Button>
                   {workspace.owner_id === user?.id && (
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => deleteWorkspace(workspace.id)}
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-4 h-4 text-red-500" />
                     </Button>
                   )}
                 </div>

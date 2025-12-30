@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 import { Bell, CheckCheck, Loader2 } from "lucide-react";
+import { Button } from "../ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Badge } from "../ui/badge";
 import { notificationsAPI } from "../../services/api";
 import NotificationItem from "./NotificationItem";
 
@@ -99,95 +102,97 @@ const NotificationList = ({ onInvitationAccepted }) => {
 
   if (error) {
     return (
-      <div className="p-4 text-center text-red-600">
-        <p>{error}</p>
-        <button
-          onClick={() => loadNotifications()}
-          className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-        >
-          Thử lại
-        </button>
-      </div>
+      <Card className="max-w-2xl mx-auto">
+        <CardContent className="p-4 text-center">
+          <p className="text-destructive mb-4">{error}</p>
+          <Button onClick={() => loadNotifications()} variant="destructive">
+            Thử lại
+          </Button>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-sm border">
+    <Card className="max-w-2xl mx-auto">
       {/* Header */}
-      <div className="p-4 border-b border-gray-200">
+      <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Bell className="w-5 h-5 text-gray-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Thông báo</h2>
+            <Bell className="w-5 h-5 text-muted-foreground" />
+            <CardTitle>Thông báo</CardTitle>
             {unreadCount > 0 && (
-              <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-                {unreadCount}
-              </span>
+              <Badge variant="destructive">{unreadCount}</Badge>
             )}
           </div>
 
           {unreadCount > 0 && (
-            <button
+            <Button
               onClick={handleMarkAllAsRead}
-              className="flex items-center space-x-1 px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded transition-colors"
+              variant="ghost"
+              size="sm"
+              className="text-blue-600 hover:bg-blue-50"
             >
-              <CheckCheck className="w-4 h-4" />
-              <span>Đánh dấu tất cả đã đọc</span>
-            </button>
+              <CheckCheck className="w-4 h-4 mr-2" />
+              Đánh dấu tất cả đã đọc
+            </Button>
           )}
         </div>
-      </div>
+      </CardHeader>
 
       {/* Notifications List */}
-      <div className="max-h-96 overflow-y-auto">
-        {notifications.length === 0 && !loading ? (
-          <div className="p-8 text-center text-gray-500">
-            <Bell className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-            <p>Không có thông báo nào</p>
-          </div>
-        ) : (
-          <>
-            {notifications.map((notification) => (
-              <NotificationItem
-                key={notification.id}
-                notification={notification}
-                onMarkAsRead={handleMarkAsRead}
-                onDelete={handleDelete}
-                onInvitationAccepted={onInvitationAccepted}
-              />
-            ))}
+      <CardContent className="p-0">
+        <div className="max-h-96 overflow-y-auto">
+          {notifications.length === 0 && !loading ? (
+            <div className="p-8 text-center text-muted-foreground">
+              <Bell className="w-12 h-12 mx-auto mb-4 text-muted-foreground/50" />
+              <p>Không có thông báo nào</p>
+            </div>
+          ) : (
+            <>
+              {notifications.map((notification) => (
+                <NotificationItem
+                  key={notification.id}
+                  notification={notification}
+                  onMarkAsRead={handleMarkAsRead}
+                  onDelete={handleDelete}
+                  onInvitationAccepted={onInvitationAccepted}
+                />
+              ))}
 
-            {/* Load More */}
-            {hasMore && (
-              <div className="p-4 text-center border-t border-gray-200">
-                <button
-                  onClick={handleLoadMore}
-                  disabled={loading}
-                  className="px-4 py-2 text-blue-600 hover:bg-blue-50 rounded transition-colors disabled:opacity-50"
-                >
-                  {loading ? (
-                    <div className="flex items-center space-x-2">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Đang tải...</span>
-                    </div>
-                  ) : (
-                    "Tải thêm"
-                  )}
-                </button>
-              </div>
-            )}
-          </>
-        )}
+              {/* Load More */}
+              {hasMore && (
+                <div className="p-4 text-center border-t">
+                  <Button
+                    onClick={handleLoadMore}
+                    disabled={loading}
+                    variant="ghost"
+                    className="text-blue-600 hover:bg-blue-50"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Đang tải...
+                      </>
+                    ) : (
+                      "Tải thêm"
+                    )}
+                  </Button>
+                </div>
+              )}
+            </>
+          )}
 
-        {/* Loading State */}
-        {loading && notifications.length === 0 && (
-          <div className="p-8 text-center">
-            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
-            <p className="text-gray-600">Đang tải thông báo...</p>
-          </div>
-        )}
-      </div>
-    </div>
+          {/* Loading State */}
+          {loading && notifications.length === 0 && (
+            <div className="p-8 text-center">
+              <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
+              <p className="text-muted-foreground">Đang tải thông báo...</p>
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

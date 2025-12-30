@@ -1,15 +1,18 @@
 import { useState, useEffect, useRef } from "react";
 import { Bell, CheckCheck, Settings } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { toast } from "sonner";
+import { Button } from "../ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { notificationsAPI } from "../../services/api";
 import NotificationItem from "./NotificationItem";
 
 const NotificationDropdown = () => {
-  const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
-  const dropdownRef = useRef(null);
+  const [previousUnreadCount, setPreviousUnreadCount] = useState(0);
   const navigate = useNavigate();
 
   const loadNotifications = async () => {
@@ -34,7 +37,17 @@ const NotificationDropdown = () => {
     try {
       const result = await notificationsAPI.getUnreadCount();
       if (result.ok) {
-        setUnreadCount(result.data.data.unread_count);
+        const newCount = result.data.data.unread_count;
+        setPreviousUnreadCount(unreadCount);
+        setUnreadCount(newCount);
+
+        // Show toast if new notifications arrived
+        if (newCount > previousUnreadCount && previousUnreadCount > 0) {
+          const newNotifications = newCount - previousUnreadCount;
+          toast.info(`Bạn có ${newNotifications} thông báo mới!`, {
+            duration: 4000,
+          });
+        }
       }
     } catch (err) {
       console.error("Error loading unread count:", err);
@@ -43,26 +56,13 @@ const NotificationDropdown = () => {
 
   useEffect(() => {
     loadUnreadCount();
-  }, []);
 
-  useEffect(() => {
-    if (isOpen) {
-      loadNotifications();
-    }
-  }, [isOpen]);
+    // Auto refresh unread count every 30 seconds
+    const interval = setInterval(() => {
+      loadUnreadCount();
+    }, 30000);
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => clearInterval(interval);
   }, []);
 
   const handleMarkAsRead = (notificationId) => {
@@ -104,107 +104,104 @@ const NotificationDropdown = () => {
   };
 
   const handleViewAll = () => {
-    setIsOpen(false);
     navigate("/notifications");
   };
 
   return (
-    <div className="relative" ref={dropdownRef}>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-foreground hover:text-foreground hover:bg-accent rounded-xs transition-colors"
-        title="Thông báo"
-      >
-        <Bell className="w-5 h-5" />
-        {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
-            {unreadCount > 99 ? "99+" : unreadCount}
-          </span>
-        )}
-      </button>
-
-      {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-white rounded-xs shadow-lg border border-gray-200 z-50">
-          {/* Header */}
-          <div className="p-4 border-b border-gray-200">
+    <Popover onOpenChange={(open) => open && loadNotifications()}>
+      <PopoverTrigger asChild>
+        <div
+          className="relative p-2 rounded-md hover:bg-accent cursor-pointer transition-colors"
+          title="Thông báo"
+        >
+          <Bell className="w-5 h-5" />
+          {unreadCount > 0 && (
+            <span className="absolute top-0 right-0 bg-destructive text-destructive-foreground text-xs rounded-full h-4 w-4 flex items-center justify-center font-medium text-white">
+              {unreadCount > 99 ? "99+" : unreadCount}
+            </span>
+          )}
+        </div>
+      </PopoverTrigger>
+      <PopoverContent className="w-80 p-0" align="end">
+        <Card className="border-0 shadow-none">
+          <CardHeader>
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Bell className="w-5 h-5 text-gray-600" />
-                <h3 className="text-lg font-semibold text-gray-900">
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Bell className="w-4 h-4" />
                   Thông báo
-                </h3>
+                </CardTitle>
                 {unreadCount > 0 && (
-                  <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                  <span className="bg-destructive text-destructive-foreground text-white text-xs px-2 py-1 rounded-full">
                     {unreadCount}
                   </span>
                 )}
               </div>
-
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-1">
                 {unreadCount > 0 && (
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     onClick={handleMarkAllAsRead}
-                    className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
                     title="Đánh dấu tất cả đã đọc"
                   >
                     <CheckCheck className="w-4 h-4" />
-                  </button>
+                  </Button>
                 )}
-                <button
+                <Button
+                  variant="ghost"
+                  size="icon"
                   onClick={handleViewAll}
-                  className="text-sm text-gray-600 hover:text-gray-800 transition-colors"
                   title="Xem tất cả"
                 >
                   <Settings className="w-4 h-4" />
-                </button>
+                </Button>
               </div>
             </div>
-          </div>
-
-          {/* Notifications List */}
-          <div className="max-h-96 overflow-y-auto">
-            {loading ? (
-              <div className="p-4 text-center text-gray-500">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
-                <p className="mt-2 text-sm">Đang tải...</p>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="max-h-96 overflow-y-auto">
+              {loading ? (
+                <div className="p-4 text-center text-muted-foreground">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto"></div>
+                  <p className="mt-2 text-sm">Đang tải...</p>
+                </div>
+              ) : notifications.length === 0 ? (
+                <div className="p-8 text-center text-muted-foreground">
+                  <Bell className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">Không có thông báo nào</p>
+                </div>
+              ) : (
+                notifications.map((notification) => (
+                  <NotificationItem
+                    key={notification.id}
+                    notification={notification}
+                    onMarkAsRead={handleMarkAsRead}
+                    onDelete={handleDelete}
+                    onInvitationAccepted={() => {
+                      // Refresh notifications after invitation action
+                      loadNotifications();
+                      loadUnreadCount();
+                    }}
+                    compact={true}
+                  />
+                ))
+              )}
+            </div>
+            {notifications.length > 0 && (
+              <div className="border-t text-center">
+                <Link
+                  to="/notifications"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors hover:underline"
+                >
+                  Xem tất cả thông báo
+                </Link>
               </div>
-            ) : notifications.length === 0 ? (
-              <div className="p-8 text-center text-gray-500">
-                <Bell className="w-8 h-8 mx-auto mb-2 text-gray-300" />
-                <p className="text-sm">Không có thông báo nào</p>
-              </div>
-            ) : (
-              notifications.map((notification) => (
-                <NotificationItem
-                  key={notification.id}
-                  notification={notification}
-                  onMarkAsRead={handleMarkAsRead}
-                  onDelete={handleDelete}
-                  onInvitationAccepted={() => {
-                    // Refresh notifications after invitation action
-                    loadNotifications();
-                    loadUnreadCount();
-                  }}
-                  compact={true} // Add compact prop for dropdown styling
-                />
-              ))
             )}
-          </div>
-
-          {/* Footer */}
-          {notifications.length > 0 && (
-            <div className="p-3 border-t border-gray-200 text-center">
-              <button
-                onClick={handleViewAll}
-                className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
-              >
-                Xem tất cả thông báo
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
+          </CardContent>
+        </Card>
+      </PopoverContent>
+    </Popover>
   );
 };
 

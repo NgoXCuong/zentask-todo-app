@@ -69,7 +69,7 @@ export default function Sidebar({ focusMode, stats, onToggleFocus }) {
                 focusMode
                   ? "w-12 h-12 p-0 justify-center"
                   : "w-full justify-start gap-3 px-3 py-2 h-12"
-              } rounded-xs ${
+              } rounded-xs glass-effect ${
                 isActive("/") || isActive("/dashboard")
                   ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105"
                   : ""
@@ -86,7 +86,7 @@ export default function Sidebar({ focusMode, stats, onToggleFocus }) {
                 focusMode
                   ? "w-12 h-12 p-0 justify-center"
                   : "w-full justify-start gap-3 px-3 py-2 h-12"
-              } rounded-xs ${
+              } rounded-xs glass-effect ${
                 isActive("/tasks")
                   ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105"
                   : ""
@@ -103,7 +103,7 @@ export default function Sidebar({ focusMode, stats, onToggleFocus }) {
                 focusMode
                   ? "w-12 h-12 p-0 justify-center"
                   : "w-full justify-start gap-3 px-3 py-2 h-12"
-              } rounded-xs ${
+              } rounded-xs glass-effect ${
                 isActive("/categories")
                   ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105"
                   : ""
@@ -120,7 +120,7 @@ export default function Sidebar({ focusMode, stats, onToggleFocus }) {
                 focusMode
                   ? "w-12 h-12 p-0 justify-center"
                   : "w-full justify-start gap-3 px-3 py-2 h-12"
-              } rounded-xs ${
+              } rounded-xs glass-effect ${
                 isActive("/workspaces")
                   ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105"
                   : ""
@@ -138,7 +138,7 @@ export default function Sidebar({ focusMode, stats, onToggleFocus }) {
                 focusMode
                   ? "w-12 h-12 p-0 justify-center"
                   : "w-full justify-start gap-3 px-3 py-2 h-12"
-              } rounded-xs ${
+              } rounded-xs glass-effect ${
                 isActive("/activity-logs")
                   ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105"
                   : ""
@@ -161,7 +161,7 @@ export default function Sidebar({ focusMode, stats, onToggleFocus }) {
             focusMode
               ? "w-12 h-12 p-0 justify-center"
               : "w-full justify-start gap-3 px-3 h-12"
-          } text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/20`}
+          }  text-red-600  hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/20`}
           title={focusMode ? "Đăng xuất" : ""}
         >
           <LogOut className="w-4 h-4" />
