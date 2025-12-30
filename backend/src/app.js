@@ -2,11 +2,13 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import session from "express-session";
 
 import { apiLimiter } from "./middleware/limiter.middleware.js";
 import sequelize from "./config/db.js";
 import routes from "./routes/index.routes.js";
 import "./models/index.js";
+import passport from "./config/passport.js";
 import startReminderJob from "./jobs/reminder.job.js";
 
 dotenv.config();
@@ -25,13 +27,30 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
+// Session middleware for Passport
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "your-session-secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    },
+  })
+);
+
+// Passport middleware
+app.use(passport.initialize());
+app.use(passport.session());
+
 // Serve static files from uploads directory
 app.use("/uploads", express.static("uploads"));
 
 async function startServer() {
   try {
     console.log("Đang đồng bộ hóa cơ sở dữ liệu...");
-    await sequelize.sync({ alter: true });
+    await sequelize.sync({ alter: true }); // Tắt auto-sync
     console.log("Cơ sở dữ liệu đã được đồng bộ hóa thành công.");
 
     app.use("/api", apiLimiter);

@@ -110,18 +110,39 @@ class UserController {
   });
 
   authUser = asyncHandler(async (req, res) => {
-    const userId = req.user.id;
-    const findUser = await User.findOne({
-      where: { id: userId },
-      attributes: { exclude: ["hash_password", "refresh_token"] },
-    });
+    // Try JWT auth first
+    if (req.user && req.user.id) {
+      const userId = req.user.id;
+      const findUser = await User.findOne({
+        where: { id: userId },
+        attributes: { exclude: ["hash_password", "refresh_token_hash"] },
+      });
 
-    if (!findUser)
-      return res.status(404).json({ message: "User không tồn tại" });
+      if (!findUser)
+        return res.status(404).json({ message: "User không tồn tại" });
 
-    return res
-      .status(200)
-      .json({ message: "Xác thực thành công", user: findUser });
+      return res
+        .status(200)
+        .json({ message: "Xác thực thành công", user: findUser });
+    }
+
+    // Try session auth for OAuth users
+    if (req.session && req.session.passport && req.session.passport.user) {
+      const userId = req.session.passport.user;
+      const findUser = await User.findOne({
+        where: { id: userId },
+        attributes: { exclude: ["hash_password", "refresh_token_hash"] },
+      });
+
+      if (!findUser)
+        return res.status(404).json({ message: "User không tồn tại" });
+
+      return res
+        .status(200)
+        .json({ message: "Xác thực thành công", user: findUser });
+    }
+
+    return res.status(401).json({ message: "Chưa đăng nhập" });
   });
 
   updateProfile = asyncHandler(async (req, res) => {
