@@ -12,15 +12,26 @@ export function AuthProvider({ children }) {
   // Check auth on mount
   useEffect(() => {
     const checkAuthStatus = async () => {
-      const currentUser = authAPI.getCurrentUser();
-      if (currentUser) {
-        // Verify token is still valid and get fresh user data
-        const { data, ok } = await authAPI.checkAuth();
-        if (ok && data.user) {
-          setUser(data.user);
-          localStorage.setItem("user", JSON.stringify(data.user));
+      // Always check with server first (important for OAuth users)
+      const { data, ok } = await authAPI.checkAuth();
+      if (ok && data.user) {
+        setUser(data.user);
+        localStorage.setItem("user", JSON.stringify(data.user));
+      } else {
+        // Check localStorage as fallback
+        const currentUser = authAPI.getCurrentUser();
+        if (currentUser) {
+          // Verify token is still valid
+          const { data: verifyData, ok: verifyOk } = await authAPI.checkAuth();
+          if (verifyOk && verifyData.user) {
+            setUser(verifyData.user);
+            localStorage.setItem("user", JSON.stringify(verifyData.user));
+          } else {
+            // Token invalid, clear it
+            localStorage.removeItem("user");
+          }
         } else {
-          // Token invalid, clear it
+          // No user data anywhere
           localStorage.removeItem("user");
         }
       }

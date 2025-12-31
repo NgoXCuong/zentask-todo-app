@@ -135,18 +135,18 @@ export default function Categories() {
 
   return (
     <Layout>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
             Quản lý danh mục
           </h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">
             Tạo và quản lý các danh mục công việc của bạn
           </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Add new category */}
         <Card className="lg:col-span-1">
           <CardHeader>
@@ -242,10 +242,10 @@ export default function Categories() {
               {filteredCategories.map((category) => (
                 <div
                   key={category.id}
-                  className="flex items-center justify-between p-4 border border-border rounded-xs hover:bg-accent/50 transition-colors"
+                  className="p-4 border border-border rounded-xs hover:bg-accent/50 transition-colors"
                 >
                   {editingId === category.id ? (
-                    <div className="flex-1 flex items-center gap-3">
+                    <div className="space-y-4">
                       <Input
                         value={category.name}
                         onChange={(e) =>
@@ -255,14 +255,15 @@ export default function Categories() {
                             e.target.value
                           )
                         }
-                        className="flex-1"
+                        placeholder="Tên danh mục"
                       />
-                      <div className="flex flex-col gap-2">
-                        <div className="flex gap-1 flex-wrap">
+                      <div className="space-y-3">
+                        <Label className="text-sm font-medium">Màu sắc</Label>
+                        <div className="flex gap-2 flex-wrap">
                           {colorOptions.map((color) => (
                             <button
                               key={color}
-                              className={`w-6 h-6 rounded-full border ${
+                              className={`w-8 h-8 rounded-full border-2 ${
                                 category.color === color
                                   ? "border-primary"
                                   : "border-border"
@@ -275,7 +276,7 @@ export default function Categories() {
                           ))}
                         </div>
                         <div className="flex items-center gap-2">
-                          <Label className="text-xs">Tùy chỉnh:</Label>
+                          <Label className="text-sm">Tùy chỉnh:</Label>
                           <input
                             type="color"
                             value={
@@ -291,7 +292,7 @@ export default function Categories() {
                                 e.target.value
                               )
                             }
-                            className="w-8 h-6 rounded border border-border cursor-pointer"
+                            className="w-12 h-8 rounded border border-border cursor-pointer"
                           />
                           <Input
                             type="text"
@@ -303,38 +304,45 @@ export default function Categories() {
                                 e.target.value
                               )
                             }
-                            className="w-20 text-xs font-mono h-6"
+                            className="w-24 text-sm font-mono"
                           />
                         </div>
                       </div>
-                      <Button
-                        size="sm"
-                        onClick={() => updateCategory(category.id)}
-                        disabled={loading}
-                      >
-                        Lưu
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setEditingId(null)}
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() => updateCategory(category.id)}
+                          disabled={loading}
+                        >
+                          Lưu
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setEditingId(null)}
+                        >
+                          <X className="w-4 h-4 mr-2" />
+                          Hủy
+                        </Button>
+                      </div>
                     </div>
                   ) : (
-                    <>
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                       <div className="flex items-center gap-3">
                         <div
-                          className="w-4 h-4 rounded-full"
+                          className="w-4 h-4 rounded-full shrink-0"
                           style={{ backgroundColor: category.color }}
                         />
-                        <span className="font-medium">{category.name}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {new Date(category.created_at).toLocaleDateString()}
-                        </span>
+                        <div className="min-w-0 flex-1">
+                          <span className="font-medium block">
+                            {category.name}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(category.created_at).toLocaleDateString()}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex gap-1">
+                      <div className="flex gap-1 self-end sm:self-center">
                         <Button
                           size="sm"
                           variant="ghost"
@@ -350,7 +358,7 @@ export default function Categories() {
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
-                    </>
+                    </div>
                   )}
                 </div>
               ))}
@@ -368,7 +376,7 @@ export default function Categories() {
               {totalPages > 1 && (
                 <div className="mt-6">
                   <Pagination>
-                    <PaginationContent>
+                    <PaginationContent className="flex-wrap gap-1">
                       <PaginationItem>
                         <PaginationPrevious
                           onClick={() => page > 1 && setPage(page - 1)}
@@ -380,50 +388,63 @@ export default function Categories() {
                         />
                       </PaginationItem>
 
-                      {/* Page numbers */}
-                      {Array.from({ length: totalPages }, (_, i) => i + 1)
-                        .filter((pageNum) => {
-                          // Show first page, last page, current page, and pages around current
-                          return (
-                            pageNum === 1 ||
-                            pageNum === totalPages ||
-                            (pageNum >= page - 1 && pageNum <= page + 1)
-                          );
-                        })
-                        .map((pageNum, index, array) => {
-                          // Add ellipsis if there's a gap
-                          const prevPage = array[index - 1];
-                          if (prevPage && pageNum - prevPage > 1) {
+                      {/* Page numbers - simplified for mobile */}
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: totalPages }, (_, i) => i + 1)
+                          .filter((pageNum) => {
+                            // On mobile, show fewer pages
+                            const isMobile = window.innerWidth < 640;
+                            if (isMobile) {
+                              return (
+                                pageNum === 1 ||
+                                pageNum === totalPages ||
+                                pageNum === page
+                              );
+                            }
+                            // On larger screens, show more pages
                             return (
-                              <React.Fragment key={`ellipsis-${pageNum}`}>
-                                <PaginationItem>
-                                  <span className="px-3 py-2">...</span>
-                                </PaginationItem>
-                                <PaginationItem>
-                                  <PaginationLink
-                                    onClick={() => setPage(pageNum)}
-                                    isActive={page === pageNum}
-                                    className="cursor-pointer"
-                                  >
-                                    {pageNum}
-                                  </PaginationLink>
-                                </PaginationItem>
-                              </React.Fragment>
+                              pageNum === 1 ||
+                              pageNum === totalPages ||
+                              (pageNum >= page - 1 && pageNum <= page + 1)
                             );
-                          }
+                          })
+                          .map((pageNum, index, array) => {
+                            // Add ellipsis if there's a gap
+                            const prevPage = array[index - 1];
+                            if (prevPage && pageNum - prevPage > 1) {
+                              return (
+                                <React.Fragment key={`ellipsis-${pageNum}`}>
+                                  <PaginationItem>
+                                    <span className="px-2 py-2 text-sm">
+                                      ...
+                                    </span>
+                                  </PaginationItem>
+                                  <PaginationItem>
+                                    <PaginationLink
+                                      onClick={() => setPage(pageNum)}
+                                      isActive={page === pageNum}
+                                      className="cursor-pointer h-9 w-9 p-0"
+                                    >
+                                      {pageNum}
+                                    </PaginationLink>
+                                  </PaginationItem>
+                                </React.Fragment>
+                              );
+                            }
 
-                          return (
-                            <PaginationItem key={pageNum}>
-                              <PaginationLink
-                                onClick={() => setPage(pageNum)}
-                                isActive={page === pageNum}
-                                className="cursor-pointer"
-                              >
-                                {pageNum}
-                              </PaginationLink>
-                            </PaginationItem>
-                          );
-                        })}
+                            return (
+                              <PaginationItem key={pageNum}>
+                                <PaginationLink
+                                  onClick={() => setPage(pageNum)}
+                                  isActive={page === pageNum}
+                                  className="cursor-pointer h-9 w-9 p-0"
+                                >
+                                  {pageNum}
+                                </PaginationLink>
+                              </PaginationItem>
+                            );
+                          })}
+                      </div>
 
                       <PaginationItem>
                         <PaginationNext

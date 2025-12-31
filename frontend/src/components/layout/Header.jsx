@@ -9,6 +9,7 @@ import {
   Settings,
   PanelLeftClose,
   PanelLeftOpen,
+  Menu,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -19,7 +20,12 @@ import { useAuth } from "../../context/AuthContext";
 import NotificationDropdown from "../notifications/NotificationDropdown";
 import AvatarUpdate from "./AvatarUpdate";
 
-export default function Header({ focusMode, setFocusMode, user: propUser }) {
+export default function Header({
+  focusMode,
+  setFocusMode,
+  user: propUser,
+  onMenuClick,
+}) {
   const { isDark, toggleTheme } = useTheme();
   const { logout, user: contextUser } = useAuth();
 
@@ -33,10 +39,20 @@ export default function Header({ focusMode, setFocusMode, user: propUser }) {
 
   return (
     <header className="sticky top-0 bg-card border-b border-border shadow-sm z-30">
-      <div className="px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-12">
+      <div className="px-4 sm:px-6 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-4 lg:gap-12">
+          {/* Mobile menu button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="md:hidden p-2"
+            onClick={onMenuClick}
+          >
+            <Menu className="w-5 h-5" />
+          </Button>
+
           <div
-            className="p-2 rounded-md hover:bg-accent cursor-pointer transition-colors"
+            className="p-2 rounded-md hover:bg-accent cursor-pointer transition-colors md:block hidden"
             onClick={() => setFocusMode(!focusMode)}
             title={focusMode ? "Exit Focus Mode" : "Enter Focus Mode"}
           >
@@ -103,7 +119,7 @@ export default function Header({ focusMode, setFocusMode, user: propUser }) {
             </PopoverTrigger>
             <PopoverContent className="w-64 p-0" align="end">
               <Card className="border-0 shadow-none">
-                <CardContent className="p-4">
+                <CardContent>
                   {!showAvatarUpdate ? (
                     <>
                       {/* User Info */}

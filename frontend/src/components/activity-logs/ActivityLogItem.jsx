@@ -131,15 +131,15 @@ const ActivityLogItem = ({ log }) => {
           </div>
         )}
 
-        <div className="flex items-center justify-between mt-3">
-          <div className="flex items-center space-x-4 text-xs text-muted-foreground">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-3">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs text-muted-foreground">
             <span className="flex items-center space-x-1">
               <span>🕒</span>
               <span>{formatDate(log.created_at)}</span>
             </span>
 
             {log.Workspace && (
-              <span className="flex items-center space-x-1 px-2 py-1 bg-accent/30 rounded-full">
+              <span className="flex items-center space-x-1 px-2 py-1 bg-accent/30 rounded-full self-start">
                 <span>🏢</span>
                 <span className="font-medium">{log.Workspace.name}</span>
               </span>
@@ -147,7 +147,7 @@ const ActivityLogItem = ({ log }) => {
           </div>
 
           {log.Task && (
-            <span className="flex items-center space-x-2 text-xs text-muted-foreground px-2 py-1 bg-accent/30 rounded-full max-w-48">
+            <span className="flex items-center space-x-2 text-xs text-muted-foreground px-2 py-1 bg-accent/30 rounded-full max-w-48 self-start sm:self-center">
               <FileText className="w-3 h-3 shrink-0" />
               <span className="truncate font-medium">{log.Task.title}</span>
             </span>

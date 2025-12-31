@@ -15,7 +15,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "../ui/button";
 import { Card, CardHeader, CardContent, CardFooter } from "../ui/card";
 
-export default function Sidebar({ focusMode, stats, onToggleFocus }) {
+export default function Sidebar({ focusMode, stats, onToggleFocus, onClose }) {
   const { logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -30,7 +30,7 @@ export default function Sidebar({ focusMode, stats, onToggleFocus }) {
   return (
     <Card
       className={`fixed left-0 top-0 rounded-none h-full border-r shadow-lg z-40 flex flex-col transition-all duration-300 ${
-        focusMode ? "w-16" : "w-64"
+        focusMode ? "w-16" : "md:w-20 lg:w-64 w-64"
       }`}
     >
       <CardHeader className={`border-b ${focusMode ? "p-3" : "py-3"}`}>
@@ -48,7 +48,7 @@ export default function Sidebar({ focusMode, stats, onToggleFocus }) {
             <div className="w-8 h-8  rounded-xs flex items-center justify-center">
               <CheckSquare className="w-10 h-10  dark:text-white " />
             </div>
-            <div>
+            <div className="hidden md:block lg:block">
               <h1 className="text-2xl font-bold">ZenTask</h1>
             </div>
           </div>
@@ -74,11 +74,16 @@ export default function Sidebar({ focusMode, stats, onToggleFocus }) {
                   ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105"
                   : ""
               }`}
-              onClick={() => navigate("/")}
+              onClick={() => {
+                navigate("/");
+                if (window.innerWidth < 768) onClose(); // Close sidebar on mobile
+              }}
               title={focusMode ? "Dashboard" : ""}
             >
               <Home className="w-4 h-4" />
-              {!focusMode && <span className="text-sm">Trang chủ</span>}
+              {!focusMode && (
+                <span className="text-sm md:hidden lg:inline">Trang chủ</span>
+              )}
             </Button>
             <Button
               variant={isActive("/tasks") ? "secondary" : "ghost"}
@@ -91,11 +96,16 @@ export default function Sidebar({ focusMode, stats, onToggleFocus }) {
                   ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105"
                   : ""
               }`}
-              onClick={() => navigate("/tasks")}
+              onClick={() => {
+                navigate("/tasks");
+                if (window.innerWidth < 768) onClose();
+              }}
               title={focusMode ? "Tasks" : ""}
             >
               <ListTodo className="w-4 h-4" />
-              {!focusMode && <span className="text-sm">Tasks</span>}
+              {!focusMode && (
+                <span className="text-sm md:hidden lg:inline">Tasks</span>
+              )}
             </Button>
             <Button
               variant={isActive("/categories") ? "secondary" : "ghost"}
@@ -108,11 +118,16 @@ export default function Sidebar({ focusMode, stats, onToggleFocus }) {
                   ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105"
                   : ""
               }`}
-              onClick={() => navigate("/categories")}
+              onClick={() => {
+                navigate("/categories");
+                if (window.innerWidth < 768) onClose();
+              }}
               title={focusMode ? "Danh mục" : ""}
             >
               <Tag className="w-4 h-4" />
-              {!focusMode && <span className="text-sm">Danh mục</span>}
+              {!focusMode && (
+                <span className="text-sm md:hidden lg:inline">Danh mục</span>
+              )}
             </Button>
             <Button
               variant={isActive("/workspaces") ? "secondary" : "ghost"}
@@ -125,11 +140,16 @@ export default function Sidebar({ focusMode, stats, onToggleFocus }) {
                   ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105"
                   : ""
               }`}
-              onClick={() => navigate("/workspaces")}
+              onClick={() => {
+                navigate("/workspaces");
+                if (window.innerWidth < 768) onClose();
+              }}
               title={focusMode ? "Workspaces" : ""}
             >
               <Users className="w-4 h-4" />
-              {!focusMode && <span className="text-sm">Workspaces</span>}
+              {!focusMode && (
+                <span className="text-sm md:hidden lg:inline">Workspaces</span>
+              )}
             </Button>
 
             <Button
@@ -143,11 +163,16 @@ export default function Sidebar({ focusMode, stats, onToggleFocus }) {
                   ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105"
                   : ""
               }`}
-              onClick={() => navigate("/activity-logs")}
+              onClick={() => {
+                navigate("/activity-logs");
+                if (window.innerWidth < 768) onClose();
+              }}
               title={focusMode ? "Lịch sử hoạt động" : ""}
             >
               <Activity className="w-4 h-4" />
-              {!focusMode && <span className="text-sm">Lịch sử</span>}
+              {!focusMode && (
+                <span className="text-sm md:hidden lg:inline">Lịch sử</span>
+              )}
             </Button>
           </nav>
         </div>
@@ -165,7 +190,9 @@ export default function Sidebar({ focusMode, stats, onToggleFocus }) {
           title={focusMode ? "Đăng xuất" : ""}
         >
           <LogOut className="w-4 h-4" />
-          {!focusMode && <span className="text-sm">Đăng xuất</span>}
+          {!focusMode && (
+            <span className="text-sm md:hidden lg:inline">Đăng xuất</span>
+          )}
         </Button>
       </CardFooter>
     </Card>

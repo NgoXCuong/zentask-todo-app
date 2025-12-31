@@ -112,8 +112,8 @@ const ActivityLogList = ({ workspaceId = "", taskId = "" }) => {
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
             <Activity className="w-5 h-5" />
             Lịch sử hoạt động
           </CardTitle>
@@ -127,16 +127,16 @@ const ActivityLogList = ({ workspaceId = "", taskId = "" }) => {
                 showFilters: !prev.showFilters,
               }))
             }
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 self-start sm:self-center"
           >
             <Filter className="w-4 h-4" />
-            Lọc
+            <span className="hidden sm:inline">Lọc</span>
           </Button>
         </div>
 
         {/* Context Info */}
         {(workspaceId || taskId) && (
-          <div className="flex items-center gap-4 mt-3 text-sm text-muted-foreground">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-3 text-sm text-muted-foreground">
             {workspaceId && (
               <span className="flex items-center gap-1">
                 <Building className="w-4 h-4" />

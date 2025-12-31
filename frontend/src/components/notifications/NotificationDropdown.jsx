@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Bell, CheckCheck, Settings } from "lucide-react";
+import { Bell, CheckCheck, X } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
@@ -13,6 +13,7 @@ const NotificationDropdown = () => {
   const [loading, setLoading] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [previousUnreadCount, setPreviousUnreadCount] = useState(0);
+  const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
 
   const loadNotifications = async () => {
@@ -107,8 +108,19 @@ const NotificationDropdown = () => {
     navigate("/notifications");
   };
 
+  const handleOpenChange = (open) => {
+    setIsOpen(open);
+    if (open) {
+      loadNotifications();
+    }
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
+  };
+
   return (
-    <Popover onOpenChange={(open) => open && loadNotifications()}>
+    <Popover open={isOpen} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
         <div
           className="relative p-2 rounded-md hover:bg-accent cursor-pointer transition-colors"
@@ -151,10 +163,10 @@ const NotificationDropdown = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={handleViewAll}
-                  title="Xem tất cả"
+                  onClick={handleClose}
+                  title="Đóng"
                 >
-                  <Settings className="w-4 h-4" />
+                  <X className="w-4 h-4" />
                 </Button>
               </div>
             </div>

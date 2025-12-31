@@ -132,14 +132,19 @@ export default function Tasks() {
     <Layout>
       <Message message={message} />
 
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Quản lý Tasks</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+            Quản lý Tasks
+          </h1>
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">
             Xem và quản lý tất cả các công việc của bạn
           </p>
         </div>
-        <Button onClick={() => setShowAddForm(true)}>
+        <Button
+          onClick={() => setShowAddForm(true)}
+          className="self-start sm:self-center"
+        >
           <Plus className="w-4 h-4 mr-2" />
           Thêm Task
         </Button>
@@ -148,23 +153,23 @@ export default function Tasks() {
       {/* Task Board Section */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <CardTitle className="font-bold text-xl">
+              <CardTitle className="font-bold text-lg sm:text-xl">
                 Bảng Quản lý Task
               </CardTitle>
               <p className="text-sm text-muted-foreground">
                 Quản lý các công việc của bạn theo các giai đoạn khác nhau
               </p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 self-start sm:self-center">
               <Button
                 variant={viewMode === "list" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setViewMode("list")}
               >
                 <List className="w-4 h-4 mr-2" />
-                Danh sách
+                <span className="hidden sm:inline">Danh sách</span>
               </Button>
               <Button
                 variant={viewMode === "kanban" ? "default" : "outline"}
@@ -172,7 +177,7 @@ export default function Tasks() {
                 onClick={() => setViewMode("kanban")}
               >
                 <Kanban className="w-4 h-4 mr-2" />
-                Kanban
+                <span className="hidden sm:inline">Kanban</span>
               </Button>
             </div>
           </div>
@@ -230,7 +235,7 @@ export default function Tasks() {
           {totalPages > 1 && (
             <div className="mt-6">
               <Pagination>
-                <PaginationContent>
+                <PaginationContent className="flex-wrap gap-1">
                   <PaginationItem>
                     <PaginationPrevious
                       onClick={() => page > 1 && setPage(page - 1)}
@@ -242,50 +247,61 @@ export default function Tasks() {
                     />
                   </PaginationItem>
 
-                  {/* Page numbers */}
-                  {Array.from({ length: totalPages }, (_, i) => i + 1)
-                    .filter((pageNum) => {
-                      // Show first page, last page, current page, and pages around current
-                      return (
-                        pageNum === 1 ||
-                        pageNum === totalPages ||
-                        (pageNum >= page - 1 && pageNum <= page + 1)
-                      );
-                    })
-                    .map((pageNum, index, array) => {
-                      // Add ellipsis if there's a gap
-                      const prevPage = array[index - 1];
-                      if (prevPage && pageNum - prevPage > 1) {
+                  {/* Page numbers - simplified for mobile */}
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter((pageNum) => {
+                        // On mobile, show fewer pages
+                        const isMobile = window.innerWidth < 640;
+                        if (isMobile) {
+                          return (
+                            pageNum === 1 ||
+                            pageNum === totalPages ||
+                            pageNum === page
+                          );
+                        }
+                        // On larger screens, show more pages
                         return (
-                          <React.Fragment key={`ellipsis-${pageNum}`}>
-                            <PaginationItem>
-                              <span className="px-3 py-2">...</span>
-                            </PaginationItem>
-                            <PaginationItem>
-                              <PaginationLink
-                                onClick={() => setPage(pageNum)}
-                                isActive={page === pageNum}
-                                className="cursor-pointer"
-                              >
-                                {pageNum}
-                              </PaginationLink>
-                            </PaginationItem>
-                          </React.Fragment>
+                          pageNum === 1 ||
+                          pageNum === totalPages ||
+                          (pageNum >= page - 1 && pageNum <= page + 1)
                         );
-                      }
+                      })
+                      .map((pageNum, index, array) => {
+                        // Add ellipsis if there's a gap
+                        const prevPage = array[index - 1];
+                        if (prevPage && pageNum - prevPage > 1) {
+                          return (
+                            <React.Fragment key={`ellipsis-${pageNum}`}>
+                              <PaginationItem>
+                                <span className="px-2 py-2 text-sm">...</span>
+                              </PaginationItem>
+                              <PaginationItem>
+                                <PaginationLink
+                                  onClick={() => setPage(pageNum)}
+                                  isActive={page === pageNum}
+                                  className="cursor-pointer h-9 w-9 p-0"
+                                >
+                                  {pageNum}
+                                </PaginationLink>
+                              </PaginationItem>
+                            </React.Fragment>
+                          );
+                        }
 
-                      return (
-                        <PaginationItem key={pageNum}>
-                          <PaginationLink
-                            onClick={() => setPage(pageNum)}
-                            isActive={page === pageNum}
-                            className="cursor-pointer"
-                          >
-                            {pageNum}
-                          </PaginationLink>
-                        </PaginationItem>
-                      );
-                    })}
+                        return (
+                          <PaginationItem key={pageNum}>
+                            <PaginationLink
+                              onClick={() => setPage(pageNum)}
+                              isActive={page === pageNum}
+                              className="cursor-pointer h-9 w-9 p-0"
+                            >
+                              {pageNum}
+                            </PaginationLink>
+                          </PaginationItem>
+                        );
+                      })}
+                  </div>
 
                   <PaginationItem>
                     <PaginationNext

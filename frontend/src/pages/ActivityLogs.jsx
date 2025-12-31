@@ -78,12 +78,12 @@ export default function ActivityLogs() {
   return (
     <Layout>
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
             Lịch sử hoạt động
           </h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">
             Theo dõi tất cả hoạt động trong hệ thống
           </p>
         </div>
@@ -91,10 +91,10 @@ export default function ActivityLogs() {
           <Button
             onClick={clearFilters}
             variant="outline"
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 self-start sm:self-center"
           >
             <X className="w-4 h-4" />
-            Xóa bộ lọc
+            <span className="hidden sm:inline">Xóa bộ lọc</span>
           </Button>
         )}
       </div>

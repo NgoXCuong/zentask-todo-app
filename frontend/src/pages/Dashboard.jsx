@@ -195,12 +195,12 @@ export default function ZenTaskDashboard() {
       <Message message={message} />
 
       {/* Welcome Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
             Chào mừng trở lại, {user?.full_name || "User"}!
           </h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">
             Đây là những gì đang diễn ra với các nhiệm vụ của bạn hôm nay.
           </p>
         </div>
@@ -354,7 +354,7 @@ export default function ZenTaskDashboard() {
       {/* Charts Section */}
       {stats.pending + stats.inprogress + stats.completed + stats.review >
         0 && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           {/* Pie Chart - Giữ lại */}
           <Card>
             <CardHeader>
@@ -470,12 +470,12 @@ export default function ZenTaskDashboard() {
               {tasks.slice(0, 5).map((task) => (
                 <div
                   key={task.id}
-                  className="flex items-center justify-between p-3 border border-border rounded-xs hover:bg-accent/50 cursor-pointer"
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 border border-border rounded-xs hover:bg-accent/50 cursor-pointer gap-2"
                   onClick={() => setViewingTask(task)}
                 >
                   <div className="flex items-center gap-3">
                     <div
-                      className={`w-3 h-3 rounded-full ${
+                      className={`w-3 h-3 rounded-full shrink-0 ${
                         task.status === "completed"
                           ? "bg-green-500"
                           : task.status === "inprogress"
@@ -483,10 +483,12 @@ export default function ZenTaskDashboard() {
                           : "bg-orange-500"
                       }`}
                     />
-                    <span className="font-medium">{task.title}</span>
+                    <span className="font-medium wrap-break-word">
+                      {task.title}
+                    </span>
                     {task.category && (
                       <span
-                        className="px-2 py-1 text-xs rounded-full"
+                        className="px-2 py-1 text-xs rounded-full shrink-0"
                         style={{
                           backgroundColor: task.category.color + "20",
                           color: task.category.color,
@@ -496,7 +498,7 @@ export default function ZenTaskDashboard() {
                       </span>
                     )}
                   </div>
-                  <span className="text-sm text-muted-foreground">
+                  <span className="text-sm text-muted-foreground self-start sm:self-center">
                     {new Date(task.created_at).toLocaleDateString()}
                   </span>
                 </div>

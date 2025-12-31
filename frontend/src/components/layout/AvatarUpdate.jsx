@@ -100,7 +100,7 @@ const AvatarUpdate = ({ onClose }) => {
   };
 
   return (
-    <div className="p-4 space-y-4 bg-white dark:bg-gray-800">
+    <div className=" space-y-4 bg-white dark:bg-gray-800">
       {/* Current Avatar Display */}
       <div className="flex items-center justify-center">
         <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-border">
