@@ -1,138 +1,335 @@
-# Zen Task - Ứng dụng Quản lý Công việc
+<div align="center">
 
-## Mục tiêu Dự án
+# 🚀 ZenTask - Nền tảng Quản lý Công việc Hiện đại
 
-Zen Task là một ứng dụng quản lý công việc toàn diện được thiết kế để giúp cá nhân và nhóm làm việc hiệu quả hơn. Dự án nhằm cung cấp một nền tảng đơn giản, trực quan để tổ chức, theo dõi và hoàn thành các nhiệm vụ hàng ngày, với khả năng hợp tác nhóm và tích hợp các tính năng thông minh như nhắc nhở tự động.
+[![React](https://img.shields.io/badge/React-18.2.0-61DAFB?style=for-the-badge&logo=react)](https://reactjs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-18.x-339933?style=for-the-badge&logo=node.js)](https://nodejs.org/)
+[![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql)](https://mysql.com/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.3.0-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 
-## Chức năng Chính
+_🏆 Ứng dụng quản lý công việc toàn diện với giao diện đẹp, tính năng mạnh mẽ và trải nghiệm người dùng tuyệt vời_
 
-### Quản lý Người dùng
+[📖 Giới thiệu](#-giới-thiệu) • [✨ Tính năng](#-tính-năng) • [🛠️ Công nghệ](#-công-nghệ) • [🚀 Cài đặt](#-cài-đặt) • [📱 Demo](#-demo) • [🤝 Đóng góp](#-đóng-góp)
 
-- Đăng ký và đăng nhập tài khoản
-- Quên mật khẩu và đặt lại mật khẩu
-- Xác thực JWT cho bảo mật
+---
 
-### Không gian Làm việc (Workspaces)
+</div>
 
-- Tạo và quản lý các không gian làm việc riêng biệt
-- Mời thành viên tham gia workspace
-- Phân quyền truy cập cho các thành viên
+## 🌟 Giới thiệu
 
-### Danh mục (Categories)
+**ZenTask** là một nền tảng quản lý công việc hiện đại được thiết kế để tối ưu hóa năng suất cá nhân và hợp tác nhóm. Với giao diện trực quan, tính năng thông minh và khả năng mở rộng cao, ZenTask giúp bạn:
 
-- Tổ chức công việc theo danh mục
-- Tạo, chỉnh sửa và xóa danh mục
-- Phân loại nhiệm vụ theo chủ đề
+- ✅ **Tổ chức công việc hiệu quả** với bảng Kanban và danh mục thông minh
+- 👥 **Hợp tác nhóm mượt mà** với workspaces và phân quyền chi tiết
+- 📊 **Theo dõi tiến độ** với dashboard thống kê và báo cáo chi tiết
+- 🔔 **Nhắc nhở thông minh** với hệ thống thông báo tự động
+- 📱 **Trải nghiệm đa nền tảng** với thiết kế responsive hoàn hảo
 
-### Quản lý Nhiệm vụ (Tasks)
+<div align="center">
+  <img src="https://via.placeholder.com/800x400/4F46E5/FFFFFF?text=ZenTask+Dashboard" alt="ZenTask Dashboard" width="80%">
+</div>
 
-- Tạo nhiệm vụ mới với tiêu đề, mô tả, ngày đến hạn
-- Phân loại ưu tiên (thấp, trung bình, cao)
-- Gán nhiệm vụ cho thành viên trong workspace
-- Theo dõi trạng thái nhiệm vụ (todo, in progress, done)
+## ✨ Tính năng
 
-### Nhiệm vụ Con (Sub-tasks)
+### 👤 Quản lý Người dùng
 
-- Chia nhỏ nhiệm vụ lớn thành các bước nhỏ hơn
-- Theo dõi tiến độ từng sub-task
+- 🔐 **Xác thực bảo mật** với JWT và mã hóa Bcrypt
+- 📧 **Khôi phục mật khẩu** qua email
+- 👤 **Quản lý hồ sơ** với avatar và thông tin cá nhân
+- 🌙 **Chế độ tối/sáng** tùy chỉnh
 
-### Bảng Kanban
+### 🏢 Workspaces & Hợp tác
 
-- Hiển thị nhiệm vụ theo dạng bảng kéo thả
-- Các cột: To Do, In Progress, Done
-- Dễ dàng di chuyển nhiệm vụ giữa các trạng thái
+- 🏗️ **Tạo workspace** riêng biệt cho từng dự án
+- 👥 **Mời thành viên** với hệ thống phân quyền linh hoạt
+- 👑 **Owner/Admin/Member** roles với quyền hạn rõ ràng
+- 📨 **Thông báo mời tham gia** tự động
 
-### Bình luận và Thảo luận
+### 📋 Quản lý Nhiệm vụ
 
-- Thêm bình luận cho từng nhiệm vụ
-- Thảo luận nhóm về chi tiết nhiệm vụ
+- 📝 **Tạo task chi tiết** với mô tả, deadline, ưu tiên
+- 🏷️ **Danh mục thông minh** để tổ chức công việc
+- 👤 **Gán nhiệm vụ** cho thành viên cụ thể
+- 📊 **Theo dõi trạng thái** với workflow hoàn chỉnh
 
-### Nhắc nhở Tự động
+### 📊 Bảng Kanban
 
-- Gửi email nhắc nhở khi nhiệm vụ sắp đến hạn
-- Cấu hình thời gian nhắc nhở
+- 🎯 **Drag & Drop** trực quan để di chuyển task
+- 📈 **3 cột chính**: To Do → In Progress → Done
+- 🎨 **Giao diện đẹp** với animations mượt mà
+- 📱 **Responsive** trên mọi thiết bị
 
-### Giao diện Người dùng
+### 💬 Bình luận & Thảo luận
 
-- Thiết kế responsive, thân thiện với mobile
-- Chế độ sáng/tối
-- Dashboard với thống kê tổng quan
-- Tìm kiếm và lọc nhiệm vụ
+- 💭 **Bình luận task** với avatar và tên người dùng
+- 📝 **Hỗ trợ Markdown** cho nội dung phong phú
+- 🔔 **Thông báo real-time** cho mentions
+- 📚 **Lịch sử thảo luận** đầy đủ
 
-### API RESTful
+### 📎 File đính kèm
 
-- Backend cung cấp API đầy đủ cho tất cả chức năng
-- Tích hợp với frontend React
-- Sử dụng MySQL làm cơ sở dữ liệu
+- 📎 **Upload nhiều loại file** (ảnh, PDF, tài liệu)
+- 💾 **Lưu trữ đám mây** an toàn
+- 👁️ **Xem trước file** trực tiếp
+- 🔒 **Phân quyền truy cập** theo workspace
 
-## Công nghệ Sử dụng
+### 📊 Thống kê & Báo cáo
 
-### Backend
+- 📈 **Dashboard tổng quan** với biểu đồ đẹp
+- 📊 **Thống kê chi tiết** theo workspace/task
+- 📅 **Lịch sử hoạt động** đầy đủ
+- 📋 **Xuất báo cáo** định dạng PDF
 
-- Node.js với Express.js
-- MySQL cho cơ sở dữ liệu
-- JWT cho xác thực
-- Nodemailer cho gửi email
-- Cron jobs cho nhắc nhở
+### 🔔 Hệ thống Thông báo
 
-### Frontend
+- 📬 **Thông báo real-time** cho tất cả hoạt động
+- 📧 **Email reminders** tự động
+- 🔔 **Push notifications** trong app
+- ⚙️ **Tùy chỉnh thông báo** theo sở thích
 
-- React với Vite
-- Tailwind CSS cho styling
-- React Router cho điều hướng
-- Axios cho API calls
-- Context API cho quản lý trạng thái
+## 🛠️ Công nghệ
 
-## Cài đặt và Chạy Dự án
+### 🎨 Frontend
 
-### Yêu cầu Hệ thống
-
-- Node.js (phiên bản 16+)
-- MySQL
-- npm hoặc yarn
-
-### Cài đặt Backend
-
-```bash
-cd backend
-npm install
-# Cấu hình biến môi trường trong .env
-npm run dev
+```javascript
+React 18.2.0          // UI Framework
+Vite 4.3.0           // Build Tool
+Tailwind CSS 3.3.0   // Styling
+React Router 6.8.0   // Navigation
+Axios 1.3.0          // HTTP Client
+Lucide React 0.216.0 // Icons
+Sonner 0.3.0         // Toast Notifications
 ```
 
-### Cài đặt Frontend
+### ⚙️ Backend
 
-```bash
-cd frontend
-npm install
-npm run dev
+```javascript
+Node.js 18.x         // Runtime
+Express.js 4.18.0   // Web Framework
+MySQL 8.0           // Database
+Sequelize 6.31.0    // ORM
+JWT 9.0.0          // Authentication
+bcrypt 5.1.0       // Password Hashing
+Nodemailer 6.9.0   // Email Service
+Node-cron 3.0.2    // Scheduled Tasks
 ```
 
-### Cấu hình Cơ sở Dữ liệu
+### 🗄️ Cơ sở dữ liệu
 
-- Tạo database MySQL
-- Chạy các migration scripts (nếu có)
-- Cập nhật thông tin kết nối trong backend/src/config/db.js
+```sql
+Users           // Quản lý tài khoản
+Workspaces      // Không gian làm việc
+WorkspaceMembers // Thành viên workspace
+Tasks           // Nhiệm vụ chính
+SubTasks        // Nhiệm vụ con
+Categories      // Danh mục công việc
+Comments        // Bình luận
+Attachments     // File đính kèm
+Notifications   // Thông báo hệ thống
+ActivityLogs    // Nhật ký hoạt động
+```
 
-## Sử dụng
+## 🚀 Cài đặt
 
-1. Đăng ký tài khoản mới hoặc đăng nhập
-2. Tạo workspace mới hoặc tham gia workspace hiện có
-3. Tạo danh mục để tổ chức công việc
-4. Thêm nhiệm vụ với chi tiết và ngày đến hạn
-5. Sử dụng bảng Kanban để theo dõi tiến độ
-6. Thêm bình luận và hợp tác với đồng đội
+### 📋 Yêu cầu hệ thống
 
-## Đóng góp
+- **Node.js** >= 16.0.0
+- **MySQL** >= 8.0
+- **npm** hoặc **yarn**
+- **Git**
 
-Chúng tôi hoan nghênh mọi đóng góp! Vui lòng:
+### ⚡ Cài đặt nhanh
 
-1. Fork dự án
-2. Tạo branch cho tính năng mới
-3. Commit thay đổi
-4. Push lên branch
-5. Tạo Pull Request
+1. **Clone repository**
 
-## Liên hệ
+   ```bash
+   git clone https://github.com/NgoXCuong/zentask-todo-app.git
+   cd zentask-todo-app
+   ```
 
-Nếu có câu hỏi hoặc cần hỗ trợ, vui lòng tạo issue trên GitHub hoặc liên hệ qua email cá nhân: ngocuongcm2005@gmail.com.
+2. **Cài đặt dependencies**
+
+   ```bash
+   # Backend
+   cd backend
+   npm install
+
+   # Frontend
+   cd ../frontend
+   npm install
+   ```
+
+3. **Cấu hình môi trường**
+
+   ```bash
+   # Backend
+   cp .env.example .env
+   # Chỉnh sửa .env với thông tin database và email
+
+   # Frontend
+   cp .env.example .env
+   # Cấu hình API endpoint
+   ```
+
+4. **Cài đặt database**
+
+   ```bash
+   # Tạo database MySQL
+   mysql -u root -p
+   CREATE DATABASE zentask_db;
+   EXIT;
+
+   # Chạy migration (nếu có)
+   cd backend
+   npm run migrate
+   ```
+
+5. **Chạy ứng dụng**
+
+   ```bash
+   # Terminal 1: Backend
+   cd backend
+   npm run dev
+
+   # Terminal 2: Frontend
+   cd frontend
+   npm run dev
+   ```
+
+6. **Truy cập**
+   - 🌐 **Frontend**: http://localhost:5173
+   - 🚀 **Backend API**: http://localhost:3000
+
+### 🔧 Cấu hình chi tiết
+
+#### Database Configuration
+
+```env
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=zentask_db
+DB_USER=your_username
+DB_PASSWORD=your_password
+```
+
+#### Email Configuration (cho notifications)
+
+```env
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASS=your_app_password
+```
+
+#### JWT Configuration
+
+```env
+JWT_SECRET=your_super_secret_jwt_key
+JWT_REFRESH_SECRET=your_refresh_secret_key
+```
+
+## 📱 Demo
+
+<div align="center">
+
+### 🖥️ Giao diện Desktop
+
+<img src="https://via.placeholder.com/600x400/4F46E5/FFFFFF?text=Desktop+View" alt="Desktop View" width="70%">
+
+### 📱 Giao diện Mobile
+
+<img src="https://via.placeholder.com/300x500/4F46E5/FFFFFF?text=Mobile+View" alt="Mobile View" width="30%">
+
+### 📊 Dashboard
+
+<img src="https://via.placeholder.com/600x300/10B981/FFFFFF?text=Dashboard+Stats" alt="Dashboard" width="70%">
+
+</div>
+
+## 📁 Cấu trúc dự án
+
+```
+zentask-todo-app/
+├── backend/                    # API Server
+│   ├── src/
+│   │   ├── controllers/       # Business Logic
+│   │   ├── models/           # Database Models
+│   │   ├── routes/           # API Routes
+│   │   ├── middleware/       # Custom Middleware
+│   │   ├── utils/            # Utilities
+│   │   ├── config/           # Configuration
+│   │   └── app.js            # Express App
+│   ├── uploads/              # File Uploads
+│   └── package.json
+├── frontend/                  # React App
+│   ├── src/
+│   │   ├── components/       # Reusable Components
+│   │   ├── pages/           # Page Components
+│   │   ├── context/         # React Context
+│   │   ├── services/        # API Services
+│   │   └── lib/             # Utilities
+│   ├── public/              # Static Assets
+│   └── package.json
+├── docs/                     # Documentation
+├── .gitignore
+├── README.md
+└── docker-compose.yml        # Docker setup (optional)
+```
+
+## 🤝 Đóng góp
+
+Chúng tôi rất trân trọng sự đóng góp của cộng đồng! 🎉
+
+### 📝 Quy trình đóng góp
+
+1. **Fork** dự án
+2. **Tạo feature branch**: `git checkout -b feature/AmazingFeature`
+3. **Commit changes**: `git commit -m 'Add some AmazingFeature'`
+4. **Push to branch**: `git push origin feature/AmazingFeature`
+5. **Tạo Pull Request**
+
+### 🐛 Báo cáo Issues
+
+- Sử dụng issue templates có sẵn
+- Mô tả chi tiết vấn đề gặp phải
+- Đính kèm screenshots nếu có thể
+- Gợi ý giải pháp nếu biết
+
+### 📋 Coding Standards
+
+- Sử dụng **ESLint** và **Prettier** cho code formatting
+- Viết **commit messages** rõ ràng theo conventional commits
+- Thêm **tests** cho tính năng mới
+- Cập nhật **documentation** khi cần thiết
+
+## 📄 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+## 👨‍💻 Tác giả
+
+**Ngô Xuân Cường** - _Full-stack Developer_
+
+- 📧 Email: ngocuongcm2005@gmail.com
+- 🔗 LinkedIn: [Your LinkedIn](https://linkedin.com/in/yourprofile)
+- 🐙 GitHub: [@NgoXCuong](https://github.com/NgoXCuong)
+
+## 🙏 Lời cảm ơn
+
+- 🎨 **Icons**: [Lucide React](https://lucide.dev/)
+- 🎯 **UI Components**: [shadcn/ui](https://ui.shadcn.com/)
+- 📊 **Charts**: [Recharts](https://recharts.org/)
+- 🎭 **Animations**: [Framer Motion](https://www.framer.com/motion/)
+
+---
+
+<div align="center">
+
+**Made with ❤️ by [Ngô Xuân Cường](https://github.com/NgoXCuong)**
+
+⭐ **Nếu project này hữu ích, hãy cho chúng tôi một ngôi sao!**
+
+[⬆️ Về đầu trang](#-zentask---nền-tảng-quản-lý-công-việc-hiện-đại)
+
+</div>
