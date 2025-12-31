@@ -114,7 +114,7 @@ const NotificationList = ({ onInvitationAccepted }) => {
   }
 
   return (
-    <Card className="max-w-2xl mx-auto">
+    <Card className="max-w-3xl mx-auto">
       {/* Header */}
       <CardHeader>
         <div className="flex items-center justify-between">
@@ -131,7 +131,7 @@ const NotificationList = ({ onInvitationAccepted }) => {
               onClick={handleMarkAllAsRead}
               variant="ghost"
               size="sm"
-              className="text-blue-600 hover:bg-blue-50"
+              className="text-primary hover:bg-accent"
             >
               <CheckCheck className="w-4 h-4 mr-2" />
               Đánh dấu tất cả đã đọc
@@ -144,7 +144,7 @@ const NotificationList = ({ onInvitationAccepted }) => {
       <CardContent className="p-0">
         <div className="max-h-96 overflow-y-auto">
           {notifications.length === 0 && !loading ? (
-            <div className="p-8 text-center text-muted-foreground">
+            <div className="p-4 text-center text-muted-foreground">
               <Bell className="w-12 h-12 mx-auto mb-4 text-muted-foreground/50" />
               <p>Không có thông báo nào</p>
             </div>
@@ -167,7 +167,7 @@ const NotificationList = ({ onInvitationAccepted }) => {
                     onClick={handleLoadMore}
                     disabled={loading}
                     variant="ghost"
-                    className="text-blue-600 hover:bg-blue-50"
+                    className="text-primary hover:bg-accent"
                   >
                     {loading ? (
                       <>

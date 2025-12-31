@@ -2,6 +2,8 @@ import { FileText, Image, File, Download, Trash2, Loader2 } from "lucide-react";
 import { attachmentsAPI } from "../../services/api";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Button } from "../ui/button";
+import { Card, CardContent } from "../ui/card";
 
 const AttachmentItem = ({
   attachment,
@@ -40,11 +42,11 @@ const AttachmentItem = ({
 
   const getFileIcon = (fileType) => {
     if (fileType?.startsWith("image/")) {
-      return <Image className="w-5 h-5 text-green-500" />;
+      return <Image className="w-5 h-5 text-green-600" />;
     } else if (fileType?.includes("pdf")) {
-      return <FileText className="w-5 h-5 text-red-500" />;
+      return <FileText className="w-5 h-5 text-red-600" />;
     } else {
-      return <File className="w-5 h-5 text-blue-500" />;
+      return <File className="w-5 h-5 text-blue-600" />;
     }
   };
 
@@ -66,53 +68,60 @@ const AttachmentItem = ({
   };
 
   return (
-    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-      <div className="flex items-center space-x-3 flex-1 min-w-0">
-        {getFileIcon(attachment.file_type)}
+    <Card>
+      <CardContent className="p-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3 flex-1 min-w-0">
+            {getFileIcon(attachment.file_type)}
 
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-gray-900 truncate">
-            {attachment.file_name}
-          </p>
-          <div className="flex items-center space-x-2 text-xs text-gray-500">
-            <span>{formatFileSize(attachment.file_size)}</span>
-            <span>•</span>
-            <span>{formatDate(attachment.created_at)}</span>
-            {attachment.User && (
-              <>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-card-foreground truncate">
+                {attachment.file_name}
+              </p>
+              <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                <span>{formatFileSize(attachment.file_size)}</span>
                 <span>•</span>
-                <span>{attachment.User.full_name}</span>
-              </>
+                <span>{formatDate(attachment.created_at)}</span>
+                {attachment.User && (
+                  <>
+                    <span>•</span>
+                    <span>{attachment.User.full_name}</span>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleDownload}
+              title="Tải xuống"
+            >
+              <Download className="w-4 h-4" />
+            </Button>
+
+            {canDelete && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="text-destructive hover:bg-destructive/10"
+                title="Xóa file"
+              >
+                {isDeleting ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Trash2 className="w-4 h-4" />
+                )}
+              </Button>
             )}
           </div>
         </div>
-      </div>
-
-      <div className="flex items-center space-x-2">
-        <button
-          onClick={handleDownload}
-          className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors"
-          title="Tải xuống"
-        >
-          <Download className="w-4 h-4" />
-        </button>
-
-        {canDelete && (
-          <button
-            onClick={handleDelete}
-            disabled={isDeleting}
-            className="p-1 text-red-600 hover:bg-red-100 rounded transition-colors disabled:opacity-50"
-            title="Xóa file"
-          >
-            {isDeleting ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Trash2 className="w-4 h-4" />
-            )}
-          </button>
-        )}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

@@ -164,8 +164,8 @@ const NotificationItem = ({
     <div
       className={`${
         compact ? "p-3" : "p-4"
-      } border-b border-gray-200 hover:bg-gray-50 transition-colors ${
-        !notification.is_read ? "bg-blue-50 border-l-4 border-l-blue-500" : ""
+      } border-b border-border hover:bg-accent transition-colors ${
+        !notification.is_read ? "bg-accent/50 border-l-4 border-l-primary" : ""
       }`}
     >
       <div
@@ -176,7 +176,7 @@ const NotificationItem = ({
         <div className="flex-1 min-w-0">
           <p
             className={`${compact ? "text-xs" : "text-sm"} leading-tight ${
-              !notification.is_read ? "font-medium" : "text-gray-600"
+              !notification.is_read ? "font-medium" : "text-muted-foreground"
             }`}
           >
             {compact && notification.message.length > 80
@@ -185,12 +185,12 @@ const NotificationItem = ({
           </p>
 
           {notification.sender && !compact && (
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               Từ: {notification.sender.full_name}
             </p>
           )}
 
-          <p className="text-xs text-gray-400 mt-1">
+          <p className="text-xs text-muted-foreground/70 mt-1">
             {formatDate(notification.created_at)}
           </p>
         </div>
@@ -233,7 +233,7 @@ const NotificationItem = ({
                 disabled={isLoading}
                 size={compact ? "sm" : "default"}
                 variant="ghost"
-                className="text-blue-600 hover:bg-blue-100"
+                className="text-primary hover:bg-accent"
                 title="Đánh dấu đã đọc"
               >
                 <Check className={`${compact ? "w-3 h-3" : "w-4 h-4"}`} />
@@ -245,7 +245,7 @@ const NotificationItem = ({
             disabled={isLoading}
             size={compact ? "sm" : "default"}
             variant="ghost"
-            className="text-red-600 hover:bg-red-100"
+            className="text-destructive hover:bg-destructive/10"
             title="Xóa thông báo"
           >
             <X className={`${compact ? "w-3 h-3" : "w-4 h-4"}`} />

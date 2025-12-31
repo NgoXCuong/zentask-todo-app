@@ -265,10 +265,11 @@ const addWorkspaceMember = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const userId = req.user.id;
   const { email, role = "member" } = req.body;
+  const workspaceId = parseInt(id);
 
   // Check if user is owner or admin
   const workspace = await db.Workspace.findOne({
-    where: { id },
+    where: { id: workspaceId },
     include: [
       {
         model: db.WorkspaceMember,
@@ -297,7 +298,7 @@ const addWorkspaceMember = asyncHandler(async (req, res) => {
 
   // Check if already a member
   const existingMember = await db.WorkspaceMember.findOne({
-    where: { workspace_id: id, user_id: userToAdd.id },
+    where: { workspace_id: workspaceId, user_id: userToAdd.id },
   });
 
   if (existingMember) {
@@ -331,7 +332,7 @@ const addWorkspaceMember = asyncHandler(async (req, res) => {
   }
 
   const member = await db.WorkspaceMember.create({
-    workspace_id: id,
+    workspace_id: workspaceId,
     user_id: userToAdd.id,
     role,
     status: "invited", // Explicitly set status to invited
@@ -342,7 +343,7 @@ const addWorkspaceMember = asyncHandler(async (req, res) => {
     recipient_id: userToAdd.id,
     sender_id: userId, // The person who sent the invitation
     type: "workspace_invite",
-    reference_id: id, // Workspace ID
+    reference_id: workspaceId, // Workspace ID
     reference_type: "workspace",
     message: `Bạn đã được mời tham gia workspace "${workspace.name}" với vai trò ${role}`,
     is_read: false,
@@ -363,10 +364,12 @@ const updateWorkspaceMember = asyncHandler(async (req, res) => {
   const { id, memberId } = req.params;
   const userId = req.user.id;
   const { role } = req.body;
+  const workspaceId = parseInt(id);
+  const targetUserId = parseInt(memberId);
 
   // Check if user is owner or admin
   const workspace = await db.Workspace.findOne({
-    where: { id },
+    where: { id: workspaceId },
     include: [
       {
         model: db.WorkspaceMember,
@@ -383,7 +386,7 @@ const updateWorkspaceMember = asyncHandler(async (req, res) => {
   }
 
   const member = await db.WorkspaceMember.findOne({
-    where: { id: memberId, workspace_id: id },
+    where: { user_id: targetUserId, workspace_id: workspaceId },
   });
 
   if (!member) {
@@ -401,7 +404,8 @@ const updateWorkspaceMember = asyncHandler(async (req, res) => {
   await member.save();
 
   // Fetch with user info
-  const updatedMember = await db.WorkspaceMember.findByPk(member.id, {
+  const updatedMember = await db.WorkspaceMember.findOne({
+    where: { user_id: targetUserId, workspace_id: workspaceId },
     include: [{ model: db.User, attributes: ["id", "full_name", "email"] }],
   });
 
@@ -415,9 +419,17 @@ const removeWorkspaceMember = asyncHandler(async (req, res) => {
   const { id, memberId } = req.params;
   const userId = req.user.id;
 
+  const workspaceId = parseInt(id);
+
+  if (isNaN(workspaceId)) {
+    return res.status(400).json({
+      message: "ID workspace không hợp lệ",
+    });
+  }
+
   // Check if user is owner or admin
   const workspace = await db.Workspace.findOne({
-    where: { id },
+    where: { id: workspaceId },
     include: [
       {
         model: db.WorkspaceMember,
@@ -433,8 +445,17 @@ const removeWorkspaceMember = asyncHandler(async (req, res) => {
     });
   }
 
+  // Find member by user_id and workspace_id (composite primary key)
+  const targetUserId = parseInt(memberId);
+
+  if (isNaN(targetUserId)) {
+    return res.status(400).json({
+      message: "ID thành viên không hợp lệ",
+    });
+  }
+
   const member = await db.WorkspaceMember.findOne({
-    where: { id: memberId, workspace_id: id },
+    where: { user_id: targetUserId, workspace_id: workspaceId },
   });
 
   if (!member) {
@@ -444,6 +465,11 @@ const removeWorkspaceMember = asyncHandler(async (req, res) => {
   // Cannot remove owner
   if (member.role === "owner") {
     return res.status(400).json({ message: "Không thể xóa owner" });
+  }
+
+  // Cannot remove yourself if you're not owner
+  if (member.user_id === userId) {
+    return res.status(400).json({ message: "Bạn không thể tự xóa chính mình" });
   }
 
   await member.destroy();
@@ -482,13 +508,20 @@ const acceptWorkspaceInvitation = asyncHandler(async (req, res) => {
     // Create notification for the workspace owner/admin who sent the invitation
     const workspace = await db.Workspace.findByPk(parseInt(id));
     if (workspace) {
+      // Get the accepting user's full name
+      const acceptingUser = await db.User.findByPk(userId, {
+        attributes: ["full_name"],
+      });
+
       await db.Notification.create({
         recipient_id: workspace.owner_id,
         sender_id: userId,
         type: "workspace_invite",
         reference_id: parseInt(id),
         reference_type: "workspace",
-        message: `${req.user.full_name} đã chấp nhận lời mời tham gia workspace "${workspace.name}"`,
+        message: `${
+          acceptingUser?.full_name || req.user.full_name || "Người dùng"
+        } đã chấp nhận lời mời tham gia workspace "${workspace.name}"`,
         is_read: false,
       });
     }

@@ -39,13 +39,8 @@ Thumbs.db
 *.sln
 *.sw?
 
-# Database (optional)
-# Nếu bạn KHÔNG muốn push file sql → để lại dòng sau
 *.sql
-# Nếu bạn muốn push schema DB → dùng dòng này thay thế
-# !schema.sql
 
-# Misc
 *.pid
 *.seed
 coverage/

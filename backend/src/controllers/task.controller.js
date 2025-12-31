@@ -310,7 +310,7 @@ const createTask = asyncHandler(async (req, res) => {
     const workspaceMembers = await db.WorkspaceMember.findAll({
       where: {
         workspace_id: finalWorkspaceId,
-        user_id: { [db.Sequelize.Op.ne]: userId },
+        user_id: { [Op.ne]: userId },
       },
       include: [{ model: db.User, attributes: ["id"] }],
     });
@@ -475,7 +475,7 @@ const updateTask = asyncHandler(async (req, res) => {
       const workspaceMembers = await db.WorkspaceMember.findAll({
         where: {
           workspace_id: task.workspace_id,
-          user_id: { [db.Sequelize.Op.ne]: userId },
+          user_id: { [Op.ne]: userId },
         },
       });
 

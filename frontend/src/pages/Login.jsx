@@ -211,12 +211,18 @@ export default function ZenTaskLogin() {
               </form>
             </Form>
 
+            <div className="flex items-center my-6">
+              <div className="flex-1 h-px bg-border"></div>
+              <span className="px-4 text-muted-foreground">hoặc</span>
+              <div className="flex-1 h-px bg-border"></div>
+            </div>
+
             {/* Google OAuth Button */}
             <div className="mt-6">
               <Button
                 type="button"
                 variant="outline"
-                className="w-full flex items-center justify-center gap-3 py-3 border-2 hover:bg-gray-50 dark:hover:bg-gray-800"
+                className="w-full flex items-center justify-center gap-3 py-3 border-2 bg-red-200 hover:bg-red-300 hover:scale-105"
                 onClick={() => {
                   const url = `${API_BASE}/users/auth/google`;
                   console.log("Redirecting to Google OAuth:", url);
@@ -228,13 +234,7 @@ export default function ZenTaskLogin() {
               </Button>
             </div>
 
-            <div className="flex items-center my-6">
-              <div className="flex-1 h-px bg-border"></div>
-              <span className="px-4 text-muted-foreground">hoặc</span>
-              <div className="flex-1 h-px bg-border"></div>
-            </div>
-
-            <p className="mt-2 text-center text-sm text-muted-foreground">
+            <p className="mt-6 text-center text-sm text-muted-foreground">
               Chưa có tài khoản?{" "}
               <Link
                 to="/register"

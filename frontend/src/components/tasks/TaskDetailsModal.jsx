@@ -182,7 +182,7 @@ export default function TaskDetailsModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-100 pointer-events-none">
-      <div className="bg-card rounded-xl shadow-xl border border-border max-w-4xl w-full max-h-[90vh] overflow-y-auto pointer-events-auto">
+      <div className="bg-card rounded-xs shadow-xl border border-border max-w-7xl w-full max-h-[90vh] overflow-y-auto pointer-events-auto">
         <div className="p-6">
           <div className="flex justify-between items-start mb-6">
             <h2 className="text-2xl font-bold text-card-foreground">
@@ -424,7 +424,7 @@ export default function TaskDetailsModal({
 
             <div className="space-y-4">
               {comments.map((comment) => (
-                <div key={comment.id} className="p-3 bg-accent/30 rounded-lg">
+                <div key={comment.id} className="p-3 bg-accent/30 rounded-xs">
                   {editingComment === comment.id ? (
                     <div className="space-y-2">
                       <Textarea
@@ -452,14 +452,39 @@ export default function TaskDetailsModal({
                     </div>
                   ) : (
                     <>
-                      <p className="text-sm text-card-foreground">
-                        {comment.content}
-                      </p>
-                      <div className="flex items-center justify-between mt-2">
-                        <span className="text-xs text-muted-foreground">
-                          {new Date(comment.created_at).toLocaleString()}
-                        </span>
-                        <div className="flex gap-1">
+                      <div className="flex items-start gap-3">
+                        {/* Avatar */}
+                        <div className="shrink-0">
+                          {comment.User?.avatar_url ? (
+                            <img
+                              src={`http://localhost:3000${comment.User.avatar_url}`}
+                              alt={comment.User.full_name}
+                              className="w-8 h-8 rounded-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                              <User className="w-4 h-4 text-primary" />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Comment content */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-sm font-medium text-card-foreground">
+                              {comment.User?.full_name || "Người dùng"}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {new Date(comment.created_at).toLocaleString()}
+                            </span>
+                          </div>
+                          <p className="text-sm text-card-foreground whitespace-pre-wrap">
+                            {comment.content}
+                          </p>
+                        </div>
+
+                        {/* Action buttons */}
+                        <div className="flex gap-1 shrink-0">
                           <Button
                             size="sm"
                             variant="ghost"
@@ -494,8 +519,8 @@ export default function TaskDetailsModal({
                 className="flex-1"
               />
               <Button onClick={addComment} disabled={loading}>
-                <Plus className="w-4 h-4 mr-1" />
-                Thêm
+                <MessageCircle className="w-4 h-4 mr-1" />
+                Gửi
               </Button>
             </div>
           </div>

@@ -75,7 +75,11 @@ class UserController {
         .status(401)
         .json({ message: "Tài khoản hoặc mật khẩu không chính xác" });
 
-    const payload = { id: findUser.id, email: findUser.email };
+    const payload = {
+      id: findUser.id,
+      email: findUser.email,
+      full_name: findUser.full_name,
+    };
     const accessToken = createAccessToken(payload);
     const refreshToken = createRefreshToken(payload);
 
@@ -339,7 +343,11 @@ class UserController {
         .json({ message: "Token đã bị thu hồi hoặc không tồn tại" });
     }
 
-    const payload = { id: user.id, email: user.email };
+    const payload = {
+      id: user.id,
+      email: user.email,
+      full_name: user.full_name,
+    };
     const newAccessToken = createAccessToken(payload);
     const newRefreshToken = createRefreshToken(payload);
 

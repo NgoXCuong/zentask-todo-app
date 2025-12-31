@@ -108,11 +108,12 @@ export default function ActivityLogs() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="space-y-2">
-              <Label className="text-sm font-medium flex items-center gap-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div className="flex items-center gap-3">
+              <Label className="text-sm font-medium flex items-center gap-2 min-w-fit whitespace-nowrap">
                 <Building className="w-4 h-4" />
-                Workspace
+                <span className="hidden sm:inline">Workspace</span>
+                <span className="sm:hidden">WS</span>
               </Label>
               <Select
                 value={getDisplayValue("workspace_id")}
@@ -123,7 +124,7 @@ export default function ActivityLogs() {
                   )
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="flex-1">
                   <SelectValue placeholder="Tất cả workspaces" />
                 </SelectTrigger>
                 <SelectContent>
@@ -140,23 +141,26 @@ export default function ActivityLogs() {
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label className="text-sm font-medium flex items-center gap-2">
+            <div className="flex items-center gap-3">
+              <Label className="text-sm font-medium flex items-center gap-2 min-w-fit whitespace-nowrap">
                 <FileText className="w-4 h-4" />
-                Task ID
+                <span className="hidden sm:inline">Task ID</span>
+                <span className="sm:hidden">ID</span>
               </Label>
               <Input
                 type="text"
                 value={filters.task_id}
                 onChange={(e) => handleFilterChange("task_id", e.target.value)}
                 placeholder="Nhập Task ID"
+                className="flex-1"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label className="text-sm font-medium flex items-center gap-2">
+            <div className="flex items-center gap-3 md:col-span-2 xl:col-span-1">
+              <Label className="text-sm font-medium flex items-center gap-2 min-w-fit whitespace-nowrap">
                 <Activity className="w-4 h-4" />
-                Hành động
+                <span className="hidden sm:inline">Hành động</span>
+                <span className="sm:hidden">Action</span>
               </Label>
               <Select
                 value={filters.action || "all"}
@@ -164,7 +168,7 @@ export default function ActivityLogs() {
                   handleFilterChange("action", value === "all" ? "" : value)
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="flex-1">
                   <SelectValue placeholder="Tất cả hành động" />
                 </SelectTrigger>
                 <SelectContent>

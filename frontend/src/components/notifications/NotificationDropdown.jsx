@@ -138,7 +138,7 @@ const NotificationDropdown = () => {
         <Card className="border-0 shadow-none">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center">
                 <CardTitle className="text-base flex items-center gap-2">
                   <Bell className="w-4 h-4" />
                   Thông báo

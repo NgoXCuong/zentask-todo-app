@@ -297,6 +297,33 @@ export default function Workspaces() {
     setLoading(false);
   };
 
+  const removeMember = async (workspaceId, memberId, memberName) => {
+    if (!confirm(`Bạn chắc chắn muốn xóa ${memberName} khỏi workspace này?`))
+      return;
+
+    setLoading(true);
+    const { ok } = await workspacesAPI.removeMember(workspaceId, memberId);
+    if (ok) {
+      toast.success(`Đã xóa ${memberName} khỏi workspace!`);
+      loadWorkspaces();
+    } else {
+      toast.error("Xóa thành viên thất bại!");
+    }
+    setLoading(false);
+  };
+
+  const isUserOwnerOrAdmin = (workspace) => {
+    if (workspace.owner_id === user?.id) return true;
+
+    const userMember = workspace.WorkspaceMembers?.find(
+      (member) => member.user_id === user?.id && member.status === "active"
+    );
+
+    return (
+      userMember && (userMember.role === "admin" || userMember.role === "owner")
+    );
+  };
+
   return (
     <Layout>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
@@ -510,12 +537,32 @@ export default function Workspaces() {
                               className="flex items-center gap-2 text-sm"
                             >
                               {getRoleIcon(member.role)}
-                              <span className="truncate">
+                              <span className="truncate flex-1">
                                 {member.User?.full_name || "Unknown"}
                               </span>
                               <span className="text-xs text-muted-foreground shrink-0">
                                 ({getRoleLabel(member.role)})
                               </span>
+                              {isUserOwnerOrAdmin(workspace) &&
+                                member.role !== "owner" && (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() =>
+                                      removeMember(
+                                        workspace.id,
+                                        member.user_id || member.User?.id,
+                                        member.User?.full_name || "Unknown"
+                                      )
+                                    }
+                                    className="h-6 w-6 p-0 text-destructive hover:bg-destructive/10 shrink-0"
+                                    title={`Xóa ${
+                                      member.User?.full_name || "Unknown"
+                                    }`}
+                                  >
+                                    <Trash2 className="w-3 h-3" />
+                                  </Button>
+                                )}
                             </div>
                           ))}
                         {workspace.WorkspaceMembers.filter(
