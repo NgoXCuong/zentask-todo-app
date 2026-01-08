@@ -36,7 +36,11 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
           let user = await User.findOne({ where: { google_id: profile.id } });
 
           if (user) {
-            // User exists, return user
+            // User exists, update avatar with latest Google avatar if available
+            if (profile.photos && profile.photos.length > 0) {
+              user.avatar_url = profile.photos[0].value;
+              await user.save();
+            }
             return done(null, user);
           }
 
@@ -49,12 +53,8 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
             // User exists with same email, link Google account
             user.google_id = profile.id;
             user.provider = "google";
-            // Update avatar if not set
-            if (
-              !user.avatar_url &&
-              profile.photos &&
-              profile.photos.length > 0
-            ) {
+            // Always update avatar with Google avatar if available
+            if (profile.photos && profile.photos.length > 0) {
               user.avatar_url = profile.photos[0].value;
             }
             await user.save();

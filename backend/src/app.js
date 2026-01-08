@@ -50,7 +50,8 @@ app.use("/uploads", express.static("uploads"));
 async function startServer() {
   try {
     console.log("Đang đồng bộ hóa cơ sở dữ liệu...");
-    await sequelize.sync({ alter: true }); // Tắt auto-sync
+    await sequelize.sync({ force: false });
+
     console.log("Cơ sở dữ liệu đã được đồng bộ hóa thành công.");
 
     app.use("/api", apiLimiter);

@@ -49,7 +49,7 @@ import {
 import { useAuth } from "../context/AuthContext";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import TaskList from "../components/tasks/TaskList";
+import WorkspaceTaskList from "../components/tasks/WorkspaceTaskList";
 import TaskDetailsModal from "../components/tasks/TaskDetailsModal";
 import AddTaskForm from "../components/tasks/AddTaskForm";
 
@@ -71,19 +71,10 @@ export default function Workspaces() {
   const [tasksWorkspace, setTasksWorkspace] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [tasksLoading, setTasksLoading] = useState(false);
-  const [filter, setFilter] = useState("");
-  const [keyword, setKeyword] = useState("");
-  const [sortBy, setSortBy] = useState("created_at");
-  const [order, setOrder] = useState("DESC");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [priority, setPriority] = useState("");
-  const [categoryId, setCategoryId] = useState("");
   const [showAddTaskForm, setShowAddTaskForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [editTask, setEditTask] = useState({ title: "", status: "" });
   const [viewingTask, setViewingTask] = useState(null);
-  const [viewMode, setViewMode] = useState("list"); // "list" or "kanban"
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
@@ -218,14 +209,6 @@ export default function Workspaces() {
       const tasksRes = await tasksAPI.getAll({
         page,
         limit,
-        status: filter,
-        keyword,
-        sort_by: sortBy,
-        order,
-        start_date: startDate,
-        end_date: endDate,
-        priority,
-        category_id: categoryId,
         workspace_id: workspaceId,
       });
 
@@ -244,17 +227,7 @@ export default function Workspaces() {
     if (tasksWorkspace) {
       loadTasks(tasksWorkspace.id);
     }
-  }, [
-    page,
-    filter,
-    keyword,
-    sortBy,
-    order,
-    startDate,
-    endDate,
-    priority,
-    categoryId,
-  ]);
+  }, [page]);
 
   const showMsg = (text, isError = false) => {
     if (isError) {
@@ -457,23 +430,31 @@ export default function Workspaces() {
 
         {/* Tasks Modal */}
         <Dialog open={showTasksModal} onOpenChange={setShowTasksModal}>
-          <DialogContent className="w-[95vw] sm:w-[85vw] lg:w-1/2 max-w-none h-[80vh] sm:h-[70vh] overflow-y-auto">
+          <DialogContent className="max-w-7xl h-[80vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-lg sm:text-xl">
-                Tasks trong {tasksWorkspace?.name}
-              </DialogTitle>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <DialogTitle className="text-lg sm:text-xl">
+                    Tasks trong {tasksWorkspace?.name}
+                  </DialogTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Danh sách các công việc thuộc workspace này
+                  </p>
+                </div>
+                <Button onClick={() => setShowAddTaskForm(true)} size="sm">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Thêm Task
+                </Button>
+              </div>
             </DialogHeader>
             <div className="space-y-4">
-              <TaskList
+              <WorkspaceTaskList
                 tasks={tasks}
                 loading={tasksLoading}
-                editingId={editingId}
-                setEditingId={setEditingId}
-                editTask={editTask}
-                setEditTask={setEditTask}
-                loadData={() => tasksWorkspace && loadTasks(tasksWorkspace.id)}
-                showMsg={showMsg}
-                setViewingTask={setViewingTask}
+                onViewTask={setViewingTask}
+                onEditTask={startEdit}
+                onDeleteTask={deleteTask}
+                onAddTask={() => setShowAddTaskForm(true)}
               />
             </div>
           </DialogContent>
@@ -735,6 +716,7 @@ export default function Workspaces() {
         setShowAddForm={setShowAddTaskForm}
         loadData={() => tasksWorkspace && loadTasks(tasksWorkspace.id)}
         showMsg={showMsg}
+        defaultWorkspaceId={tasksWorkspace?.id}
       />
     </Layout>
   );

@@ -30,6 +30,7 @@ export default function AddTaskForm({
   setShowAddForm,
   loadData,
   showMsg,
+  defaultWorkspaceId,
 }) {
   const [newTask, setNewTask] = useState({
     title: "",
@@ -79,6 +80,16 @@ export default function AddTaskForm({
       loadWorkspaces();
     }
   }, [showAddForm]);
+
+  // Set default workspace when form opens
+  useEffect(() => {
+    if (showAddForm && defaultWorkspaceId) {
+      setNewTask((prev) => ({
+        ...prev,
+        workspace_id: defaultWorkspaceId.toString(),
+      }));
+    }
+  }, [showAddForm, defaultWorkspaceId]);
 
   const createTask = async () => {
     if (!newTask.title.trim()) {

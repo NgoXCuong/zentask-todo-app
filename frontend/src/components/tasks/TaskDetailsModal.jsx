@@ -28,6 +28,7 @@ export default function TaskDetailsModal({
   startEdit,
   deleteTask,
 }) {
+  const [task, setTask] = useState(null);
   const [comments, setComments] = useState([]);
   const [subTasks, setSubTasks] = useState([]);
   const [newComment, setNewComment] = useState("");
@@ -40,10 +41,25 @@ export default function TaskDetailsModal({
 
   useEffect(() => {
     if (viewingTask) {
+      loadTaskDetails();
       loadComments();
       loadSubTasks();
     }
   }, [viewingTask]);
+
+  const loadTaskDetails = async () => {
+    if (!viewingTask) return;
+    try {
+      const { data, ok } = await tasksAPI.getById(viewingTask.id);
+      if (ok && data) {
+        setTask(data);
+      } else {
+        setTask(viewingTask); // Fallback to passed task if API fails
+      }
+    } catch (error) {
+      setTask(viewingTask); // Fallback to passed task
+    }
+  };
 
   const loadComments = async () => {
     if (!viewingTask) return;
@@ -280,7 +296,11 @@ export default function TaskDetailsModal({
                       Danh mục
                     </Label>
                     <p className="text-card-foreground mt-1">
-                      {viewingTask.category?.name || "Không có danh mục"}
+                      {task?.Category?.name ||
+                        task?.category?.name ||
+                        viewingTask?.Category?.name ||
+                        viewingTask?.category?.name ||
+                        "Không có danh mục"}
                     </p>
                   </div>
                 </div>

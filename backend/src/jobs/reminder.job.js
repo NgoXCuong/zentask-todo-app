@@ -75,8 +75,6 @@ const createTaskDeadlineNotifications = async (tasks) => {
 
 const startReminderJob = () => {
   cron.schedule("0 * * * *", async () => {
-    console.log("Đang quét các công việc sắp hết hạn");
-
     try {
       const now = new Date();
       const next24Hours = new Date(now.getTime() + 24 * 60 * 60 * 1000);
@@ -101,8 +99,6 @@ const startReminderJob = () => {
       });
 
       if (tasks.length === 0) return;
-      console.log(`Tìm thấy ${tasks.length} công việc sắp hết hạn`);
-
       // Create notifications for all relevant users
       await createTaskDeadlineNotifications(tasks);
 
