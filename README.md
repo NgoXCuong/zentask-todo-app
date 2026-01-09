@@ -12,8 +12,7 @@
 
 _🏆 Ứng dụng quản lý công việc toàn diện với giao diện đẹp, tính năng mạnh mẽ và trải nghiệm người dùng tuyệt vời_
 
-[📖 Giới thiệu](#-giới-thiệu) • [✨ Tính năng](#-tính-năng) • [🛠️ Công nghệ](#-công-nghệ) • [🚀 Cài đặt](#-cài-đặt) • [📱 Demo](#-demo) • [🤝 Đóng góp](#-đóng-góp)
-
+[📖 Giới thiệu](#-giới-thiệu) • [✨ Tính năng](#-tính-năng) • [🛠️ Công nghệ](#-công-nghệ) • [🚀 Cài đặt](#-cài-đặt)
 ---
 
 </div>
@@ -240,13 +239,6 @@ JWT_REFRESH_SECRET=your_refresh_secret_key
 - 📧 Email: ngocuongcm2005@gmail.com
 - 🔗 LinkedIn: [Your LinkedIn](https://linkedin.com/in/yourprofile)
 - 🐙 GitHub: [@NgoXCuong](https://github.com/NgoXCuong)
-
-## 🙏 Lời cảm ơn
-
-- 🎨 **Icons**: [Lucide React](https://lucide.dev/)
-- 🎯 **UI Components**: [shadcn/ui](https://ui.shadcn.com/)
-- 📊 **Charts**: [Recharts](https://recharts.org/)
-- 🎭 **Animations**: [Framer Motion](https://www.framer.com/motion/)
 
 ---
 
