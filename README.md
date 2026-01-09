@@ -28,10 +28,6 @@ _🏆 Ứng dụng quản lý công việc toàn diện với giao diện đẹp
 - 🔔 **Nhắc nhở thông minh** với hệ thống thông báo tự động
 - 📱 **Trải nghiệm đa nền tảng** với thiết kế responsive hoàn hảo
 
-<div align="center">
-  <img src="https://via.placeholder.com/800x400/4F46E5/FFFFFF?text=ZenTask+Dashboard" alt="ZenTask Dashboard" width="80%">
-</div>
-
 ## ✨ Tính năng
 
 ### 👤 Quản lý Người dùng
@@ -237,87 +233,9 @@ JWT_SECRET=your_super_secret_jwt_key
 JWT_REFRESH_SECRET=your_refresh_secret_key
 ```
 
-## 📱 Demo
-
-<div align="center">
-
-### 🖥️ Giao diện Desktop
-
-<img src="https://via.placeholder.com/600x400/4F46E5/FFFFFF?text=Desktop+View" alt="Desktop View" width="70%">
-
-### 📱 Giao diện Mobile
-
-<img src="https://via.placeholder.com/300x500/4F46E5/FFFFFF?text=Mobile+View" alt="Mobile View" width="30%">
-
-### 📊 Dashboard
-
-<img src="https://via.placeholder.com/600x300/10B981/FFFFFF?text=Dashboard+Stats" alt="Dashboard" width="70%">
-
-</div>
-
-## 📁 Cấu trúc dự án
-
-```
-zentask-todo-app/
-├── backend/                    # API Server
-│   ├── src/
-│   │   ├── controllers/       # Business Logic
-│   │   ├── models/           # Database Models
-│   │   ├── routes/           # API Routes
-│   │   ├── middleware/       # Custom Middleware
-│   │   ├── utils/            # Utilities
-│   │   ├── config/           # Configuration
-│   │   └── app.js            # Express App
-│   ├── uploads/              # File Uploads
-│   └── package.json
-├── frontend/                  # React App
-│   ├── src/
-│   │   ├── components/       # Reusable Components
-│   │   ├── pages/           # Page Components
-│   │   ├── context/         # React Context
-│   │   ├── services/        # API Services
-│   │   └── lib/             # Utilities
-│   ├── public/              # Static Assets
-│   └── package.json
-├── docs/                     # Documentation
-├── .gitignore
-├── README.md
-└── docker-compose.yml        # Docker setup (optional)
-```
-
-## 🤝 Đóng góp
-
-Chúng tôi rất trân trọng sự đóng góp của cộng đồng! 🎉
-
-### 📝 Quy trình đóng góp
-
-1. **Fork** dự án
-2. **Tạo feature branch**: `git checkout -b feature/AmazingFeature`
-3. **Commit changes**: `git commit -m 'Add some AmazingFeature'`
-4. **Push to branch**: `git push origin feature/AmazingFeature`
-5. **Tạo Pull Request**
-
-### 🐛 Báo cáo Issues
-
-- Sử dụng issue templates có sẵn
-- Mô tả chi tiết vấn đề gặp phải
-- Đính kèm screenshots nếu có thể
-- Gợi ý giải pháp nếu biết
-
-### 📋 Coding Standards
-
-- Sử dụng **ESLint** và **Prettier** cho code formatting
-- Viết **commit messages** rõ ràng theo conventional commits
-- Thêm **tests** cho tính năng mới
-- Cập nhật **documentation** khi cần thiết
-
-## 📄 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
 ## 👨‍💻 Tác giả
 
-**Ngô Xuân Cường** - _Full-stack Developer_
+**Ngô Xuân Cường** - _My goal is to become a backend programmer._
 
 - 📧 Email: ngocuongcm2005@gmail.com
 - 🔗 LinkedIn: [Your LinkedIn](https://linkedin.com/in/yourprofile)
