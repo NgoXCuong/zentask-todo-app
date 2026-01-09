@@ -4,8 +4,10 @@
 
 [![React](https://img.shields.io/badge/React-18.2.0-61DAFB?style=for-the-badge&logo=react)](https://reactjs.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-18.x-339933?style=for-the-badge&logo=node.js)](https://nodejs.org/)
+[![Express.js](https://img.shields.io/badge/Express.js-5.1.0-000000?style=for-the-badge&logo=express)](https://expressjs.com/)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql)](https://mysql.com/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.3.0-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
+[![Sequelize](https://img.shields.io/badge/Sequelize-6.37.7-52B0E7?style=for-the-badge&logo=sequelize)](https://sequelize.org/)
+[![JWT](https://img.shields.io/badge/JWT-9.0.2-000000?style=for-the-badge&logo=json-web-tokens)](https://jwt.io/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 
 _🏆 Ứng dụng quản lý công việc toàn diện với giao diện đẹp, tính năng mạnh mẽ và trải nghiệm người dùng tuyệt vời_
@@ -93,26 +95,32 @@ _🏆 Ứng dụng quản lý công việc toàn diện với giao diện đẹp
 ### 🎨 Frontend
 
 ```javascript
-React 18.2.0          // UI Framework
-Vite 4.3.0           // Build Tool
-Tailwind CSS 3.3.0   // Styling
-React Router 6.8.0   // Navigation
-Axios 1.3.0          // HTTP Client
-Lucide React 0.216.0 // Icons
-Sonner 0.3.0         // Toast Notifications
+React 18.2.0              // UI Framework
+Vite 4.3.0               // Build Tool & Dev Server
+Tailwind CSS 3.3.0       // Utility-first CSS
+React Router DOM 6.8.0   // Client-side Routing
+Axios 1.3.0              // HTTP Client
+Lucide React 0.216.0     // Beautiful Icons
+Sonner 0.3.0             // Toast Notifications
+React DnD 16.0.1         // Drag & Drop
+Date-fns 2.30.0          // Date Utilities
 ```
 
 ### ⚙️ Backend
 
 ```javascript
-Node.js 18.x         // Runtime
-Express.js 4.18.0   // Web Framework
-MySQL 8.0           // Database
-Sequelize 6.31.0    // ORM
-JWT 9.0.0          // Authentication
-bcrypt 5.1.0       // Password Hashing
-Nodemailer 6.9.0   // Email Service
-Node-cron 3.0.2    // Scheduled Tasks
+Node.js 18.x             // Runtime Environment
+Express.js 5.1.0        // Web Framework
+MySQL2 3.15.3           // MySQL Client
+Sequelize 6.37.7        // ORM & Database Toolkit
+JWT 9.0.2              // JSON Web Tokens
+bcrypt 6.0.0           // Password Hashing
+Nodemailer 7.0.10      // Email Service
+Node-cron 4.2.1        // Task Scheduling
+Passport.js 0.7.0      // Authentication Middleware
+Multer 2.0.2           // File Upload Handling
+CORS 2.8.5             // Cross-origin Resource Sharing
+Helmet 7.1.0           // Security Headers
 ```
 
 ### 🗄️ Cơ sở dữ liệu
@@ -175,14 +183,13 @@ ActivityLogs    // Nhật ký hoạt động
 4. **Cài đặt database**
 
    ```bash
-   # Tạo database MySQL
-   mysql -u root -p
-   CREATE DATABASE zentask_db;
-   EXIT;
+   # Tạo database MySQL và chạy schema
+   mysql -u root -p < backend/newdb.sql
 
-   # Chạy migration (nếu có)
-   cd backend
-   npm run migrate
+   # Hoặc tạo database thủ công:
+   mysql -u root -p
+   CREATE DATABASE zentask;
+   EXIT;
    ```
 
 5. **Chạy ứng dụng**
@@ -207,10 +214,11 @@ ActivityLogs    // Nhật ký hoạt động
 
 ```env
 DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=
+DB_NAME=zentask
 DB_PORT=3306
-DB_NAME=zentask_db
-DB_USER=your_username
-DB_PASSWORD=your_password
+DB_DIALECT=mysql
 ```
 
 #### Email Configuration (cho notifications)

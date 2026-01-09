@@ -81,7 +81,7 @@ const startReminderJob = () => {
 
       const tasks = await db.Task.findAll({
         where: {
-          status: { [Op.ne]: "completed" },
+          status: { [Op.notIn]: ["completed", "canceled"] },
           due_date: { [Op.between]: [now, next24Hours] },
         },
         include: [

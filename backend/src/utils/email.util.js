@@ -9,13 +9,13 @@ const sendEmail = async (optional) => {
     port: 465,
     secure: true,
     auth: {
-      user: process.env.EMAIL_USERNAME,
-      pass: process.env.EMAIL_PASSWORD,
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
     },
   });
 
   const mailOptions = {
-    from: "Zen Task Support<" + process.env.EMAIL_USERNAME + ">",
+    from: "Zen Task Support<" + process.env.EMAIL_USER + ">",
     to: optional.email,
     subject: optional.subject,
     text: optional.message,
